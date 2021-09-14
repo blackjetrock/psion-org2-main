@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
-Sheet 1 8
+Sheet 1 6
 Title "RP2040 Minimal Design Example"
 Date "2020-12-18"
 Rev "REV1"
@@ -264,68 +264,62 @@ Text Notes 9300 1800 0    50   ~ 0
 Make sure C10 is close to pin 44 of RP2040
 Text Notes 4950 1750 0    50   ~ 0
 Make sure C8 is close to pin 45 of RP2040
-$Sheet
-S 11900 -1725 1975 800 
-U 6104FF77
-F0 "Sheet6104FF76" 50
-F1 "picopak_orig.sch" 50
-$EndSheet
-Text GLabel 6025 10750 0    50   Input ~ 0
+Text GLabel 4075 10450 0    50   Input ~ 0
 SD1
-Text GLabel 6025 10650 0    50   Input ~ 0
+Text GLabel 4075 10350 0    50   Input ~ 0
 SD3
-Text GLabel 6025 10550 0    50   Input ~ 0
+Text GLabel 4075 10250 0    50   Input ~ 0
 SD5
-Text GLabel 6025 10450 0    50   Input ~ 0
+Text GLabel 4075 10150 0    50   Input ~ 0
 SD7
-Text GLabel 6025 10350 0    50   Input ~ 0
+Text GLabel 4075 10050 0    50   Input ~ 0
 SMR
-Text GLabel 6025 10250 0    50   Input ~ 0
+Text GLabel 4075 9950 0    50   Input ~ 0
 SOE
 Wire Wire Line
-	5525 10150 6025 10150
-Text GLabel 6525 10150 2    50   Input ~ 0
+	3575 9850 4075 9850
+Text GLabel 4575 9850 2    50   Input ~ 0
 SPGM
-Text GLabel 6525 10250 2    50   Input ~ 0
+Text GLabel 4575 9950 2    50   Input ~ 0
 SS
-Text GLabel 6525 10350 2    50   Input ~ 0
+Text GLabel 4575 10050 2    50   Input ~ 0
 SCLK
-Text GLabel 6525 10750 2    50   Input ~ 0
+Text GLabel 4575 10450 2    50   Input ~ 0
 SD0
-Text GLabel 6525 10450 2    50   Input ~ 0
+Text GLabel 4575 10150 2    50   Input ~ 0
 SD6
-Text GLabel 6525 10550 2    50   Input ~ 0
+Text GLabel 4575 10250 2    50   Input ~ 0
 SD4
-Text GLabel 6525 10650 2    50   Input ~ 0
+Text GLabel 4575 10350 2    50   Input ~ 0
 SD2
 $Comp
 L power:GND #PWR?
 U 1 1 61058D25
-P 5525 10800
+P 3575 10500
 AR Path="/6104FF77/61058D25" Ref="#PWR?"  Part="1" 
 AR Path="/61058D25" Ref="#PWR0101"  Part="1" 
-F 0 "#PWR0101" H 5525 10550 50  0001 C CNN
-F 1 "GND" H 5525 10625 50  0000 C CNN
-F 2 "" H 5525 10800 50  0001 C CNN
-F 3 "" H 5525 10800 50  0001 C CNN
-	1    5525 10800
+F 0 "#PWR0101" H 3575 10250 50  0001 C CNN
+F 1 "GND" H 3575 10325 50  0000 C CNN
+F 2 "" H 3575 10500 50  0001 C CNN
+F 3 "" H 3575 10500 50  0001 C CNN
+	1    3575 10500
 	1    0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_02x08_Odd_Even J?
 U 1 1 6133A2AE
-P 6225 10350
+P 4275 10050
 AR Path="/6104FF77/6133A2AE" Ref="J?"  Part="1" 
 AR Path="/6133A2AE" Ref="J2"  Part="1" 
-F 0 "J2" H 6275 10867 50  0000 C CNN
-F 1 "Conn_02x08_Odd_Even" H 6275 10776 50  0000 C CNN
-F 2 "psion_org_2:Psion_datapak_2x08_P2.54mm_Horizontal" H 6225 10350 50  0001 C CNN
-F 3 "~" H 6225 10350 50  0001 C CNN
-	1    6225 10350
+F 0 "J2" H 4325 10567 50  0000 C CNN
+F 1 "Conn_02x08_Odd_Even" H 4325 10476 50  0000 C CNN
+F 2 "psion_org_2:Psion_datapak_2x08_P2.54mm_Horizontal" H 4275 10050 50  0001 C CNN
+F 3 "~" H 4275 10050 50  0001 C CNN
+	1    4275 10050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5525 10150 5525 10800
+	3575 9850 3575 10500
 $Comp
 L Connector:Conn_01x03_Female J3
 U 1 1 6133A2AF
@@ -628,27 +622,6 @@ U 61520520
 F0 "Sheet6152051F" 50
 F1 "a.sch" 50
 $EndSheet
-$Sheet
-S 600  -2525 2575 1525
-U 61535A67
-F0 "Sheet61535A66" 50
-F1 "b.sch" 50
-$EndSheet
-$Comp
-L fx502-recreate-rescue:GND-Microtan_65_CPU-cache #PWR?
-U 1 1 615452EC
-P 7725 10600
-AR Path="/6001B7D3/60296A19/615452EC" Ref="#PWR?"  Part="1" 
-AR Path="/6001B7D3/615452EC" Ref="#PWR?"  Part="1" 
-AR Path="/61535A67/615452EC" Ref="#PWR?"  Part="1" 
-AR Path="/615452EC" Ref="#PWR?"  Part="1" 
-F 0 "#PWR?" H 7725 10600 30  0001 C CNN
-F 1 "GND" H 7725 10530 30  0001 C CNN
-F 2 "" H 7725 10600 60  0000 C CNN
-F 3 "" H 7725 10600 60  0000 C CNN
-	1    7725 10600
-	1    0    0    -1  
-$EndComp
 $Comp
 L power:+3V3 #PWR?
 U 1 1 615452F2
@@ -777,21 +750,6 @@ F 3 "~" H 7875 8675 50  0001 C CNN
 	1    7875 8675
 	1    0    0    -1  
 $EndComp
-$Comp
-L fx502-recreate-rescue:DIODE-Microtan_65_CPU-cache D?
-U 1 1 61545328
-P 9075 7900
-AR Path="/6001B7D3/60296A19/61545328" Ref="D?"  Part="1" 
-AR Path="/6001B7D3/61545328" Ref="D?"  Part="1" 
-AR Path="/61545328" Ref="D?"  Part="1" 
-AR Path="/61535A67/61545328" Ref="D?"  Part="1" 
-F 0 "D?" H 9075 8092 40  0000 C CNN
-F 1 "SS36" H 9075 8016 40  0000 C CNN
-F 2 "Diode_SMD:D_SOD-123" H 9075 7900 60  0001 C CNN
-F 3 "" H 9075 7900 60  0000 C CNN
-	1    9075 7900
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	7175 9275 7175 9425
 Connection ~ 7175 9275
@@ -879,8 +837,6 @@ Wire Wire Line
 Connection ~ 9825 8675
 Wire Wire Line
 	10325 8675 10975 8675
-Text Notes 6925 10325 0    50   ~ 0
-Check transistor pinout footprint
 Text GLabel 10975 8675 2    50   Input ~ 0
 VPP
 $Comp
@@ -901,7 +857,7 @@ L Device:D D?
 U 1 1 615569F8
 P 8425 8675
 F 0 "D?" H 8425 8459 50  0000 C CNN
-F 1 "D" H 8425 8550 50  0000 C CNN
+F 1 "SS36" H 8425 8550 50  0000 C CNN
 F 2 "" H 8425 8675 50  0001 C CNN
 F 3 "~" H 8425 8675 50  0001 C CNN
 	1    8425 8675
@@ -1438,4 +1394,214 @@ F 3 "" H 3450 7575 50  0001 C CNN
 	1    3450 7575
 	1    0    0    -1  
 $EndComp
+Text GLabel 5675 3525 2    50   Input ~ 0
+OLED_RES
+Text GLabel 2750 4925 2    50   Input ~ 0
+OLED_SDA
+Text GLabel 2750 4825 2    50   Input ~ 0
+OLED_SCL
+Text GLabel 9950 -1175 2    50   Input ~ 0
+MISO
+Text GLabel 9950 -1775 2    50   Input ~ 0
+MOSI
+$Comp
+L Timer:MCP7940N-xSN U?
+U 1 1 61834067
+P 12025 -2325
+AR Path="/61520520/61834067" Ref="U?"  Part="1" 
+AR Path="/61834067" Ref="U?"  Part="1" 
+F 0 "U?" H 12025 -2814 50  0000 C CNN
+F 1 "MCP7940N-xSN" H 12025 -2905 50  0000 C CNN
+F 2 "Package_SO:SO-8_3.9x4.9mm_P1.27mm" H 12025 -2325 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20005010F.pdf" H 12025 -2325 50  0001 C CNN
+	1    12025 -2325
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR?
+U 1 1 6183406D
+P 12025 -3325
+AR Path="/61520520/6183406D" Ref="#PWR?"  Part="1" 
+AR Path="/6183406D" Ref="#PWR?"  Part="1" 
+F 0 "#PWR?" H 12025 -3475 50  0001 C CNN
+F 1 "+3V3" H 12040 -3152 50  0000 C CNN
+F 2 "" H 12025 -3325 50  0001 C CNN
+F 3 "" H 12025 -3325 50  0001 C CNN
+	1    12025 -3325
+	1    0    0    -1  
+$EndComp
+Text GLabel 12450 -2925 2    50   Input ~ 0
+VBAT
+Wire Wire Line
+	12450 -2925 12125 -2925
+Wire Wire Line
+	12125 -2925 12125 -2725
+$Comp
+L fx502-recreate-rescue:GND-Microtan_65_CPU-cache #PWR?
+U 1 1 61834076
+P 12025 -1575
+AR Path="/61520520/61834076" Ref="#PWR?"  Part="1" 
+AR Path="/61834076" Ref="#PWR?"  Part="1" 
+F 0 "#PWR?" H 12025 -1575 30  0001 C CNN
+F 1 "GND" H 12025 -1645 30  0001 C CNN
+F 2 "" H 12025 -1575 60  0000 C CNN
+F 3 "" H 12025 -1575 60  0000 C CNN
+	1    12025 -1575
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	12025 -1575 12025 -1925
+$Comp
+L Device:R_Small R?
+U 1 1 6183407D
+P 10925 -2900
+AR Path="/61520520/6183407D" Ref="R?"  Part="1" 
+AR Path="/6183407D" Ref="R?"  Part="1" 
+F 0 "R?" H 10984 -2854 50  0000 L CNN
+F 1 "4k7" H 10984 -2945 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" H 10925 -2900 50  0001 C CNN
+F 3 "~" H 10925 -2900 50  0001 C CNN
+	1    10925 -2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R?
+U 1 1 61834083
+P 11175 -2900
+AR Path="/61520520/61834083" Ref="R?"  Part="1" 
+AR Path="/61834083" Ref="R?"  Part="1" 
+F 0 "R?" H 11234 -2854 50  0000 L CNN
+F 1 "4k7" H 11234 -2945 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" H 11175 -2900 50  0001 C CNN
+F 3 "~" H 11175 -2900 50  0001 C CNN
+	1    11175 -2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	11625 -2525 11175 -2525
+Wire Wire Line
+	11175 -2525 11175 -2800
+Wire Wire Line
+	11625 -2425 10925 -2425
+Wire Wire Line
+	10925 -2425 10925 -2800
+Wire Wire Line
+	12025 -3325 12025 -3200
+Wire Wire Line
+	12025 -3200 11175 -3200
+Wire Wire Line
+	11175 -3200 11175 -3000
+Connection ~ 12025 -3200
+Wire Wire Line
+	12025 -3200 12025 -2725
+Wire Wire Line
+	11175 -3200 10925 -3200
+Wire Wire Line
+	10925 -3200 10925 -3000
+Connection ~ 11175 -3200
+$Comp
+L Device:Crystal Y?
+U 1 1 61834095
+P 13100 -2300
+AR Path="/61520520/61834095" Ref="Y?"  Part="1" 
+AR Path="/61834095" Ref="Y?"  Part="1" 
+F 0 "Y?" V 13054 -2169 50  0000 L CNN
+F 1 "32k768Hz" V 13145 -2169 50  0000 L CNN
+F 2 "Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm" H 13100 -2300 50  0001 C CNN
+F 3 "~" H 13100 -2300 50  0001 C CNN
+	1    13100 -2300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	12425 -2425 12575 -2425
+Wire Wire Line
+	12575 -2425 12575 -2575
+Wire Wire Line
+	12575 -2575 13100 -2575
+Wire Wire Line
+	12425 -2225 12575 -2225
+Wire Wire Line
+	12575 -2225 12575 -2050
+Wire Wire Line
+	12575 -2050 13100 -2050
+Wire Wire Line
+	13100 -2050 13100 -2150
+$Comp
+L Device:C C?
+U 1 1 618340A2
+P 13100 -1900
+AR Path="/61520520/618340A2" Ref="C?"  Part="1" 
+AR Path="/618340A2" Ref="C?"  Part="1" 
+F 0 "C?" H 13215 -1854 50  0000 L CNN
+F 1 "C" H 13215 -1945 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 13138 -2050 50  0001 C CNN
+F 3 "~" H 13100 -1900 50  0001 C CNN
+	1    13100 -1900
+	1    0    0    -1  
+$EndComp
+Connection ~ 13100 -2050
+$Comp
+L Device:C C?
+U 1 1 618340A9
+P 13625 -1900
+AR Path="/61520520/618340A9" Ref="C?"  Part="1" 
+AR Path="/618340A9" Ref="C?"  Part="1" 
+F 0 "C?" H 13740 -1854 50  0000 L CNN
+F 1 "C" H 13740 -1945 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 13663 -2050 50  0001 C CNN
+F 3 "~" H 13625 -1900 50  0001 C CNN
+	1    13625 -1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13100 -2575 13100 -2450
+Wire Wire Line
+	13625 -2050 13625 -2575
+Wire Wire Line
+	13625 -2575 13100 -2575
+Connection ~ 13100 -2575
+$Comp
+L fx502-recreate-rescue:GND-Microtan_65_CPU-cache #PWR?
+U 1 1 618340B3
+P 13100 -1625
+AR Path="/61520520/618340B3" Ref="#PWR?"  Part="1" 
+AR Path="/618340B3" Ref="#PWR?"  Part="1" 
+F 0 "#PWR?" H 13100 -1625 30  0001 C CNN
+F 1 "GND" H 13100 -1695 30  0001 C CNN
+F 2 "" H 13100 -1625 60  0000 C CNN
+F 3 "" H 13100 -1625 60  0000 C CNN
+	1    13100 -1625
+	1    0    0    -1  
+$EndComp
+$Comp
+L fx502-recreate-rescue:GND-Microtan_65_CPU-cache #PWR?
+U 1 1 618340B9
+P 13625 -1625
+AR Path="/61520520/618340B9" Ref="#PWR?"  Part="1" 
+AR Path="/618340B9" Ref="#PWR?"  Part="1" 
+F 0 "#PWR?" H 13625 -1625 30  0001 C CNN
+F 1 "GND" H 13625 -1695 30  0001 C CNN
+F 2 "" H 13625 -1625 60  0000 C CNN
+F 3 "" H 13625 -1625 60  0000 C CNN
+	1    13625 -1625
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13625 -1625 13625 -1750
+Wire Wire Line
+	13100 -1625 13100 -1750
+Text GLabel 11625 -2225 0    50   Input ~ 0
+RTC_MFP
+Text GLabel 10825 -2425 0    50   Input ~ 0
+RTC_SDA
+Text GLabel 10830 -2530 0    50   Input ~ 0
+RTC_SCL
+Wire Wire Line
+	10925 -2425 10825 -2425
+Connection ~ 10925 -2425
+Wire Wire Line
+	11175 -2525 10830 -2525
+Wire Wire Line
+	10830 -2525 10830 -2530
+Connection ~ 11175 -2525
 $EndSCHEMATC
