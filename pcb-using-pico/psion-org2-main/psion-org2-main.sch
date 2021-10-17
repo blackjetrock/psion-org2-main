@@ -128,62 +128,45 @@ Connection ~ 8850 1800
 Connection ~ 9300 1800
 Wire Wire Line
 	9300 1800 9300 1850
-Text GLabel 15575 -1875 0    50   Input ~ 0
+Text GLabel 4200 8150 2    50   Input ~ 0
 SD1
-Text GLabel 15575 -1975 0    50   Input ~ 0
+Text GLabel 4200 8350 2    50   Input ~ 0
 SD3
-Text GLabel 15575 -2075 0    50   Input ~ 0
+Text GLabel 4200 8550 2    50   Input ~ 0
 SD5
-Text GLabel 15575 -2175 0    50   Input ~ 0
+Text GLabel 4200 8750 2    50   Input ~ 0
 SD7
-Text GLabel 15575 -2275 0    50   Input ~ 0
+Text GLabel 4200 9250 2    50   Input ~ 0
 SMR
-Text GLabel 15575 -2375 0    50   Input ~ 0
+Text GLabel 4200 9150 2    50   Input ~ 0
 SOE
-Wire Wire Line
-	15075 -2475 15575 -2475
-Text GLabel 16075 -2475 2    50   Input ~ 0
+Text GLabel 4200 8850 2    50   Input ~ 0
 SPGM
-Text GLabel 16075 -2375 2    50   Input ~ 0
+Text GLabel 4200 8950 2    50   Input ~ 0
 SS
-Text GLabel 16075 -2275 2    50   Input ~ 0
+Text GLabel 4200 9050 2    50   Input ~ 0
 SCLK
-Text GLabel 16075 -1875 2    50   Input ~ 0
+Text GLabel 4200 8050 2    50   Input ~ 0
 SD0
-Text GLabel 16075 -2175 2    50   Input ~ 0
+Text GLabel 4200 8650 2    50   Input ~ 0
 SD6
-Text GLabel 16075 -2075 2    50   Input ~ 0
+Text GLabel 4200 8450 2    50   Input ~ 0
 SD4
-Text GLabel 16075 -1975 2    50   Input ~ 0
+Text GLabel 4200 8250 2    50   Input ~ 0
 SD2
 $Comp
 L power:GND #PWR?
 U 1 1 61058D25
-P 15075 -1825
+P 4925 7950
 AR Path="/6104FF77/61058D25" Ref="#PWR?"  Part="1" 
 AR Path="/61058D25" Ref="#PWR025"  Part="1" 
-F 0 "#PWR025" H 15075 -2075 50  0001 C CNN
-F 1 "GND" H 15075 -2000 50  0000 C CNN
-F 2 "" H 15075 -1825 50  0001 C CNN
-F 3 "" H 15075 -1825 50  0001 C CNN
-	1    15075 -1825
+F 0 "#PWR025" H 4925 7700 50  0001 C CNN
+F 1 "GND" H 4925 7775 50  0000 C CNN
+F 2 "" H 4925 7950 50  0001 C CNN
+F 3 "" H 4925 7950 50  0001 C CNN
+	1    4925 7950
 	1    0    0    -1  
 $EndComp
-$Comp
-L Connector_Generic:Conn_02x08_Odd_Even J?
-U 1 1 6133A2AE
-P 15775 -2275
-AR Path="/6104FF77/6133A2AE" Ref="J?"  Part="1" 
-AR Path="/6133A2AE" Ref="J4"  Part="1" 
-F 0 "J4" H 15825 -1758 50  0000 C CNN
-F 1 "Conn_02x08_Odd_Even" H 15825 -1849 50  0000 C CNN
-F 2 "psion_org_2:Psion_datapak_2x08_P2.54mm_Horizontal" H 15775 -2275 50  0001 C CNN
-F 3 "~" H 15775 -2275 50  0001 C CNN
-	1    15775 -2275
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	15075 -2475 15075 -1825
 $Comp
 L Connector:Conn_01x03_Female J2
 U 1 1 6133A2AF
@@ -975,12 +958,12 @@ Wire Wire Line
 $Comp
 L power:+3V3 #PWR05
 U 1 1 61672821
-P 2125 7950
-F 0 "#PWR05" H 2125 7800 50  0001 C CNN
-F 1 "+3V3" H 2140 8123 50  0000 C CNN
-F 2 "" H 2125 7950 50  0001 C CNN
-F 3 "" H 2125 7950 50  0001 C CNN
-	1    2125 7950
+P 5000 10475
+F 0 "#PWR05" H 5000 10325 50  0001 C CNN
+F 1 "+3V3" H 5015 10648 50  0000 C CNN
+F 2 "" H 5000 10475 50  0001 C CNN
+F 3 "" H 5000 10475 50  0001 C CNN
+	1    5000 10475
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -1650,4 +1633,10 @@ F 3 "~" H 8600 4800 50  0001 C CNN
 	1    8600 4800
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	4200 7950 4925 7950
+Wire Wire Line
+	5000 10550 5000 10475
+Wire Wire Line
+	4200 10550 5000 10550
 $EndSCHEMATC

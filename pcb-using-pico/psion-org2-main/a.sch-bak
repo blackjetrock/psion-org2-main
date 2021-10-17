@@ -14,10 +14,10 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L MCU_ST_STM32F1:STM32F103RGTx U?
+L MCU_ST_STM32F1:STM32F103RGTx U9
 U 1 1 5FE59A73
 P 9250 3900
-F 0 "U?" H 7800 2450 50  0000 C CNN
+F 0 "U9" H 7800 2450 50  0000 C CNN
 F 1 "STM32F103RGTx" H 8050 2350 50  0000 C CNN
 F 2 "Package_QFP:LQFP-64_10x10mm_P0.5mm" H 8650 2200 50  0001 R CNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00253742.pdf" H 9250 3900 50  0001 C CNN
@@ -31,10 +31,10 @@ F0 "stm_support" 50
 F1 "stm_support.sch" 50
 $EndSheet
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW41
 U 1 1 5FE5B34B
 P 2400 2550
-F 0 "SW?" H 2400 2785 50  0000 C CNN
+F 0 "SW41" H 2400 2785 50  0000 C CNN
 F 1 "GSB" H 2400 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 2400 2550 50  0001 C CNN
 F 3 "" H 2400 2550 50  0001 C CNN
@@ -42,10 +42,10 @@ F 3 "" H 2400 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW42
 U 1 1 5FE6597D
 P 2400 3750
-F 0 "SW?" H 2400 3985 50  0000 C CNN
+F 0 "SW42" H 2400 3985 50  0000 C CNN
 F 1 "P1" H 2400 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 2400 3750 50  0001 C CNN
 F 3 "" H 2400 3750 50  0001 C CNN
@@ -53,10 +53,10 @@ F 3 "" H 2400 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW43
 U 1 1 5FE65983
 P 2400 4050
-F 0 "SW?" H 2400 4285 50  0000 C CNN
+F 0 "SW43" H 2400 4285 50  0000 C CNN
 F 1 "hyp" H 2400 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 2400 4050 50  0001 C CNN
 F 3 "" H 2400 4050 50  0001 C CNN
@@ -64,10 +64,10 @@ F 3 "" H 2400 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW44
 U 1 1 5FE65989
 P 2400 4350
-F 0 "SW?" H 2400 4585 50  0000 C CNN
+F 0 "SW44" H 2400 4585 50  0000 C CNN
 F 1 "C" H 2400 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 2400 4350 50  0001 C CNN
 F 3 "" H 2400 4350 50  0001 C CNN
@@ -75,10 +75,10 @@ F 3 "" H 2400 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW45
 U 1 1 5FE68FF5
 P 3150 2550
-F 0 "SW?" H 3150 2785 50  0000 C CNN
+F 0 "SW45" H 3150 2785 50  0000 C CNN
 F 1 "BST" H 3150 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 2550 50  0001 C CNN
 F 3 "" H 3150 2550 50  0001 C CNN
@@ -86,10 +86,10 @@ F 3 "" H 3150 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW46
 U 1 1 5FE68FFB
 P 3150 2850
-F 0 "SW?" H 3150 3085 50  0000 C CNN
+F 0 "SW46" H 3150 3085 50  0000 C CNN
 F 1 "X" H 3150 2994 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 2850 50  0001 C CNN
 F 3 "" H 3150 2850 50  0001 C CNN
@@ -97,10 +97,10 @@ F 3 "" H 3150 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW47
 U 1 1 5FE69001
 P 3150 3150
-F 0 "SW?" H 3150 3385 50  0000 C CNN
+F 0 "SW47" H 3150 3385 50  0000 C CNN
 F 1 "0" H 3150 3294 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 3150 50  0001 C CNN
 F 3 "" H 3150 3150 50  0001 C CNN
@@ -108,10 +108,10 @@ F 3 "" H 3150 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW48
 U 1 1 5FE69007
 P 3150 3450
-F 0 "SW?" H 3150 3685 50  0000 C CNN
+F 0 "SW48" H 3150 3685 50  0000 C CNN
 F 1 "4" H 3150 3594 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 3450 50  0001 C CNN
 F 3 "" H 3150 3450 50  0001 C CNN
@@ -119,10 +119,10 @@ F 3 "" H 3150 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW49
 U 1 1 5FE6900D
 P 3150 3750
-F 0 "SW?" H 3150 3985 50  0000 C CNN
+F 0 "SW49" H 3150 3985 50  0000 C CNN
 F 1 "P2" H 3150 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 3750 50  0001 C CNN
 F 3 "" H 3150 3750 50  0001 C CNN
@@ -130,10 +130,10 @@ F 3 "" H 3150 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW50
 U 1 1 5FE69013
 P 3150 4050
-F 0 "SW?" H 3150 4285 50  0000 C CNN
+F 0 "SW50" H 3150 4285 50  0000 C CNN
 F 1 "CHS" H 3150 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 4050 50  0001 C CNN
 F 3 "" H 3150 4050 50  0001 C CNN
@@ -141,10 +141,10 @@ F 3 "" H 3150 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW51
 U 1 1 5FE69019
 P 3150 4350
-F 0 "SW?" H 3150 4585 50  0000 C CNN
+F 0 "SW51" H 3150 4585 50  0000 C CNN
 F 1 "xD" H 3150 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3150 4350 50  0001 C CNN
 F 3 "" H 3150 4350 50  0001 C CNN
@@ -152,10 +152,10 @@ F 3 "" H 3150 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW52
 U 1 1 5FE6C23B
 P 3850 2550
-F 0 "SW?" H 3850 2785 50  0000 C CNN
+F 0 "SW52" H 3850 2785 50  0000 C CNN
 F 1 "FST" H 3850 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 2550 50  0001 C CNN
 F 3 "" H 3850 2550 50  0001 C CNN
@@ -163,10 +163,10 @@ F 3 "" H 3850 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW53
 U 1 1 5FE6C241
 P 3850 2850
-F 0 "SW?" H 3850 3085 50  0000 C CNN
+F 0 "SW53" H 3850 3085 50  0000 C CNN
 F 1 "DIVIDE" H 3850 2994 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 2850 50  0001 C CNN
 F 3 "" H 3850 2850 50  0001 C CNN
@@ -174,10 +174,10 @@ F 3 "" H 3850 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW54
 U 1 1 5FE6C247
 P 3850 3150
-F 0 "SW?" H 3850 3385 50  0000 C CNN
+F 0 "SW54" H 3850 3385 50  0000 C CNN
 F 1 "1" H 3850 3294 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 3150 50  0001 C CNN
 F 3 "" H 3850 3150 50  0001 C CNN
@@ -185,10 +185,10 @@ F 3 "" H 3850 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW55
 U 1 1 5FE6C24D
 P 3850 3450
-F 0 "SW?" H 3850 3685 50  0000 C CNN
+F 0 "SW55" H 3850 3685 50  0000 C CNN
 F 1 "5" H 3850 3594 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 3450 50  0001 C CNN
 F 3 "" H 3850 3450 50  0001 C CNN
@@ -196,10 +196,10 @@ F 3 "" H 3850 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW56
 U 1 1 5FE6C253
 P 3850 3750
-F 0 "SW?" H 3850 3985 50  0000 C CNN
+F 0 "SW56" H 3850 3985 50  0000 C CNN
 F 1 "P3" H 3850 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 3750 50  0001 C CNN
 F 3 "" H 3850 3750 50  0001 C CNN
@@ -207,10 +207,10 @@ F 3 "" H 3850 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW57
 U 1 1 5FE6C259
 P 3850 4050
-F 0 "SW?" H 3850 4285 50  0000 C CNN
+F 0 "SW57" H 3850 4285 50  0000 C CNN
 F 1 "(" H 3850 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 4050 50  0001 C CNN
 F 3 "" H 3850 4050 50  0001 C CNN
@@ -218,10 +218,10 @@ F 3 "" H 3850 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW58
 U 1 1 5FE6C25F
 P 3850 4350
-F 0 "SW?" H 3850 4585 50  0000 C CNN
+F 0 "SW58" H 3850 4585 50  0000 C CNN
 F 1 "X<>M" H 3850 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 3850 4350 50  0001 C CNN
 F 3 "" H 3850 4350 50  0001 C CNN
@@ -229,10 +229,10 @@ F 3 "" H 3850 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW59
 U 1 1 5FE7638B
 P 4550 2550
-F 0 "SW?" H 4550 2785 50  0000 C CNN
+F 0 "SW59" H 4550 2785 50  0000 C CNN
 F 1 "ENG" H 4550 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 2550 50  0001 C CNN
 F 3 "" H 4550 2550 50  0001 C CNN
@@ -240,10 +240,10 @@ F 3 "" H 4550 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW60
 U 1 1 5FE76391
 P 4550 2850
-F 0 "SW?" H 4550 3085 50  0000 C CNN
+F 0 "SW60" H 4550 3085 50  0000 C CNN
 F 1 "+" H 4550 2994 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 2850 50  0001 C CNN
 F 3 "" H 4550 2850 50  0001 C CNN
@@ -251,10 +251,10 @@ F 3 "" H 4550 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW61
 U 1 1 5FE76397
 P 4550 3150
-F 0 "SW?" H 4550 3385 50  0000 C CNN
+F 0 "SW61" H 4550 3385 50  0000 C CNN
 F 1 "2" H 4550 3294 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 3150 50  0001 C CNN
 F 3 "" H 4550 3150 50  0001 C CNN
@@ -262,10 +262,10 @@ F 3 "" H 4550 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW62
 U 1 1 5FE7639D
 P 4550 3450
-F 0 "SW?" H 4550 3685 50  0000 C CNN
+F 0 "SW62" H 4550 3685 50  0000 C CNN
 F 1 "6" H 4550 3594 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 3450 50  0001 C CNN
 F 3 "" H 4550 3450 50  0001 C CNN
@@ -273,10 +273,10 @@ F 3 "" H 4550 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW63
 U 1 1 5FE763A3
 P 4550 3750
-F 0 "SW?" H 4550 3985 50  0000 C CNN
+F 0 "SW63" H 4550 3985 50  0000 C CNN
 F 1 "P4" H 4550 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 3750 50  0001 C CNN
 F 3 "" H 4550 3750 50  0001 C CNN
@@ -284,10 +284,10 @@ F 3 "" H 4550 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW64
 U 1 1 5FE763A9
 P 4550 4050
-F 0 "SW?" H 4550 4285 50  0000 C CNN
+F 0 "SW64" H 4550 4285 50  0000 C CNN
 F 1 ")" H 4550 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 4050 50  0001 C CNN
 F 3 "" H 4550 4050 50  0001 C CNN
@@ -295,10 +295,10 @@ F 3 "" H 4550 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW65
 U 1 1 5FE763AF
 P 4550 4350
-F 0 "SW?" H 4550 4585 50  0000 C CNN
+F 0 "SW65" H 4550 4585 50  0000 C CNN
 F 1 "Min" H 4550 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 4550 4350 50  0001 C CNN
 F 3 "" H 4550 4350 50  0001 C CNN
@@ -306,10 +306,10 @@ F 3 "" H 4550 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW66
 U 1 1 5FE763BB
 P 5300 2550
-F 0 "SW?" H 5300 2785 50  0000 C CNN
+F 0 "SW66" H 5300 2785 50  0000 C CNN
 F 1 "SEXA" H 5300 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 2550 50  0001 C CNN
 F 3 "" H 5300 2550 50  0001 C CNN
@@ -317,10 +317,10 @@ F 3 "" H 5300 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW67
 U 1 1 5FE763C1
 P 5300 2850
-F 0 "SW?" H 5300 3085 50  0000 C CNN
+F 0 "SW67" H 5300 3085 50  0000 C CNN
 F 1 "MINUS" H 5300 2994 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 2850 50  0001 C CNN
 F 3 "" H 5300 2850 50  0001 C CNN
@@ -328,10 +328,10 @@ F 3 "" H 5300 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW68
 U 1 1 5FE763C7
 P 5300 3150
-F 0 "SW?" H 5300 3385 50  0000 C CNN
+F 0 "SW68" H 5300 3385 50  0000 C CNN
 F 1 "3" H 5300 3294 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 3150 50  0001 C CNN
 F 3 "" H 5300 3150 50  0001 C CNN
@@ -339,10 +339,10 @@ F 3 "" H 5300 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW69
 U 1 1 5FE763CD
 P 5300 3450
-F 0 "SW?" H 5300 3685 50  0000 C CNN
+F 0 "SW69" H 5300 3685 50  0000 C CNN
 F 1 "7" H 5300 3594 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 3450 50  0001 C CNN
 F 3 "" H 5300 3450 50  0001 C CNN
@@ -350,10 +350,10 @@ F 3 "" H 5300 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW70
 U 1 1 5FE763D3
 P 5300 3750
-F 0 "SW?" H 5300 3985 50  0000 C CNN
+F 0 "SW70" H 5300 3985 50  0000 C CNN
 F 1 "MODE" H 5300 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 3750 50  0001 C CNN
 F 3 "" H 5300 3750 50  0001 C CNN
@@ -361,10 +361,10 @@ F 3 "" H 5300 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW71
 U 1 1 5FE763D9
 P 5300 4050
-F 0 "SW?" H 5300 4285 50  0000 C CNN
+F 0 "SW71" H 5300 4285 50  0000 C CNN
 F 1 "sin" H 5300 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 4050 50  0001 C CNN
 F 3 "" H 5300 4050 50  0001 C CNN
@@ -372,10 +372,10 @@ F 3 "" H 5300 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW72
 U 1 1 5FE763DF
 P 5300 4350
-F 0 "SW?" H 5300 4585 50  0000 C CNN
+F 0 "SW72" H 5300 4585 50  0000 C CNN
 F 1 "MR" H 5300 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 5300 4350 50  0001 C CNN
 F 3 "" H 5300 4350 50  0001 C CNN
@@ -383,10 +383,10 @@ F 3 "" H 5300 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW73
 U 1 1 5FE763EB
 P 6000 2550
-F 0 "SW?" H 6000 2785 50  0000 C CNN
+F 0 "SW73" H 6000 2785 50  0000 C CNN
 F 1 "log" H 6000 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 2550 50  0001 C CNN
 F 3 "" H 6000 2550 50  0001 C CNN
@@ -394,10 +394,10 @@ F 3 "" H 6000 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW74
 U 1 1 5FE763F1
 P 6000 2850
-F 0 "SW?" H 6000 3085 50  0000 C CNN
+F 0 "SW74" H 6000 3085 50  0000 C CNN
 F 1 "=" H 6000 2994 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 2850 50  0001 C CNN
 F 3 "" H 6000 2850 50  0001 C CNN
@@ -405,10 +405,10 @@ F 3 "" H 6000 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW75
 U 1 1 5FE763F7
 P 6000 3150
-F 0 "SW?" H 6000 3385 50  0000 C CNN
+F 0 "SW75" H 6000 3385 50  0000 C CNN
 F 1 "DOT" H 6000 3294 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 3150 50  0001 C CNN
 F 3 "" H 6000 3150 50  0001 C CNN
@@ -416,10 +416,10 @@ F 3 "" H 6000 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW76
 U 1 1 5FE763FD
 P 6000 3450
-F 0 "SW?" H 6000 3685 50  0000 C CNN
+F 0 "SW76" H 6000 3685 50  0000 C CNN
 F 1 "8" H 6000 3594 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 3450 50  0001 C CNN
 F 3 "" H 6000 3450 50  0001 C CNN
@@ -427,10 +427,10 @@ F 3 "" H 6000 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW77
 U 1 1 5FE76403
 P 6000 3750
-F 0 "SW?" H 6000 3985 50  0000 C CNN
+F 0 "SW77" H 6000 3985 50  0000 C CNN
 F 1 "HLT" H 6000 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 3750 50  0001 C CNN
 F 3 "" H 6000 3750 50  0001 C CNN
@@ -438,10 +438,10 @@ F 3 "" H 6000 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW78
 U 1 1 5FE76409
 P 6000 4050
-F 0 "SW?" H 6000 4285 50  0000 C CNN
+F 0 "SW78" H 6000 4285 50  0000 C CNN
 F 1 "cos" H 6000 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 4050 50  0001 C CNN
 F 3 "" H 6000 4050 50  0001 C CNN
@@ -449,10 +449,10 @@ F 3 "" H 6000 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW79
 U 1 1 5FE7640F
 P 6000 4350
-F 0 "SW?" H 6000 4585 50  0000 C CNN
+F 0 "SW79" H 6000 4585 50  0000 C CNN
 F 1 "M-" H 6000 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6000 4350 50  0001 C CNN
 F 3 "" H 6000 4350 50  0001 C CNN
@@ -460,10 +460,10 @@ F 3 "" H 6000 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW80
 U 1 1 5FE7A0ED
 P 6700 2550
-F 0 "SW?" H 6700 2785 50  0000 C CNN
+F 0 "SW80" H 6700 2785 50  0000 C CNN
 F 1 "ln" H 6700 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 2550 50  0001 C CNN
 F 3 "" H 6700 2550 50  0001 C CNN
@@ -471,10 +471,10 @@ F 3 "" H 6700 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW81
 U 1 1 5FE7A0F3
 P 6700 2850
-F 0 "SW?" H 6700 3085 50  0000 C CNN
+F 0 "SW81" H 6700 3085 50  0000 C CNN
 F 1 "EXE" H 6700 2994 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 2850 50  0001 C CNN
 F 3 "" H 6700 2850 50  0001 C CNN
@@ -482,10 +482,10 @@ F 3 "" H 6700 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW82
 U 1 1 5FE7A0F9
 P 6700 3150
-F 0 "SW?" H 6700 3385 50  0000 C CNN
+F 0 "SW82" H 6700 3385 50  0000 C CNN
 F 1 "EXP" H 6700 3294 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 3150 50  0001 C CNN
 F 3 "" H 6700 3150 50  0001 C CNN
@@ -493,10 +493,10 @@ F 3 "" H 6700 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW83
 U 1 1 5FE7A0FF
 P 6700 3450
-F 0 "SW?" H 6700 3685 50  0000 C CNN
+F 0 "SW83" H 6700 3685 50  0000 C CNN
 F 1 "9" H 6700 3594 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 3450 50  0001 C CNN
 F 3 "" H 6700 3450 50  0001 C CNN
@@ -504,10 +504,10 @@ F 3 "" H 6700 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW84
 U 1 1 5FE7A105
 P 6700 3750
-F 0 "SW?" H 6700 3985 50  0000 C CNN
+F 0 "SW84" H 6700 3985 50  0000 C CNN
 F 1 "LBL" H 6700 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 3750 50  0001 C CNN
 F 3 "" H 6700 3750 50  0001 C CNN
@@ -515,10 +515,10 @@ F 3 "" H 6700 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW85
 U 1 1 5FE7A10B
 P 6700 4050
-F 0 "SW?" H 6700 4285 50  0000 C CNN
+F 0 "SW85" H 6700 4285 50  0000 C CNN
 F 1 "tan" H 6700 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 4050 50  0001 C CNN
 F 3 "" H 6700 4050 50  0001 C CNN
@@ -526,10 +526,10 @@ F 3 "" H 6700 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW86
 U 1 1 5FE7A111
 P 6700 4350
-F 0 "SW?" H 6700 4585 50  0000 C CNN
+F 0 "SW86" H 6700 4585 50  0000 C CNN
 F 1 "M+" H 6700 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6700 4350 50  0001 C CNN
 F 3 "" H 6700 4350 50  0001 C CNN
@@ -3012,10 +3012,10 @@ Wire Wire Line
 	4950 1800 4950 1600
 Connection ~ 6300 2550
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW37
 U 1 1 6005CB0D
 P 1600 2550
-F 0 "SW?" H 1600 2785 50  0000 C CNN
+F 0 "SW37" H 1600 2785 50  0000 C CNN
 F 1 "GOTO" H 1600 2694 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 1600 2550 50  0001 C CNN
 F 3 "" H 1600 2550 50  0001 C CNN
@@ -3023,10 +3023,10 @@ F 3 "" H 1600 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW38
 U 1 1 6005CB25
 P 1600 3750
-F 0 "SW?" H 1600 3985 50  0000 C CNN
+F 0 "SW38" H 1600 3985 50  0000 C CNN
 F 1 "P0" H 1600 3894 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 1600 3750 50  0001 C CNN
 F 3 "" H 1600 3750 50  0001 C CNN
@@ -3034,10 +3034,10 @@ F 3 "" H 1600 3750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW39
 U 1 1 6005CB2B
 P 1600 4050
-F 0 "SW?" H 1600 4285 50  0000 C CNN
+F 0 "SW39" H 1600 4285 50  0000 C CNN
 F 1 "INV" H 1600 4194 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 1600 4050 50  0001 C CNN
 F 3 "" H 1600 4050 50  0001 C CNN
@@ -3045,10 +3045,10 @@ F 3 "" H 1600 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW?
+L mirotan-due-cassette-shield-cache:Switch_SW_SPST SW40
 U 1 1 6005CB31
 P 1600 4350
-F 0 "SW?" H 1600 4585 50  0000 C CNN
+F 0 "SW40" H 1600 4585 50  0000 C CNN
 F 1 "AC" H 1600 4494 50  0000 C CNN
 F 2 "ajm_kicad:fx502p_keypad" H 1600 4350 50  0001 C CNN
 F 3 "" H 1600 4350 50  0001 C CNN
@@ -3188,10 +3188,10 @@ Wire Wire Line
 	9450 5950 9450 5700
 Connection ~ 9350 5950
 $Comp
-L power:+3V3 #PWR?
+L power:+3V3 #PWR028
 U 1 1 600AD885
 P 9050 1800
-F 0 "#PWR?" H 9050 1650 50  0001 C CNN
+F 0 "#PWR028" H 9050 1650 50  0001 C CNN
 F 1 "+3V3" H 9065 1973 50  0000 C CNN
 F 2 "" H 9050 1800 50  0001 C CNN
 F 3 "" H 9050 1800 50  0001 C CNN
@@ -3234,10 +3234,10 @@ OSCI
 Text GLabel 7900 3700 0    50   Input ~ 0
 OSCO
 $Comp
-L Device:R_Small R?
+L Device:R_Small R18
 U 1 1 6002F506
 P 8300 3700
-F 0 "R?" V 8400 3650 50  0000 C CNN
+F 0 "R18" V 8400 3650 50  0000 C CNN
 F 1 "390R" V 8500 3700 50  0000 C CNN
 F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 8300 3700 50  0001 C CNN
 F 3 "~" H 8300 3700 50  0001 C CNN
@@ -3293,10 +3293,10 @@ F 3 "" H 2125 7325 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L power:+3V3 #PWR?
+L power:+3V3 #PWR026
 U 1 1 60304093
 P 2125 5875
-F 0 "#PWR?" H 2125 5725 50  0001 C CNN
+F 0 "#PWR026" H 2125 5725 50  0001 C CNN
 F 1 "+3V3" H 2140 6048 50  0000 C CNN
 F 2 "" H 2125 5875 50  0001 C CNN
 F 3 "" H 2125 5875 50  0001 C CNN
@@ -3332,10 +3332,10 @@ F0 "power" 50
 F1 "power.sch" 50
 $EndSheet
 $Comp
-L Timer:MCP7940N-xSN U?
+L Timer:MCP7940N-xSN U8
 U 1 1 60564BBE
 P 4725 5775
-F 0 "U?" H 4725 5286 50  0000 C CNN
+F 0 "U8" H 4725 5286 50  0000 C CNN
 F 1 "MCP7940N-xSN" H 4725 5195 50  0000 C CNN
 F 2 "Package_SO:SO-8_3.9x4.9mm_P1.27mm" H 4725 5775 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20005010F.pdf" H 4725 5775 50  0001 C CNN
@@ -3345,10 +3345,10 @@ $EndComp
 Text GLabel 9950 4100 2    50   Input ~ 0
 GPIO_USB_5V
 $Comp
-L power:+3V3 #PWR?
+L power:+3V3 #PWR027
 U 1 1 605672EA
 P 4725 4775
-F 0 "#PWR?" H 4725 4625 50  0001 C CNN
+F 0 "#PWR027" H 4725 4625 50  0001 C CNN
 F 1 "+3V3" H 4740 4948 50  0000 C CNN
 F 2 "" H 4725 4775 50  0001 C CNN
 F 3 "" H 4725 4775 50  0001 C CNN
@@ -3375,10 +3375,10 @@ $EndComp
 Wire Wire Line
 	4725 6525 4725 6175
 $Comp
-L Device:R_Small R?
+L Device:R_Small R16
 U 1 1 605ACF7F
 P 3625 5200
-F 0 "R?" H 3684 5246 50  0000 L CNN
+F 0 "R16" H 3684 5246 50  0000 L CNN
 F 1 "4k7" H 3684 5155 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric" H 3625 5200 50  0001 C CNN
 F 3 "~" H 3625 5200 50  0001 C CNN
@@ -3386,10 +3386,10 @@ F 3 "~" H 3625 5200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R_Small R?
+L Device:R_Small R17
 U 1 1 605AD605
 P 3875 5200
-F 0 "R?" H 3934 5246 50  0000 L CNN
+F 0 "R17" H 3934 5246 50  0000 L CNN
 F 1 "4k7" H 3934 5155 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric" H 3875 5200 50  0001 C CNN
 F 3 "~" H 3875 5200 50  0001 C CNN
@@ -3419,10 +3419,10 @@ Wire Wire Line
 	3625 4900 3625 5100
 Connection ~ 3875 4900
 $Comp
-L Device:Crystal Y?
+L Device:Crystal Y2
 U 1 1 606092E1
 P 5800 5800
-F 0 "Y?" V 5754 5931 50  0000 L CNN
+F 0 "Y2" V 5754 5931 50  0000 L CNN
 F 1 "32k768Hz" V 5845 5931 50  0000 L CNN
 F 2 "Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm" H 5800 5800 50  0001 C CNN
 F 3 "~" H 5800 5800 50  0001 C CNN
@@ -3444,10 +3444,10 @@ Wire Wire Line
 Wire Wire Line
 	5800 6050 5800 5950
 $Comp
-L Device:C C?
+L Device:C C15
 U 1 1 6063187D
 P 5800 6200
-F 0 "C?" H 5915 6246 50  0000 L CNN
+F 0 "C15" H 5915 6246 50  0000 L CNN
 F 1 "C" H 5915 6155 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 5838 6050 50  0001 C CNN
 F 3 "~" H 5800 6200 50  0001 C CNN
@@ -3456,10 +3456,10 @@ F 3 "~" H 5800 6200 50  0001 C CNN
 $EndComp
 Connection ~ 5800 6050
 $Comp
-L Device:C C?
+L Device:C C16
 U 1 1 606320AF
 P 6325 6200
-F 0 "C?" H 6440 6246 50  0000 L CNN
+F 0 "C16" H 6440 6246 50  0000 L CNN
 F 1 "C" H 6440 6155 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 6363 6050 50  0001 C CNN
 F 3 "~" H 6325 6200 50  0001 C CNN
