@@ -3,11 +3,8 @@
 
 // Increnment the PC
 
-#define INC_PC(PS)  PS.PC++;PS.PC &= 0xFFFF
+#define INC_PC  pstate.PC++;pstate.PC &= 0xFFFF
 
-// Dereference a byte in the memory space
-#define RD_ADDR(XXX) (romdata[(XXX-0x8000) & 0x7fff])
-#define WR_ADDR(XXX) (romdata[(XXX-0x8000) & 0x7fff])
 
 u_int8_t romdata[] = {
    // ASSEMBLER_EMBEDDED_CODE_START
@@ -2063,13 +2060,46 @@ u_int8_t romdata[] = {
 // ASSEMBLER_EMBEDDED_CODE_END
 };
 
+u_int8_t ramdata[32768];
 
-#define REG_A(PS)  (PS.A)
-#define REG_B(PS)  (PS.B)
-#define REG_D(PS)  ((REG_A(PS) << 8) & REG_B(PS) )
-#define REG_PC(PS) (PS.PC)
-#define REG_SP(PS) (PS.SP)
-#define REG_X(PS)  (PS.X)
+// Dereference a byte in the memory space
+#if 0
+#define RD_ADDR(XXX) (romdata[(XXX-0x8000) & 0x7fff])
+#define WR_ADDR(XXX, YYY) romdata[(XXX-0x8000) & 0x7fff] = YYY
+#else
+u_int8_t RD_ADDR(u_int16_t addr)
+{
+  if( addr > 0x7fff)
+    {
+      return(romdata[addr-0x8000]);
+    }
+  else
+    {
+      return(ramdata[addr]);
+    }
+}
+
+void  WR_ADDR(u_int16_t addr, u_int8_t value)
+{
+  if( addr > 0x7fff)
+    {
+      romdata[addr-0x8000] = value;
+    }
+  else
+    {
+      ramdata[addr] = value;
+    }
+}
+
+#endif
+
+
+#define REG_A  (pstate.A)
+#define REG_B  (pstate.B)
+#define REG_D  ((REG_A << 8) & REG_B )
+#define REG_PC (pstate.PC)
+#define REG_SP (pstate.SP)
+#define REG_X  (pstate.X)
 
 #define FLAG_H_MASK  0x20
 #define FLAG_I_MASK  0x10
@@ -2086,8 +2116,31 @@ u_int8_t romdata[] = {
 #define FLG_V      (PS.FLAGS & FLAG_V_MASK)
 #define FLG_C      (PS.FLAGS & FLAG_C_MASK)
 
+struct
+{
+  u_int8_t mask;
+  char name;
+}
+  flag_data[6] =
+    {
+     {FLAG_H_MASK, 'H'},
+     {FLAG_I_MASK, 'I'},
+     {FLAG_N_MASK, 'N'},
+     {FLAG_Z_MASK, 'Z'},
+     {FLAG_V_MASK, 'V'},
+     {FLAG_C_MASK, 'C'},
+    };
 
-#define REG_FLAG     (PS.FLAG)
+#define REG_FLAGS     (pstate.FLAGS)
+
+// Flag Clearing
+#define FL_V0 REG_FLAGS &= (~FLAG_V_MASK)
+
+// Flag testing
+#define FL_ZT(XXX)   if(XXX==0) {REG_FLAGS |= FLAG_Z_MASK;} else {REG_FLAGS &= ~FLAG_Z_MASK;}
+#define FL_N8T(XXX)  if(XXX & 0x0080) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
+#define FL_N16T(XXX) if(XXX & 0x8000) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
+
 
 typedef struct _PROC6303_STATE
 {
@@ -2121,14 +2174,110 @@ typedef void (*OPCODE_FN)(u_int8_t opcode, PROC6303_STATE *ps, u_int8_t p1, u_in
 
 OPCODE_FN(op_null) 
 {
+  printf("\n                     Unknown opcode:%02X", opcode);
 }
+      
 
 OPCODE_FN(op_oim)
 {
+  
   switch(opcode)
     {
     case 0x72:
+      WR_ADDR(p2, RD_ADDR(p2) | p1);
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+}
+
+ 
+OPCODE_FN(op_aim)
+{
+  
+  switch(opcode)
+    {
+    case 0x71:
+      WR_ADDR(p2, RD_ADDR(p2) & p1);
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+}
+
+OPCODE_FN(op_sta)
+{
+  u_int16_t dest = (p1 << 8) | p2;
+  
+  switch(opcode)
+    {
+    case 0xB7:
+      // STAA extended
+      WR_ADDR(dest, REG_A);
       
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+}
+
+OPCODE_FN(op_lds)
+{
+  
+  switch(opcode)
+    {
+    case 0x8E:
+      REG_SP = (p1 << 8) | p2;
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+
+  // Update flags
+  FL_V0;
+  FL_ZT(REG_SP);
+  FL_N16T(REG_SP);
+}
+
+OPCODE_FN(op_ldd)
+{
+  
+  switch(opcode)
+    {
+    case 0xCC:
+      REG_A = p1;
+      REG_B = p2;
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+}
+
+OPCODE_FN(op_jsr)
+{
+  u_int16_t dest = (p1 << 8) | p2;
+
+  // Adjust for the increment of PC that occurs automatically
+  
+  dest--;
+  
+  switch(opcode)
+    {
+    case 0xBD:
+      INC_PC;
+      INC_PC;
+      INC_PC;
+
+      WR_ADDR(REG_SP--, REG_PC >> 8);
+      WR_ADDR(REG_SP--, REG_PC & 0xFF);
+      
+      // Jump to subroutine
+      REG_PC = dest;
       break;
     }
 }
@@ -2255,7 +2404,7 @@ struct
      op_null,                 // 6E
      op_null,                 // 6F
      op_null,                 // 70
-     op_null,                 // 71
+     op_aim,                  // 71
      op_oim,                  // 72 OIM
      op_null,                 // 73
      op_null,                 // 74
@@ -2284,7 +2433,7 @@ struct
      op_null,                 // 8B
      op_null,                 // 8C
      op_null,                 // 8D
-     op_null,                 // 8E
+     op_lds,                  // 8E
      op_null,                 // 8F
      op_null,                 // 90
      op_null,                 // 91
@@ -2331,7 +2480,7 @@ struct
      op_null,                 // BA
      op_null,                 // BB
      op_null,                 // BC
-     op_null,                 // BD
+     op_jsr,                  // BD
      op_null,                 // BE
      op_null,                 // BF
      op_null,                 // C0
@@ -2346,7 +2495,7 @@ struct
      op_null,                 // C9
      op_null,                 // CA
      op_null,                 // CB
-     op_null,                 // CC
+     op_ldd,                  // CC
      op_null,                 // CD
      op_null,                 // CE
      op_null,                 // CF
@@ -2400,6 +2549,31 @@ struct
      op_null,                 // FF
     };
 
+////////////////////////////////////////////////////////////////////////////////
+
+void dump_state(void)
+{
+  printf("\n=======================================");
+  printf("\nPC:%04X", pstate.PC);
+  printf("\nSP:%04X", pstate.SP);
+  printf("\nA :%02X", pstate.A);
+  printf("\nB :%02X", pstate.B);
+  printf("\nD :%02X%02X", pstate.A, pstate.B);
+  printf("\nX :%04X", pstate.X);
+
+  char str_flags[7] = "______";
+  for(int i=0;i<6; i++)
+    {
+      if( pstate.FLAGS & flag_data[i].mask )
+	{
+	  str_flags[i] = flag_data[i].name;
+	}
+    }
+  printf("\nCC:%08X (%s)", pstate.FLAGS, str_flags);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void main(void)
 {
   printf("\n");
@@ -2409,7 +2583,7 @@ void main(void)
   // LAtch MP0,MP1
   // Set interrupt mask bit
   // Load PC from FFFE and FFFF
-  REG_PC(pstate) = (RD_ADDR(0xFFFE) << 8) | RD_ADDR(0xFFFF);
+  REG_PC = (RD_ADDR(0xFFFE) << 8) | RD_ADDR(0xFFFF);
   
   
   // Execute
@@ -2419,19 +2593,21 @@ void main(void)
       u_int8_t opcode;
       u_int8_t p1, p2;
       
-      printf("\nPC:%04X: %02X", REG_PC(pstate), RD_ADDR(REG_PC(pstate)));
+      printf("\nPC:%04X: %02X", REG_PC, RD_ADDR(REG_PC));
 
       // Fetch opcode
-      opcode = RD_ADDR(REG_PC(pstate));
-      p1 = RD_ADDR(REG_PC(pstate)+1);
-      p2 = RD_ADDR(REG_PC(pstate)+2);
+      opcode = RD_ADDR(REG_PC);
+      p1 = RD_ADDR(REG_PC+1);
+      p2 = RD_ADDR(REG_PC+2);
       
       // Call opcode function to execute it
       (*opcode_table[opcode].fn)(opcode, &pstate, p1, p2);
 
       // Skip past the opcode, longer instruction skip whatever they need t
       // in the opcode functions
-      INC_PC(pstate);
+      INC_PC;
+
+      dump_state();
     }
   
   printf("\n");
