@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Increnment the PC
+// Increment the PC
 
 #define INC_PC  pstate.PC++;pstate.PC &= 0xFFFF
 
+// Calculate relative jump signed offset
+#define CALC_REL(XX) ((int16_t)(XX<0x80?XX:(int16_t)XX-0x100))
 
 u_int8_t romdata[] = {
    // ASSEMBLER_EMBEDDED_CODE_START
@@ -2146,16 +2148,28 @@ struct
     };
 
 #define REG_FLAGS     (pstate.FLAGS)
+#define B7(XXX)  (XXX & 0x80)
+#define NB7(XXX) (!B7(XXX))
+#define B3(XXX)  (XXX & 0x04)
+#define NB3(XXX) (!B3(XXX))
 
 // Flag Clearing
 #define FL_V0        REG_FLAGS &= (~FLAG_V_MASK)
+#define FL_C0        REG_FLAGS &= (~FLAG_C_MASK)
+
 #define FL_V80(XXX)  if(XXX==0x80) {REG_FLAGS |= FLAG_V_MASK;} else {REG_FLAGS &= ~FLAG_V_MASK;}
+#define FL_V8T(RR,MM,XX)  ( (B7(XX) && NB7(MM) && NB7(RR)) || (NB7(XX) &&  B7(MM) && B7(RR)) )
+#define FL_V8TP(RR,MM,XX) ( (B7(XX) &&  B7(MM) && NB7(RR)) || (NB7(XX) && NB7(MM) && B7(RR)) )
+
+#define FL_C8T(RR,MM,XX)  ( (NB7(XX) && B7(MM)) || (B7(MM) &&  B7(RR)) || ( B7(RR) && NB7(XX)))
+#define FL_C8TP(RR,MM,XX) (  (B7(XX) && B7(MM)) || (B7(MM) && NB7(RR)) || (NB7(RR) &&  B7(XX)))
 
 // Flag testing
 #define FL_ZT(XXX)   if(XXX==0) {REG_FLAGS |= FLAG_Z_MASK;} else {REG_FLAGS &= ~FLAG_Z_MASK;}
 #define FL_N8T(XXX)  if(XXX & 0x0080) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 #define FL_N16T(XXX) if(XXX & 0x8000) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 
+#define FL_H(RR,MM,XX) ( (B3(XX) && B3(MM)) || (B3(MM) && NB3(RR)) || (NB3(RR) && B3(XX)) )
 
 typedef struct _PROC6303_STATE
 {
@@ -2189,7 +2203,8 @@ typedef void (*OPCODE_FN)(u_int8_t opcode, PROC6303_STATE *ps, u_int8_t p1, u_in
 
 OPCODE_FN(op_null) 
 {
-  printf("\n                     Unknown opcode:%02X", opcode);
+  printf("\n                     Unknown opcode:%02X\n\n", opcode);
+  exit(-1);
 }
       
 
@@ -2391,24 +2406,27 @@ OPCODE_FN(op_dec16)
 OPCODE_FN(op_br)
 {
   int branched = 0;
-  
+  int16_t rel = CALC_REL(p1);
+
   switch(opcode)
     {
     case 0x20:
-      REG_PC = 2 + p1;
+      printf("\nPC=%04X", REG_PC);
+      printf("\nrel=%d", rel);
+      REG_PC += 1 + rel;
       branched = 1;
+      printf("\nPC=%04X", REG_PC);
+      printf("\np1=%02X", p1);
       break;
 
       // Branch never?
     case 0x21:
-      INC_PC;
-      INC_PC;
       break;
 
     case 0x22:
       if( !(FLG_C || FLG_Z) )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2416,7 +2434,7 @@ OPCODE_FN(op_br)
     case 0x23:
       if( FLG_C || FLG_Z )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2424,7 +2442,7 @@ OPCODE_FN(op_br)
     case 0x24:
       if( FLG_C == 0 )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2432,7 +2450,7 @@ OPCODE_FN(op_br)
     case 0x25:
       if( FLG_C )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2440,7 +2458,7 @@ OPCODE_FN(op_br)
     case 0x26:
       if( FLG_Z )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2448,7 +2466,7 @@ OPCODE_FN(op_br)
     case 0x27:
       if( FLG_Z )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2456,7 +2474,7 @@ OPCODE_FN(op_br)
     case 0x28:
       if( !FLG_V )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2464,7 +2482,7 @@ OPCODE_FN(op_br)
     case 0x29:
       if( FLG_V )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2472,7 +2490,7 @@ OPCODE_FN(op_br)
     case 0x2A:
       if( !FLG_N )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2480,7 +2498,7 @@ OPCODE_FN(op_br)
     case 0x2B:
       if( FLG_N )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2488,7 +2506,7 @@ OPCODE_FN(op_br)
     case 0x2C:
       if( !(FLG_N || FLG_V) )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2496,7 +2514,7 @@ OPCODE_FN(op_br)
     case 0x2D:
       if( FLG_N || FLG_V )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2504,7 +2522,7 @@ OPCODE_FN(op_br)
     case 0x2E:
       if( !(FLG_Z || (FLG_N ^ FLG_V)) )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2512,7 +2530,7 @@ OPCODE_FN(op_br)
     case 0x2F:
       if( FLG_Z || (FLG_N || FLG_V) )
 	{
-	  REG_PC = 2 + p1;
+	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
@@ -2522,8 +2540,8 @@ OPCODE_FN(op_br)
     {
       INC_PC;
     }
-  
 }
+
 
 OPCODE_FN(op_dec8)
 {
@@ -2542,10 +2560,12 @@ OPCODE_FN(op_dec8)
 
     case 0x7A:
       dest = REF_ADDR(p1);
+      INC_PC;
       break;
 
     case 0x6A:
       dest = REF_ADDR(REG_X+p1);
+      INC_PC;
       break;
     }
   
@@ -2557,10 +2577,285 @@ OPCODE_FN(op_dec8)
   
 }
 
+
+OPCODE_FN(op_add)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+  
+  switch(opcode)
+    {
+    case 0x8B:
+      dest = &(REG_A);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0x9B:
+      dest = &(REG_A);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xBB:
+      dest = &(REG_A);
+      add = RD_ADDR((p1<<8)+p2);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xAB:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+
+    case 0xCB:
+      dest = &(REG_B);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0xDB:
+      dest = &(REG_B);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xFB:
+      dest = &(REG_B);
+      add = RD_ADDR((p1<<8)+p2);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xEB:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V8T(*dest,add,before);
+  (*dest) += add;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  FL_C8T(*dest,add,before);
+  FL_H(*dest,add,before);
+}
+
+OPCODE_FN(op_lda)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+  
+  switch(opcode)
+    {
+    case 0x86:
+      dest = &(REG_A);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0x96:
+      dest = &(REG_A);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xB6:
+      dest = &(REG_A);
+      add = RD_ADDR((p1<<8)+p2);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xA6:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+
+    case 0xC6:
+      dest = &(REG_B);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0xD6:
+      dest = &(REG_B);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xF6:
+      dest = &(REG_B);
+      add = RD_ADDR((p1<<8)+p2);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xE6:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V0;
+  (*dest) = add;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+}
+
+OPCODE_FN(op_sub)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+  
+  switch(opcode)
+    {
+    case 0x80:
+      dest = &(REG_A);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0x90:
+      dest = &(REG_A);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xB0:
+      dest = &(REG_A);
+      add = RD_ADDR((p1<<8)+p2);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xA0:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+
+    case 0xC0:
+      dest = &(REG_B);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0xD0:
+      dest = &(REG_B);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xF0:
+      dest = &(REG_B);
+      add = RD_ADDR((p1<<8)+p2);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xE0:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V8T(*dest,add,before);
+  (*dest) -= add;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  FL_C8T(*dest,add,before);
+  
+}
+
+OPCODE_FN(op_inc8)
+{
+  u_int8_t *dest;
+  u_int8_t before;
+  
+  switch(opcode)
+    {
+    case 0x4C:
+      dest = &(REG_A);
+      break;
+      
+    case 0x5C:
+      dest = &(REG_B);
+      break;
+
+    case 0x7C:
+      dest = REF_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0x6C:
+      dest = REF_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+  
+  // Special flag test
+  FL_V80(*dest);
+  (*dest)++;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  
+}
+
+OPCODE_FN(op_tst)
+{
+  u_int8_t *dest;
+  
+  switch(opcode)
+    {
+    case 0x4D:
+      dest = &(REG_A);
+      break;
+      
+    case 0x5D:
+      dest = &(REG_B);
+      break;
+
+    case 0x7D:
+      dest = REF_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0x6D:
+      dest = REF_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+  
+  // Special flag test
+  FL_V0;
+  FL_C0;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  
+}
+
 OPCODE_FN(op_jsr)
 {
   u_int16_t dest;
-
   
   switch(opcode)
     {
@@ -2582,7 +2877,7 @@ OPCODE_FN(op_jsr)
       break;
       
     case 0x8D:
-      dest = REG_PC + p1 + 2;
+      dest = REG_PC + CALC_REL(p1) + 2;
 
       // Adjust for the increment of PC that occurs automatically
       dest--;
@@ -2684,8 +2979,8 @@ struct
      op_null,                 // 49
      op_dec8,                 // 4A
      op_null,                 // 4B
-     op_null,                 // 4C
-     op_null,                 // 4D
+     op_inc8,                 // 4C
+     op_tst,                  // 4D
      op_null,                 // 4E
      op_null,                 // 4F
      op_null,                 // 50
@@ -2700,8 +2995,8 @@ struct
      op_null,                 // 59
      op_dec8,                 // 5A
      op_null,                 // 5B
-     op_null,                 // 5C
-     op_null,                 // 5D
+     op_inc8,                 // 5C
+     op_tst,                  // 5D
      op_null,                 // 5E
      op_null,                 // 5F
      op_null,                 // 60
@@ -2716,8 +3011,8 @@ struct
      op_null,                 // 69
      op_dec8,                 // 6A
      op_null,                 // 6B
-     op_null,                 // 6C
-     op_null,                 // 6D
+     op_inc8,                 // 6C
+     op_tst,                  // 6D
      op_null,                 // 6E
      op_null,                 // 6F
      op_null,                 // 70
@@ -2732,134 +3027,134 @@ struct
      op_null,                 // 79
      op_dec8,                 // 7A
      op_null,                 // 7B
-     op_null,                 // 7C
-     op_null,                 // 7D
+     op_inc8,                 // 7C
+     op_tst,                  // 7D
      op_null,                 // 7E
      op_null,                 // 7F
-     op_null,                 // 80
+     op_sub,                  // 80
      op_null,                 // 81
      op_null,                 // 82
      op_null,                 // 83
      op_null,                 // 84
      op_null,                 // 85
-     op_null,                 // 86
+     op_lda,                  // 86
      op_null,                 // 87
      op_null,                 // 88
      op_null,                 // 89
      op_null,                 // 8A
-     op_null,                 // 8B
+     op_add,                  // 8B
      op_null,                 // 8C
      op_jsr,                  // 8D
      op_ld16,                 // 8E
      op_null,                 // 8F
-     op_null,                 // 90
+     op_sub,                  // 90
      op_null,                 // 91
      op_null,                 // 92
      op_null,                 // 93
      op_null,                 // 94
      op_null,                 // 95
-     op_null,                 // 96
+     op_lda,                  // 96
      op_sta,                  // 97
      op_null,                 // 98
      op_null,                 // 99
      op_null,                 // 9A
-     op_null,                 // 9B
+     op_add,                  // 9B
      op_null,                 // 9C
      op_null,                 // 9D
      op_ld16,                 // 9E
      op_null,                 // 9F
-     op_null,                 // A0
+     op_sub,                  // A0
      op_null,                 // A1
      op_null,                 // A2
      op_null,                 // A3
      op_null,                 // A4
      op_null,                 // A5
-     op_null,                 // A6
+     op_lda,                  // A6
      op_sta,                  // A7
      op_null,                 // A8
      op_null,                 // A9
      op_null,                 // AA
-     op_null,                 // AB
+     op_add,                  // AB
      op_null,                 // AC
      op_null,                 // AD
      op_ld16,                 // AE
      op_null,                 // AF
-     op_null,                 // B0
+     op_sub,                  // B0
      op_null,                 // B1
      op_null,                 // B2
      op_null,                 // B3
      op_null,                 // B4
      op_null,                 // B5
-     op_null,                 // B6
+     op_lda,                  // B6
      op_sta,                  // B7
      op_null,                 // B8
      op_null,                 // B9
      op_null,                 // BA
-     op_null,                 // BB
+     op_add,                  // BB
      op_null,                 // BC
      op_jsr,                  // BD
      op_ld16,                 // BE
      op_null,                 // BF
-     op_null,                 // C0
+     op_sub,                  // C0
      op_null,                 // C1
      op_null,                 // C2
      op_null,                 // C3
      op_null,                 // C4
      op_null,                 // C5
-     op_null,                 // C6
+     op_lda,                  // C6
      op_null,                 // C7
      op_null,                 // C8
      op_null,                 // C9
      op_null,                 // CA
-     op_null,                 // CB
+     op_add,                  // CB
      op_ldd,                  // CC
      op_null,                 // CD
      op_ld16,                 // CE
      op_null,                 // CF
-     op_null,                 // D0
+     op_sub,                  // D0
      op_null,                 // D1
      op_null,                 // D2
      op_null,                 // D3
      op_null,                 // D4
      op_null,                 // D5
-     op_null,                 // D6
+     op_lda,                  // D6
      op_sta,                  // D7
      op_null,                 // D8
      op_null,                 // D9
      op_null,                 // DA
-     op_null,                 // DB
+     op_add,                  // DB
      op_null,                 // DC
      op_null,                 // DD
      op_ld16,                 // DE
      op_null,                 // DF
-     op_null,                 // E0
+     op_sub,                  // E0
      op_null,                 // E1
      op_null,                 // E2
      op_null,                 // E3
      op_null,                 // E4
      op_null,                 // E5
-     op_null,                 // E6
+     op_lda,                  // E6
      op_sta,                  // E7
      op_null,                 // E8
      op_null,                 // E9
      op_null,                 // EA
-     op_null,                 // EB
+     op_add,                  // EB
      op_null,                 // EC
      op_null,                 // ED
      op_ld16,                 // EE
      op_null,                 // EF
-     op_null,                 // F0
+     op_sub,                  // F0
      op_null,                 // F1
      op_null,                 // F2
      op_null,                 // F3
      op_null,                 // F4
      op_null,                 // F5
-     op_null,                 // F6
+     op_lda,                  // F6
      op_sta,                  // F7
      op_null,                 // F8
      op_null,                 // F9
      op_null,                 // FA
-     op_null,                 // FB
+     op_add,                  // FB
      op_null,                 // FC
      op_null,                 // FD
      op_ld16,                 // FE
