@@ -2156,6 +2156,8 @@ struct
 // Flag Clearing
 #define FL_V0        REG_FLAGS &= (~FLAG_V_MASK)
 #define FL_C0        REG_FLAGS &= (~FLAG_C_MASK)
+#define FL_I0        REG_FLAGS &= (~FLAG_I_MASK)
+#define FL_I1        REG_FLAGS |= FLAG_I_MASK
 
 #define FL_V80(XXX)  if(XXX==0x80) {REG_FLAGS |= FLAG_V_MASK;} else {REG_FLAGS &= ~FLAG_V_MASK;}
 #define FL_V8T(RR,MM,XX)  ( (B7(XX) && NB7(MM) && NB7(RR)) || (NB7(XX) &&  B7(MM) && B7(RR)) )
@@ -2853,6 +2855,33 @@ OPCODE_FN(op_tst)
   
 }
 
+OPCODE_FN(op_swi)
+{
+  u_int8_t *dest;
+
+  // Push everything on to stack
+  WR_ADDR(REG_SP--, (REG_PC+1) & 0xFF);
+  WR_ADDR(REG_SP--, (REG_PC+1) >> 8);
+  WR_ADDR(REG_SP--, REG_X & 0xFF);
+  WR_ADDR(REG_SP--, REG_X >> 8);
+  WR_ADDR(REG_SP--, REG_A);
+  WR_ADDR(REG_SP--, REG_B);
+  WR_ADDR(REG_SP--, REG_FLAGS);
+
+  FL_I1;
+  u_int8_t h = RD_ADDR(0xFFFA);
+  u_int8_t l = RD_ADDR(0xFFFB);
+  u_int16_t hl = h;
+  hl <<= 8;
+  hl += l;
+  REG_PC = hl;
+  
+  // Decrement as there is an automatic increment by one
+  // for opcode skipping
+  REG_PC--;
+  
+}
+
 OPCODE_FN(op_jsr)
 {
   u_int16_t dest;
@@ -2966,7 +2995,7 @@ struct
      op_null,                 // 3C
      op_null,                 // 3D
      op_null,                 // 3E
-     op_null,                 // 3F
+     op_swi,                  // 3F
      op_null,                 // 40
      op_null,                 // 41
      op_null,                 // 42
