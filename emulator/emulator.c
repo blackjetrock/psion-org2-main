@@ -1,5 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+// Emulates the 6303 processor
+// Emulates the HD44780 LCD controller
+
+// Address list file
+FILE *af;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// LCD controller
+//
+
+#define LCD_CTRL_REG   0x0180
+#define LCD_DATA_REG   0x0181
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Increment the PC
 
@@ -7,6 +24,9 @@
 
 // Calculate relative jump signed offset
 #define CALC_REL(XX) ((int16_t)(XX<0x80?XX:(int16_t)XX-0x100))
+
+// Calculate word address from two bytes
+#define ADDR_WORD(HI,LO)    ((((u_int16_t)HI)<<8)+LO)
 
 u_int8_t romdata[] = {
    // ASSEMBLER_EMBEDDED_CODE_START
@@ -2062,6 +2082,73 @@ u_int8_t romdata[] = {
 // ASSEMBLER_EMBEDDED_CODE_END
 };
 
+
+////////////////////////////////////////////////////////////////////////////////
+// LCD handling
+
+u_int8_t handle_lcd_read(u_int16_t addr)
+{
+  // handle each register
+  switch(addr)
+    {
+    case LCD_CTRL_REG:
+      // Read of busy flag. Always return not busy
+      return(0);
+      break;
+
+    case LCD_DATA_REG:
+      printf("\nread of LD data register\n");
+      exit(-1);
+      return(0);
+      break;
+      
+    }
+}
+
+int lcd_ddram = 0;
+char lcd_display_buffer[100] = "                                ";
+int display_on = 0;
+
+void dump_lcd(void)
+{
+  printf("\n          LCD:'%32s'", lcd_display_buffer);
+  printf("\n          LCD:%s  DDRAM:%02X", display_on? "ON ": "OFF", lcd_ddram);
+}
+
+void handle_lcd_write(u_int16_t addr, u_int8_t value)
+{
+  switch(addr)
+    {
+    case LCD_CTRL_REG:
+      // Control write
+      switch(value)
+	{
+	case 0x01:
+	  // Clear display
+	  strcpy(lcd_display_buffer, "                                ");
+	  lcd_ddram = 0;
+	  break;
+	  
+	case 0x0C:
+	  display_on = 1;
+	  break;
+	}
+
+      
+      break;
+
+    case LCD_DATA_REG:
+      printf("\nread of LD data register\n");
+      exit(-1);
+      break;
+      
+    }
+  
+  dump_lcd();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 u_int8_t ramdata[32768];
 
 // Dereference a byte in the memory space
@@ -2078,7 +2165,7 @@ u_int8_t *REF_ADDR(u_int16_t addr)
     }
   else
     {
-      if( addr < 0x100 )
+      if( addr < 0x1000 )
 	{
 	  printf("\n    Read of %04X: %02X", addr, ramdata[addr]);
 	}
@@ -2087,8 +2174,19 @@ u_int8_t *REF_ADDR(u_int16_t addr)
   
 }
 
+// Read a byte from memory
+// Has to handle LCD accesses
+
 u_int8_t RD_ADDR(u_int16_t addr)
 {
+  switch(addr)
+    {
+    case LCD_CTRL_REG:
+    case LCD_DATA_REG:
+      return(handle_lcd_read(addr));
+      break;
+    }
+  
   if( addr > 0x7fff)
     {
       return(romdata[addr-0x8000]);
@@ -2122,6 +2220,13 @@ u_int16_t RDW_ADDR(u_int16_t addr)
 
 void  WR_ADDR(u_int16_t addr, u_int8_t value)
 {
+  switch(addr)
+    {
+    case LCD_CTRL_REG:
+    case LCD_DATA_REG:
+      return(handle_lcd_write(addr, value));
+      break;
+    }
   
   if( addr > 0x7fff)
     {
@@ -2161,6 +2266,8 @@ void  WRW_ADDR(u_int16_t addr, u_int16_t value)
 #define REG_A  (pstate.A)
 #define REG_B  (pstate.B)
 #define REG_D  ((((u_int16_t)REG_A) << 8) | REG_B )
+#define WRITE_REG_D(XXX) (REG_A = (XXX >> 8));(REG_B = (XXX & 0xFF))
+
 #define REG_PC (pstate.PC)
 #define REG_SP (pstate.SP)
 #define REG_X  (pstate.X)
@@ -2196,18 +2303,29 @@ struct
     };
 
 #define REG_FLAGS     (pstate.FLAGS)
-#define B7(XXX)  (XXX & 0x80)
-#define NB7(XXX) (!B7(XXX))
-#define B3(XXX)  (XXX & 0x04)
-#define NB3(XXX) (!B3(XXX))
+
+#define B3(XXX)   (XXX & 0x0004)
+#define B7(XXX)   (XXX & 0x0080)
+#define B15(XXX)  (XXX & 0x8000)
+
+#define NB3(XXX)  ( !B3(XXX))
+#define NB7(XXX)  ( !B7(XXX))
+#define NB15(XXX) (!B15(XXX))
 
 // Flag Clearing
-#define FL_V0        REG_FLAGS &= (~FLAG_V_MASK)
-#define FL_C0        REG_FLAGS &= (~FLAG_C_MASK)
-#define FL_C1        REG_FLAGS |= (FLAG_C_MASK)
-#define FL_I0        REG_FLAGS &= (~FLAG_I_MASK)
-#define FL_I1        REG_FLAGS |= FLAG_I_MASK
+#define FL_N0        (REG_FLAGS &= (~FLAG_N_MASK))
+#define FL_Z0        (REG_FLAGS &= (~FLAG_Z_MASK))
+#define FL_Z1        (REG_FLAGS |= (FLAG_Z_MASK))
+#define FL_V0        (REG_FLAGS &= (~FLAG_V_MASK))
+#define FL_V1        (REG_FLAGS |= (FLAG_V_MASK))
+#define FL_C0        (REG_FLAGS &= (~FLAG_C_MASK))
+#define FL_C1        (REG_FLAGS |= (FLAG_C_MASK))
+#define FL_I0        (REG_FLAGS &= (~FLAG_I_MASK))
+#define FL_I1        (REG_FLAGS |= FLAG_I_MASK)
 
+#define FL_VSET(XXX) XXX?FL_V1:FL_V0
+#define FL_CSET(XXX) XXX?FL_C1:FL_C0
+      
 #define FL_V80(XXX)  if(XXX==0x80) {REG_FLAGS |= FLAG_V_MASK;} else {REG_FLAGS &= ~FLAG_V_MASK;}
 #define FL_V8T(RR,MM,XX)  ( (B7(XX) && NB7(MM) && NB7(RR)) || (NB7(XX) &&  B7(MM) && B7(RR)) )
 #define FL_V8TP(RR,MM,XX) ( (B7(XX) &&  B7(MM) && NB7(RR)) || (NB7(XX) && NB7(MM) && B7(RR)) )
@@ -2222,6 +2340,12 @@ struct
 #define FL_N16T(XXX) if(XXX & 0x8000) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 
 #define FL_H(RR,MM,XX) ( (B3(XX) && B3(MM)) || (B3(MM) && NB3(RR)) || (NB3(RR) && B3(XX)) )
+
+#define FL_V16AT(RR,MM,XX) (( B15(XX) &  B15(MM) & NB15(RR)) || (NB15(XX) & NB15(MM) &  B15(RR)) )
+#define FL_V16ST(RR,MM,XX) (( B15(XX) & NB15(MM) & NB15(RR)) || (NB15(XX) &  B15(MM) &  B15(RR)) )
+
+#define FL_C16AT(RR,MM,XX) (( B15(XX) &  B15(MM)) || (B15(MM) & NB15(RR)) || (NB15(RR) &  B15(XX)))
+#define FL_C16ST(RR,MM,XX) ((NB15(XX) &  B15(MM)) || (B15(MM) &  B15(RR)) || ( B15(RR) & NB15(XX)))
 
 typedef struct _PROC6303_STATE
 {
@@ -2512,6 +2636,178 @@ OPCODE_FN(op_std)
   FL_N16T(value);
 }
 
+OPCODE_FN(op_addd)
+{
+  u_int16_t  value;
+  u_int8_t   mh, ml;
+  
+  switch(opcode)
+    {
+    case 0xC3:
+      value = ADDR_WORD(p1,p2);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0xD3:
+      value = ADDR_WORD(0,p1);
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      break;
+      
+    case 0xF3:
+      value = ADDR_WORD(p1,p2);
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xE3:
+      value = REG_X + p1;
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      break;
+    }
+
+  // get the result
+  u_int16_t mval = value;
+  
+  value = REG_D + value;
+
+  FL_V16AT(value,mval,REG_D);
+  FL_C16AT(value,mval,REG_D);
+  FL_ZT(value);
+  FL_N16T(value);
+
+  // Write result to D
+  WRITE_REG_D(value);
+}
+
+OPCODE_FN(op_cpx)
+{
+  u_int16_t  value;
+  u_int8_t   mh, ml;
+  
+  switch(opcode)
+    {
+    case 0x8C:
+      value = ADDR_WORD(p1,p2);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0x9C:
+      value = ADDR_WORD(0,p1);
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      break;
+      
+    case 0xBC:
+      value = ADDR_WORD(p1,p2);
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xAC:
+      value = REG_X + p1;
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      break;
+    }
+
+  // get the result
+  u_int16_t mval = value;
+  
+  value = REG_X - value;
+
+  FL_V16ST(value,mval,REG_X);
+  FL_C16ST(value,mval,REG_X);
+  FL_ZT(value);
+  FL_N16T(value);
+}
+
+OPCODE_FN(op_subd)
+{
+  u_int16_t  value;
+  u_int8_t   mh, ml;
+  
+  switch(opcode)
+    {
+    case 0x83:
+      value = ADDR_WORD(p1,p2);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0x93:
+      value = ADDR_WORD(0,p1);
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      break;
+      
+    case 0xB3:
+      value = ADDR_WORD(p1,p2);
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xA3:
+      value = REG_X + p1;
+      mh = RD_ADDR(value+0);
+      ml = RD_ADDR(value+1);
+      value = ADDR_WORD(mh,ml);
+      INC_PC;
+      break;
+    }
+
+  // get the result
+  u_int16_t mval = value;
+  
+  value = REG_D - value;
+
+  FL_V16ST(value,mval,REG_D);
+  FL_C16ST(value,mval,REG_D);
+  FL_ZT(value);
+  FL_N16T(value);
+
+  // Write result to D
+  WRITE_REG_D(value);
+}
+
+OPCODE_FN(op_tab)
+{
+  REG_B = REG_A;
+  FL_V0;
+  FL_ZT(REG_B);
+  FL_N8T(REG_B);
+}
+
+OPCODE_FN(op_tba)
+{
+  REG_A = REG_B;
+  FL_V0;
+  FL_ZT(REG_A);
+  FL_N8T(REG_A);
+}
+
 OPCODE_FN(op_tap)
 {
   REG_FLAGS = REG_A;
@@ -2526,10 +2822,11 @@ OPCODE_FN(op_rts)
 {
   REG_SP++;
   REG_PC = RD_ADDR(REG_SP);
-  REG_PC <<= 8;
   REG_SP++;
-  REG_PC += RD_ADDR(REG_SP);
-  
+  REG_PC |= ((u_int16_t)RD_ADDR(REG_SP) << 8);
+
+  // Compensate for the increment of PC we always do
+  REG_PC--;
 }
 
 OPCODE_FN(op_ldd)
@@ -2637,7 +2934,7 @@ OPCODE_FN(op_ld16)
 
     case 0xAE:
       dest = &(REG_SP);
-      value = RDW_ADDR((p1 << 8) | p2);
+      value = RDW_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -2896,7 +3193,7 @@ OPCODE_FN(op_add)
 
     case 0xBB:
       dest = &(REG_A);
-      add = RD_ADDR((p1<<8)+p2);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -2921,7 +3218,7 @@ OPCODE_FN(op_add)
 
     case 0xFB:
       dest = &(REG_B);
-      add = RD_ADDR((p1<<8)+p2);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -2966,7 +3263,7 @@ OPCODE_FN(op_lda)
 
     case 0xB6:
       dest = &(REG_A);
-      add = RD_ADDR((p1<<8)+p2);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -2991,7 +3288,7 @@ OPCODE_FN(op_lda)
 
     case 0xF6:
       dest = &(REG_B);
-      add = RD_ADDR((p1<<8)+p2);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -3034,7 +3331,7 @@ OPCODE_FN(op_sub)
 
     case 0xB0:
       dest = &(REG_A);
-      add = RD_ADDR((p1<<8)+p2);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -3059,7 +3356,7 @@ OPCODE_FN(op_sub)
 
     case 0xF0:
       dest = &(REG_B);
-      add = RD_ADDR((p1<<8)+p2);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
@@ -3116,6 +3413,79 @@ OPCODE_FN(op_inc8)
   
 }
 
+OPCODE_FN(op_clr)
+{
+  u_int8_t *dest;
+  
+  switch(opcode)
+    {
+    case 0x4F:
+      dest = &(REG_A);
+      break;
+      
+    case 0x5F:
+      dest = &(REG_B);
+      break;
+
+    case 0x7F:
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0x6F:
+      dest = REF_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+  
+  // Special flag test
+  *dest = 0;
+  FL_V0;
+  FL_C0;
+  FL_Z1;
+  FL_N0;
+  
+}
+
+OPCODE_FN(op_lsr)
+{
+  u_int8_t *dest;
+  
+  switch(opcode)
+    {
+    case 0x44:
+      dest = &(REG_A);
+      break;
+      
+    case 0x54:
+      dest = &(REG_B);
+      break;
+
+    case 0x74:
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0x64:
+      dest = REF_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+  
+  // Special flag test
+  *dest = 0;
+
+  FL_CSET((*dest) & 1);
+
+  *dest >>= 1;
+  FL_VSET(FLG_C);
+  FL_ZT(*dest);
+  FL_N0;
+  
+}
+
 OPCODE_FN(op_tst)
 {
   u_int8_t *dest;
@@ -3131,7 +3501,8 @@ OPCODE_FN(op_tst)
       break;
 
     case 0x7D:
-      dest = REF_ADDR(p1);
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
       INC_PC;
       break;
 
@@ -3311,8 +3682,8 @@ struct
      op_null,                 // 13
      op_null,                 // 14
      op_null,                 // 15
-     op_null,                 // 16
-     op_null,                 // 17
+     op_tab,                  // 16
+     op_tba,                  // 17
      op_null,                 // 18
      op_null,                 // 19
      op_null,                 // 1A
@@ -3357,7 +3728,7 @@ struct
      op_null,                 // 41
      op_null,                 // 42
      op_null,                 // 43
-     op_null,                 // 44
+     op_lsr,                  // 44
      op_null,                 // 45
      op_null,                 // 46
      op_null,                 // 47
@@ -3368,12 +3739,12 @@ struct
      op_inc8,                 // 4C
      op_tst,                  // 4D
      op_null,                 // 4E
-     op_null,                 // 4F
+     op_clr,                  // 4F
      op_null,                 // 50
      op_null,                 // 51
      op_null,                 // 52
      op_null,                 // 53
-     op_null,                 // 54
+     op_lsr,                  // 54
      op_null,                 // 55
      op_null,                 // 56
      op_null,                 // 57
@@ -3384,12 +3755,12 @@ struct
      op_inc8,                 // 5C
      op_tst,                  // 5D
      op_null,                 // 5E
-     op_null,                 // 5F
+     op_clr,                  // 5F
      op_null,                 // 60
      op_null,                 // 61
      op_null,                 // 62
      op_null,                 // 63
-     op_null,                 // 64
+     op_lsr,                  // 64
      op_null,                 // 65
      op_null,                 // 66
      op_null,                 // 67
@@ -3400,12 +3771,12 @@ struct
      op_inc8,                 // 6C
      op_tst,                  // 6D
      op_jmp,                  // 6E
-     op_null,                 // 6F
+     op_clr,                  // 6F
      op_null,                 // 70
      op_aim,                  // 71
-     op_oim,                  // 72 OIM
+     op_oim,                  // 72
      op_null,                 // 73
-     op_null,                 // 74
+     op_lsr,                  // 74
      op_null,                 // 75
      op_null,                 // 76
      op_null,                 // 77
@@ -3416,11 +3787,11 @@ struct
      op_inc8,                 // 7C
      op_tst,                  // 7D
      op_jmp,                  // 7E
-     op_null,                 // 7F
+     op_clr,                  // 7F
      op_sub,                  // 80
      op_null,                 // 81
      op_null,                 // 82
-     op_null,                 // 83
+     op_subd,                 // 83
      op_null,                 // 84
      op_null,                 // 85
      op_lda,                  // 86
@@ -3429,14 +3800,14 @@ struct
      op_null,                 // 89
      op_null,                 // 8A
      op_add,                  // 8B
-     op_null,                 // 8C
+     op_cpx,                  // 8C
      op_jsr,                  // 8D
      op_ld16,                 // 8E
      op_null,                 // 8F
      op_sub,                  // 90
      op_null,                 // 91
      op_null,                 // 92
-     op_null,                 // 93
+     op_subd,                 // 93
      op_null,                 // 94
      op_null,                 // 95
      op_lda,                  // 96
@@ -3445,14 +3816,14 @@ struct
      op_null,                 // 99
      op_null,                 // 9A
      op_add,                  // 9B
-     op_null,                 // 9C
+     op_cpx,                  // 9C
      op_null,                 // 9D
      op_ld16,                 // 9E
      op_null,                 // 9F
      op_sub,                  // A0
      op_null,                 // A1
      op_null,                 // A2
-     op_null,                 // A3
+     op_subd,                 // A3
      op_null,                 // A4
      op_null,                 // A5
      op_lda,                  // A6
@@ -3461,14 +3832,14 @@ struct
      op_null,                 // A9
      op_null,                 // AA
      op_add,                  // AB
-     op_null,                 // AC
+     op_cpx,                  // AC
      op_null,                 // AD
      op_ld16,                 // AE
      op_null,                 // AF
      op_sub,                  // B0
      op_null,                 // B1
      op_null,                 // B2
-     op_null,                 // B3
+     op_subd,                 // B3
      op_null,                 // B4
      op_null,                 // B5
      op_lda,                  // B6
@@ -3477,14 +3848,14 @@ struct
      op_null,                 // B9
      op_null,                 // BA
      op_add,                  // BB
-     op_null,                 // BC
+     op_cpx,                  // BC
      op_jsr,                  // BD
      op_ld16,                 // BE
      op_null,                 // BF
      op_sub,                  // C0
      op_null,                 // C1
      op_null,                 // C2
-     op_null,                 // C3
+     op_addd,                 // C3
      op_null,                 // C4
      op_null,                 // C5
      op_lda,                  // C6
@@ -3500,7 +3871,7 @@ struct
      op_sub,                  // D0
      op_null,                 // D1
      op_null,                 // D2
-     op_null,                 // D3
+     op_addd,                 // D3
      op_null,                 // D4
      op_null,                 // D5
      op_lda,                  // D6
@@ -3516,7 +3887,7 @@ struct
      op_sub,                  // E0
      op_null,                 // E1
      op_null,                 // E2
-     op_null,                 // E3
+     op_addd,                 // E3
      op_null,                 // E4
      op_null,                 // E5
      op_lda,                  // E6
@@ -3532,7 +3903,7 @@ struct
      op_sub,                  // F0
      op_null,                 // F1
      op_null,                 // F2
-     op_null,                 // F3
+     op_addd,                 // F3
      op_null,                 // F4
      op_null,                 // F5
      op_lda,                  // F6
@@ -3571,8 +3942,8 @@ char *opcode_names[256] =
      "op_null",                 // 13
      "op_null",                 // 14
      "op_null",                 // 15
-     "op_null",                 // 16
-     "op_null",                 // 17
+     "op_tab",                  // 16
+     "op_tba",                  // 17
      "op_null",                 // 18
      "op_null",                 // 19
      "op_null",                 // 1A
@@ -3628,7 +3999,7 @@ char *opcode_names[256] =
      "op_inc8",                 // 4C
      "op_tst",                  // 4D
      "op_null",                 // 4E
-     "op_null",                 // 4F
+     "op_clr",                  // 4F
      "op_null",                 // 50
      "op_null",                 // 51
      "op_null",                 // 52
@@ -3644,7 +4015,7 @@ char *opcode_names[256] =
      "op_inc8",                 // 5C
      "op_tst",                  // 5D
      "op_null",                 // 5E
-     "op_null",                 // 5F
+     "op_clr",                  // 5F
      "op_null",                 // 60
      "op_null",                 // 61
      "op_null",                 // 62
@@ -3660,7 +4031,7 @@ char *opcode_names[256] =
      "op_inc8",                 // 6C
      "op_tst",                  // 6D
      "op_jmp",                  // 6E
-     "op_null",                 // 6F
+     "op_clr",                  // 6F
      "op_null",                 // 70
      "op_aim",                  // 71
      "op_oim",                  // 72
@@ -3676,11 +4047,11 @@ char *opcode_names[256] =
      "op_inc8",                 // 7C
      "op_tst",                  // 7D
      "op_jmp",                  // 7E
-     "op_null",                 // 7F
+     "op_clr",                  // 7F
      "op_sub",                  // 80
      "op_null",                 // 81
      "op_null",                 // 82
-     "op_null",                 // 83
+     "op_subd",                 // 83
      "op_null",                 // 84
      "op_null",                 // 85
      "op_lda",                  // 86
@@ -3689,14 +4060,14 @@ char *opcode_names[256] =
      "op_null",                 // 89
      "op_null",                 // 8A
      "op_add",                  // 8B
-     "op_null",                 // 8C
+     "op_cpx",                  // 8C
      "op_jsr",                  // 8D
      "op_ld16",                 // 8E
      "op_null",                 // 8F
      "op_sub",                  // 90
      "op_null",                 // 91
      "op_null",                 // 92
-     "op_null",                 // 93
+     "op_subd",                 // 93
      "op_null",                 // 94
      "op_null",                 // 95
      "op_lda",                  // 96
@@ -3705,14 +4076,14 @@ char *opcode_names[256] =
      "op_null",                 // 99
      "op_null",                 // 9A
      "op_add",                  // 9B
-     "op_null",                 // 9C
+     "op_cpx",                  // 9C
      "op_null",                 // 9D
      "op_ld16",                 // 9E
      "op_null",                 // 9F
      "op_sub",                  // A0
      "op_null",                 // A1
      "op_null",                 // A2
-     "op_null",                 // A3
+     "op_subd",                 // A3
      "op_null",                 // A4
      "op_null",                 // A5
      "op_lda",                  // A6
@@ -3721,14 +4092,14 @@ char *opcode_names[256] =
      "op_null",                 // A9
      "op_null",                 // AA
      "op_add",                  // AB
-     "op_null",                 // AC
+     "op_cpx",                  // AC
      "op_null",                 // AD
      "op_ld16",                 // AE
      "op_null",                 // AF
      "op_sub",                  // B0
      "op_null",                 // B1
      "op_null",                 // B2
-     "op_null",                 // B3
+     "op_subd",                 // B3
      "op_null",                 // B4
      "op_null",                 // B5
      "op_lda",                  // B6
@@ -3737,14 +4108,14 @@ char *opcode_names[256] =
      "op_null",                 // B9
      "op_null",                 // BA
      "op_add",                  // BB
-     "op_null",                 // BC
+     "op_cpx",                  // BC
      "op_jsr",                  // BD
      "op_ld16",                 // BE
      "op_null",                 // BF
      "op_sub",                  // C0
      "op_null",                 // C1
      "op_null",                 // C2
-     "op_null",                 // C3
+     "op_addd",                 // C3
      "op_null",                 // C4
      "op_null",                 // C5
      "op_lda",                  // C6
@@ -3760,7 +4131,7 @@ char *opcode_names[256] =
      "op_sub",                  // D0
      "op_null",                 // D1
      "op_null",                 // D2
-     "op_null",                 // D3
+     "op_addd",                 // D3
      "op_null",                 // D4
      "op_null",                 // D5
      "op_lda",                  // D6
@@ -3776,7 +4147,7 @@ char *opcode_names[256] =
      "op_sub",                  // E0
      "op_null",                 // E1
      "op_null",                 // E2
-     "op_null",                 // E3
+     "op_addd",                 // E3
      "op_null",                 // E4
      "op_null",                 // E5
      "op_lda",                  // E6
@@ -3792,7 +4163,7 @@ char *opcode_names[256] =
      "op_sub",                  // F0
      "op_null",                 // F1
      "op_null",                 // F2
-     "op_null",                 // F3
+     "op_addd",                 // F3
      "op_null",                 // F4
      "op_null",                 // F5
      "op_lda",                  // F6
@@ -3860,7 +4231,20 @@ void main(void)
 #endif
   
   // Execute
+  // Human readable output to stdout
+  // Address list to addrlist.txt which matches format of
+  // hardware rom emulator trace file
 
+
+
+  af = fopen("addrlist.txt", "w");
+  if( af == NULL )
+    {
+      printf("\ncannot open address list file\n");
+      exit(-1);
+    }
+  
+    
   while(1)
     {
       u_int8_t opcode;
@@ -3868,6 +4252,8 @@ void main(void)
       
       printf("\nPC:%04X: %02X", REG_PC, RD_ADDR(REG_PC));
 
+      fprintf(af, "%06X\n", REG_PC & 0x7fff);
+      
       // Fetch opcode
       opcode = RD_ADDR(REG_PC);
 
@@ -3886,7 +4272,9 @@ void main(void)
 
       dump_state();
     }
-  
+
+  fclose(af);
+    
   printf("\n");
 }
 
