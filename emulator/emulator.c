@@ -2097,7 +2097,7 @@ u_int8_t handle_lcd_read(u_int16_t addr)
       break;
 
     case LCD_DATA_REG:
-      printf("\nRead of LD data register\n");
+      printf("\nRead of LCD data register\n");
       //      exit(-1);
       return(0);
       break;
@@ -2138,7 +2138,7 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
       break;
 
     case LCD_DATA_REG:
-      printf("\nWrite of LD data register Value %02X\n", value);
+      printf("\nWrite of LCD data register Value %02X\n", value);
 
       break;
       
@@ -2419,6 +2419,11 @@ OPCODE_FN(op_null)
 OPCODE_FN(op_nop) 
 {
 }
+
+// NOP for now
+OPCODE_FN(op_slp) 
+{
+}
       
 
 OPCODE_FN(op_oim)
@@ -2460,6 +2465,29 @@ OPCODE_FN(op_aim)
     case 0x71:
       result = RD_ADDR(p2) & p1;
       WR_ADDR(p2, result);
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+
+  FL_V0;
+  FL_N8T(result);
+  FL_ZT(result);
+}
+
+OPCODE_FN(op_tim)
+{
+  u_int8_t result;
+  
+  switch(opcode)
+    {
+    case 0x6B:
+      result = RD_ADDR(p2 + REG_X) & p1;
+      break;
+
+    case 0x7B:
+      result = RD_ADDR(p2) & p1;
       break;
     }
   
@@ -3278,6 +3306,16 @@ OPCODE_FN(op_sec)
   FL_C1;
 }
 
+OPCODE_FN(op_sei)
+{
+  FL_I1;
+}
+
+OPCODE_FN(op_cli)
+{
+  FL_I0;
+}
+
 OPCODE_FN(op_dec16)
 {
   u_int16_t *dest;
@@ -4054,6 +4092,42 @@ OPCODE_FN(op_neg)
   
 }
 
+OPCODE_FN(op_asl)
+{
+  u_int8_t *dest;
+  
+  switch(opcode)
+    {
+    case 0x48:
+      dest = &(REG_A);
+      break;
+      
+    case 0x58:
+      dest = &(REG_B);
+      break;
+
+    case 0x78:
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0x68:
+      dest = REF_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+  
+  // Special flag test
+  FL_CSET((*dest) & 0x80);
+
+  *dest <<= 1;
+  FL_V_NXORC;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  
+}
+
 OPCODE_FN(op_lsr)
 {
   u_int8_t *dest;
@@ -4421,8 +4495,8 @@ struct
      op_null,                 // 0B
      op_clc,                  // 0C
      op_sec ,                 // 0D
-     op_null,                 // 0E
-     op_null,                 // 0F
+     op_cli,                  // 0E
+     op_sei,                  // 0F
      op_sba,                  // 10
      op_cba,                  // 11
      op_null,                 // 12
@@ -4433,7 +4507,7 @@ struct
      op_tba,                  // 17
      op_xgdx,                 // 18
      op_null,                 // 19
-     op_null,                 // 1A
+     op_slp,                  // 1A
      op_null,                 // 1B
      op_null,                 // 1C
      op_null,                 // 1D
@@ -4479,7 +4553,7 @@ struct
      op_null,                 // 45
      op_ror,                  // 46
      op_asr,                  // 47
-     op_null,                 // 48
+     op_asl,                  // 48
      op_rol,                  // 49
      op_dec8,                 // 4A
      op_null,                 // 4B
@@ -4495,7 +4569,7 @@ struct
      op_null,                 // 55
      op_ror,                  // 56
      op_asr,                  // 57
-     op_null,                 // 58
+     op_asl,                  // 58
      op_rol,                  // 59
      op_dec8,                 // 5A
      op_null,                 // 5B
@@ -4511,10 +4585,10 @@ struct
      op_null,                 // 65
      op_ror,                  // 66
      op_asr,                  // 67
-     op_null,                 // 68
+     op_asl,                  // 68
      op_rol,                  // 69
      op_dec8,                 // 6A
-     op_null,                 // 6B
+     op_tim,                  // 6B
      op_inc8,                 // 6C
      op_tst,                  // 6D
      op_jmp,                  // 6E
@@ -4527,10 +4601,10 @@ struct
      op_null,                 // 75
      op_ror,                  // 76
      op_asr,                  // 77
-     op_null,                 // 78
+     op_asl,                  // 78
      op_rol,                  // 79
      op_dec8,                 // 7A
-     op_null,                 // 7B
+     op_tim,                  // 7B
      op_inc8,                 // 7C
      op_tst,                  // 7D
      op_jmp,                  // 7E
@@ -4681,8 +4755,8 @@ char *opcode_names[256] =
      "op_null",                 // 0B
      "op_clc",                  // 0C
      "op_sec" ,                 // 0D
-     "op_null",                 // 0E
-     "op_null",                 // 0F
+     "op_cli",                  // 0E
+     "op_sei",                  // 0F
      "op_sba",                  // 10
      "op_cba",                  // 11
      "op_null",                 // 12
@@ -4693,7 +4767,7 @@ char *opcode_names[256] =
      "op_tba",                  // 17
      "op_xgdx",                 // 18
      "op_null",                 // 19
-     "op_null",                 // 1A
+     "op_slp",                  // 1A
      "op_null",                 // 1B
      "op_null",                 // 1C
      "op_null",                 // 1D
@@ -4739,7 +4813,7 @@ char *opcode_names[256] =
      "op_null",                 // 45
      "op_ror",                  // 46
      "op_asr",                  // 47
-     "op_null",                 // 48
+     "op_asl",                  // 48
      "op_rol",                  // 49
      "op_dec8",                 // 4A
      "op_null",                 // 4B
@@ -4755,7 +4829,7 @@ char *opcode_names[256] =
      "op_null",                 // 55
      "op_ror",                  // 56
      "op_asr",                  // 57
-     "op_null",                 // 58
+     "op_asl",                  // 58
      "op_rol",                  // 59
      "op_dec8",                 // 5A
      "op_null",                 // 5B
@@ -4771,10 +4845,10 @@ char *opcode_names[256] =
      "op_null",                 // 65
      "op_ror",                  // 66
      "op_asr",                  // 67
-     "op_null",                 // 68
+     "op_asl",                  // 68
      "op_rol",                  // 69
      "op_dec8",                 // 6A
-     "op_null",                 // 6B
+     "op_tim",                  // 6B
      "op_inc8",                 // 6C
      "op_tst",                  // 6D
      "op_jmp",                  // 6E
@@ -4787,10 +4861,10 @@ char *opcode_names[256] =
      "op_null",                 // 75
      "op_ror",                  // 76
      "op_asr",                  // 77
-     "op_null",                 // 78
+     "op_asl",                  // 78
      "op_rol",                  // 79
      "op_dec8",                 // 7A
-     "op_null",                 // 7B
+     "op_tim",                  // 7B
      "op_inc8",                 // 7C
      "op_tst",                  // 7D
      "op_jmp",                  // 7E
