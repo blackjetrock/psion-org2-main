@@ -2097,8 +2097,8 @@ u_int8_t handle_lcd_read(u_int16_t addr)
       break;
 
     case LCD_DATA_REG:
-      printf("\nread of LD data register\n");
-      exit(-1);
+      printf("\nRead of LD data register\n");
+      //      exit(-1);
       return(0);
       break;
       
@@ -2138,8 +2138,8 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
       break;
 
     case LCD_DATA_REG:
-      printf("\nread of LD data register\n");
-      exit(-1);
+      printf("\nWrite of LD data register Value %02X\n", value);
+
       break;
       
     }
@@ -2167,7 +2167,7 @@ u_int8_t *REF_ADDR(u_int16_t addr)
     {
       if( addr < 0x1000 )
 	{
-	  printf("\n    Read of %04X: %02X", addr, ramdata[addr]);
+	  printf(" REF of %04X: %02X", addr, ramdata[addr]);
 	}
       return(&ramdata[addr]);
     }
@@ -2193,7 +2193,7 @@ u_int8_t RD_ADDR(u_int16_t addr)
     }
   else
     {
-      printf("\nRAM RD:%04X = %02X", addr, ramdata[addr]);
+      printf("  RAM RD:%04X = %02X  ", addr, ramdata[addr]);
       return(ramdata[addr]);
     }
 }
@@ -2213,7 +2213,7 @@ u_int16_t RDW_ADDR(u_int16_t addr)
       value = ramdata[addr];
       value <<= 8;
       value += ramdata[addr+1];
-      printf("\nRAM RDW:%04X = %04X", addr, value);
+      printf(" RAM RDW:%04X = %04X", addr, value);
       return(value);
     }
 }
@@ -2235,7 +2235,7 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
   else
     {
       ramdata[addr] = value;
-      printf("\nRAM WR:%04X = %02X", addr, value);
+      printf(" RAM WR:%04X = %02X", addr, value);
     }
 }
 
@@ -2256,7 +2256,7 @@ void  WRW_ADDR(u_int16_t addr, u_int16_t value)
     {
       ramdata[addr+0] = v1;
       ramdata[addr+1] = v2;
-      printf("\nRAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
+      printf("  RAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
     }
 }
 
@@ -2327,7 +2327,8 @@ struct
 #define FL_V_NXORC   (((FLG_N && (!FLG_C)) || ((!FLG_N) && FLG_C)))?FL_V1:FL_V0
 
 #define FL_CSET(XXX) XXX?FL_C1:FL_C0
-      
+#define FL_C_0OR1    (FLG_C?1:0)
+
 #define FL_V80(XXX)  if(XXX==0x80) {REG_FLAGS |= FLAG_V_MASK;} else {REG_FLAGS &= ~FLAG_V_MASK;}
 #define FL_V8T(RR,MM,XX)  ( (B7(XX) && NB7(MM) && NB7(RR)) || (NB7(XX) &&  B7(MM) && B7(RR)) )
 #define FL_V8TP(RR,MM,XX) ( (B7(XX) &&  B7(MM) && NB7(RR)) || (NB7(XX) && NB7(MM) && B7(RR)) )
@@ -2413,6 +2414,10 @@ OPCODE_FN(op_null)
   printf("\n                     Unknown opcode:%02X\n\n", opcode);
   dump_ram();
   exit(-1);
+}
+
+OPCODE_FN(op_nop) 
+{
 }
       
 
@@ -2510,9 +2515,9 @@ OPCODE_FN(op_psh)
       break;
 
     case 0x3C:
-      WR_ADDR(REG_SP, REG_X >> 8);
-      (REG_SP)--;
       WR_ADDR(REG_SP, REG_X & 0xff);
+      (REG_SP)--;
+      WR_ADDR(REG_SP, REG_X >> 8);
       (REG_SP)--;
 
       break;
@@ -2584,6 +2589,148 @@ OPCODE_FN(op_and)
     }
 
   *dest &= value;
+  
+  FL_V0;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+}
+
+OPCODE_FN(op_eor)
+{
+  u_int8_t *dest;
+  u_int8_t  value;
+  
+  switch(opcode)
+    {
+    case 0x88:
+      value = p1;
+      dest = &(REG_A);
+      INC_PC;
+      break;
+      
+    case 0x98:
+      value = ADDR_WORD(0, p1);
+      value = RD_ADDR(value);
+      dest = &(REG_A);
+      INC_PC;
+      break;
+
+    case 0xB8:
+      value = ADDR_WORD(p1, p2);
+      value = RD_ADDR(value);
+      dest = &(REG_A);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0xA8:
+      value = REG_X + p1;
+      value = RD_ADDR(value);
+      dest = &(REG_A);
+      INC_PC;
+      break;
+
+    case 0xC8:
+      value = p1;
+      dest = &(REG_B);
+      INC_PC;
+      break;
+      
+    case 0xD8:
+      value = ADDR_WORD(0, p1);
+      value = RD_ADDR(value);
+      dest = &(REG_B);
+      INC_PC;
+      break;
+
+    case 0xF8:
+      value = ADDR_WORD(p1, p2);
+      value = RD_ADDR(value);
+      dest = &(REG_B);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0xE8:
+      value = REG_X + p1;
+      value = RD_ADDR(value);
+      dest = &(REG_B);
+      INC_PC;
+      break;
+    }
+
+  *dest ^= value;
+  
+  FL_V0;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+}
+
+OPCODE_FN(op_ora)
+{
+  u_int8_t *dest;
+  u_int8_t  value;
+  
+  switch(opcode)
+    {
+    case 0x8A:
+      value = p1;
+      dest = &(REG_A);
+      INC_PC;
+      break;
+      
+    case 0x9A:
+      value = ADDR_WORD(0, p1);
+      value = RD_ADDR(value);
+      dest = &(REG_A);
+      INC_PC;
+      break;
+
+    case 0xBA:
+      value = ADDR_WORD(p1, p2);
+      value = RD_ADDR(value);
+      dest = &(REG_A);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0xAA:
+      value = REG_X + p1;
+      value = RD_ADDR(value);
+      dest = &(REG_A);
+      INC_PC;
+      break;
+
+    case 0xCA:
+      value = p1;
+      dest = &(REG_B);
+      INC_PC;
+      break;
+      
+    case 0xDA:
+      value = ADDR_WORD(0, p1);
+      value = RD_ADDR(value);
+      dest = &(REG_B);
+      INC_PC;
+      break;
+
+    case 0xFA:
+      value = ADDR_WORD(p1, p2);
+      value = RD_ADDR(value);
+      dest = &(REG_B);
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0xEA:
+      value = REG_X + p1;
+      value = RD_ADDR(value);
+      dest = &(REG_B);
+      INC_PC;
+      break;
+    }
+
+  *dest |= value;
   
   FL_V0;
   FL_ZT(*dest);
@@ -2957,8 +3104,12 @@ OPCODE_FN(op_xgdx)
 
 OPCODE_FN(op_txs)
 {
-  REG_X--;
-  REG_SP = REG_X;
+  REG_SP = REG_X - 1;
+}
+
+OPCODE_FN(op_tsx)
+{
+  REG_X = REG_SP + 1;
 }
 
 OPCODE_FN(op_tab)
@@ -2990,9 +3141,9 @@ OPCODE_FN(op_tpa)
 OPCODE_FN(op_rts)
 {
   REG_SP++;
-  REG_PC = RD_ADDR(REG_SP);
+  REG_PC = ((u_int16_t)RD_ADDR(REG_SP) << 8);
   REG_SP++;
-  REG_PC |= ((u_int16_t)RD_ADDR(REG_SP) << 8);
+  REG_PC |= RD_ADDR(REG_SP);
 
   // Compensate for the increment of PC we always do
   REG_PC--;
@@ -3011,13 +3162,13 @@ OPCODE_FN(op_ldd)
 
     case 0xDC:
       REG_A = RD_ADDR(p1);
-      REG_A = RD_ADDR(p1+1);
+      REG_B = RD_ADDR(p1+1);
       INC_PC;
       break;
 
     case 0xEC:
       REG_A = RD_ADDR(REG_X+p1+0);
-      REG_A = RD_ADDR(REG_X+p1+1);
+      REG_B = RD_ADDR(REG_X+p1+1);
       INC_PC;
       break;
 
@@ -3339,6 +3490,75 @@ OPCODE_FN(op_dec8)
   
 }
 
+OPCODE_FN(op_adc)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+  
+  switch(opcode)
+    {
+    case 0x89:
+      dest = &(REG_A);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0x99:
+      dest = &(REG_A);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xB9:
+      dest = &(REG_A);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xA9:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+
+    case 0xC9:
+      dest = &(REG_B);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0xD9:
+      dest = &(REG_B);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xF9:
+      dest = &(REG_B);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xE9:
+      dest = &(REG_B);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V8T(*dest,add,before);
+  (*dest) += add + FL_C_0OR1;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  FL_C8T(*dest,add,before);
+  FL_H(*dest,add,before);
+}
 
 OPCODE_FN(op_add)
 {
@@ -3545,6 +3765,118 @@ OPCODE_FN(op_cmp)
   FL_ZT(res);
   FL_N8T(res);
   FL_C8T(res,add,before);
+  
+}
+
+OPCODE_FN(op_cba)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+
+  dest = &(REG_A);
+  add = REG_B;
+  INC_PC;
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V8T(*dest,add,before);
+  u_int8_t res = *dest - add;
+  FL_ZT(res);
+  FL_N8T(res);
+  FL_C8T(res,add,before);
+  
+}
+
+OPCODE_FN(op_sba)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+
+  dest = &(REG_A);
+  add = REG_B;
+  INC_PC;
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V8T(*dest,add,before);
+  *dest -= add;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  FL_C8T(*dest,add,before);
+  
+}
+
+OPCODE_FN(op_sbc)
+{
+  u_int8_t add;
+  u_int8_t *dest;
+  u_int8_t before;
+  
+  switch(opcode)
+    {
+    case 0x82:
+      dest = &(REG_A);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0x92:
+      dest = &(REG_A);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xB2:
+      dest = &(REG_A);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xA2:
+      dest = &(REG_A);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+
+    case 0xC2:
+      dest = &(REG_B);
+      add = p1;
+      INC_PC;
+      break;
+      
+    case 0xD2:
+      dest = &(REG_B);
+      add = RD_ADDR(p1);
+      INC_PC;
+      break;
+
+    case 0xF2:
+      dest = &(REG_B);
+      add = RD_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0xE2:
+      dest = &(REG_B);
+      add = RD_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+
+  before = *dest;
+  
+  // Special flag test
+  FL_V8T(*dest,add,before);
+  (*dest) -= add + FL_C_0OR1;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+  FL_C8T(*dest,add,before);
   
 }
 
@@ -3755,6 +4087,23 @@ OPCODE_FN(op_lsr)
   FL_VSET(FLG_C);
   FL_ZT(*dest);
   FL_N0;
+  
+}
+
+OPCODE_FN(op_lsrd)
+{
+  u_int8_t val;
+
+  val = REG_D;
+  
+  // Special flag test
+  FL_CSET(val & 1);
+
+  val >>= 1;
+  FL_VSET(FLG_C);
+  FL_ZT(val);
+  FL_N0;
+  WRITE_REG_D(val);
   
 }
 
@@ -3987,8 +4336,9 @@ OPCODE_FN(op_jsr)
       INC_PC;
       INC_PC;
 
-      WR_ADDR(REG_SP--, REG_PC >> 8);
       WR_ADDR(REG_SP--, REG_PC & 0xFF);
+      WR_ADDR(REG_SP--, REG_PC >> 8);
+
       
       // Jump to subroutine
       REG_PC = dest;
@@ -4003,8 +4353,8 @@ OPCODE_FN(op_jsr)
       INC_PC;
       INC_PC;
 
-      WR_ADDR(REG_SP--, REG_PC >> 8);
       WR_ADDR(REG_SP--, REG_PC & 0xFF);
+      WR_ADDR(REG_SP--, REG_PC >> 8);
       
       // Jump to subroutine
       REG_PC = dest;
@@ -4058,10 +4408,10 @@ struct
   opcode_table[256] =
     {
      op_trap,                 // 00
-     op_null,                 // 01
+     op_nop,                  // 01
      op_null,                 // 02
      op_null,                 // 03
-     op_null,                 // 04
+     op_lsrd,                 // 04
      op_null,                 // 05
      op_tap,                  // 06
      op_tpa,                  // 07
@@ -4073,8 +4423,8 @@ struct
      op_sec ,                 // 0D
      op_null,                 // 0E
      op_null,                 // 0F
-     op_null,                 // 10
-     op_null,                 // 11
+     op_sba,                  // 10
+     op_cba,                  // 11
      op_null,                 // 12
      op_null,                 // 13
      op_null,                 // 14
@@ -4105,7 +4455,7 @@ struct
      op_br,                   // 2D
      op_br,                   // 2E
      op_br,                   // 2F
-     op_null,                 // 30
+     op_tsx,                  // 30
      op_inc16,                // 31
      op_pul,                  // 32
      op_pul,                  // 33
@@ -4187,15 +4537,15 @@ struct
      op_clr,                  // 7F
      op_sub,                  // 80
      op_cmp,                  // 81
-     op_null,                 // 82
+     op_sbc,                  // 82
      op_subd,                 // 83
      op_and,                  // 84
      op_bit,                  // 85
      op_lda,                  // 86
      op_null,                 // 87
-     op_null,                 // 88
-     op_null,                 // 89
-     op_null,                 // 8A
+     op_eor,                  // 88
+     op_adc,                  // 89
+     op_ora,                  // 8A
      op_add,                  // 8B
      op_cpx,                  // 8C
      op_jsr,                  // 8D
@@ -4203,15 +4553,15 @@ struct
      op_null,                 // 8F
      op_sub,                  // 90
      op_cmp,                  // 91
-     op_null,                 // 92
+     op_sbc,                  // 92
      op_subd,                 // 93
      op_and,                  // 94
      op_bit,                  // 95
      op_lda,                  // 96
      op_sta,                  // 97
-     op_null,                 // 98
-     op_null,                 // 99
-     op_null,                 // 9A
+     op_eor,                  // 98
+     op_adc,                  // 99
+     op_ora,                  // 9A
      op_add,                  // 9B
      op_cpx,                  // 9C
      op_null,                 // 9D
@@ -4219,15 +4569,15 @@ struct
      op_null,                 // 9F
      op_sub,                  // A0
      op_cmp,                  // A1
-     op_null,                 // A2
+     op_sbc,                  // A2
      op_subd,                 // A3
      op_and,                  // A4
      op_bit,                  // A5
      op_lda,                  // A6
      op_sta,                  // A7
-     op_null,                 // A8
-     op_null,                 // A9
-     op_null,                 // AA
+     op_eor,                  // A8
+     op_adc,                  // A9
+     op_ora,                  // AA
      op_add,                  // AB
      op_cpx,                  // AC
      op_null,                 // AD
@@ -4235,15 +4585,15 @@ struct
      op_null,                 // AF
      op_sub,                  // B0
      op_cmp,                  // B1
-     op_null,                 // B2
+     op_sbc,                  // B2
      op_subd,                 // B3
      op_and,                  // B4
      op_bit,                  // B5
      op_lda,                  // B6
      op_sta,                  // B7
-     op_null,                 // B8
-     op_null,                 // B9
-     op_null,                 // BA
+     op_eor,                  // B8
+     op_adc,                  // B9
+     op_ora,                  // BA
      op_add,                  // BB
      op_cpx,                  // BC
      op_jsr,                  // BD
@@ -4251,15 +4601,15 @@ struct
      op_null,                 // BF
      op_sub,                  // C0
      op_cmp,                  // C1
-     op_null,                 // C2
+     op_sbc,                  // C2
      op_addd,                 // C3
      op_and,                  // C4
      op_bit,                  // C5
      op_lda,                  // C6
      op_null,                 // C7
-     op_null,                 // C8
-     op_null,                 // C9
-     op_null,                 // CA
+     op_eor,                  // C8
+     op_adc,                  // C9
+     op_ora,                  // CA
      op_add,                  // CB
      op_ldd,                  // CC
      op_null,                 // CD
@@ -4267,15 +4617,15 @@ struct
      op_null,                 // CF
      op_sub,                  // D0
      op_cmp,                  // D1
-     op_null,                 // D2
+     op_sbc,                  // D2
      op_addd,                 // D3
      op_and,                  // D4
      op_bit,                  // D5
      op_lda,                  // D6
      op_sta,                  // D7
-     op_null,                 // D8
-     op_null,                 // D9
-     op_null,                 // DA
+     op_eor,                  // D8
+     op_adc,                  // D9
+     op_ora,                  // DA
      op_add,                  // DB
      op_ldd,                  // DC
      op_std,                  // DD
@@ -4283,15 +4633,15 @@ struct
      op_stx,                  // DF
      op_sub,                  // E0
      op_cmp,                  // E1
-     op_null,                 // E2
+     op_sbc,                  // E2
      op_addd,                 // E3
      op_and,                  // E4
      op_bit,                  // E5
      op_lda,                  // E6
      op_sta,                  // E7
-     op_null,                 // E8
-     op_null,                 // E9
-     op_null,                 // EA
+     op_eor,                  // E8
+     op_adc,                  // E9
+     op_ora,                  // EA
      op_add,                  // EB
      op_ldd,                  // EC
      op_std,                  // ED
@@ -4299,15 +4649,15 @@ struct
      op_stx,                  // EF
      op_sub,                  // F0
      op_cmp,                  // F1
-     op_null,                 // F2
+     op_sbc,                  // F2
      op_addd,                 // F3
      op_and,                  // F4
      op_bit,                  // F5
      op_lda,                  // F6
      op_sta,                  // F7
-     op_null,                 // F8
-     op_null,                 // F9
-     op_null,                 // FA
+     op_eor,                  // F8
+     op_adc,                  // F9
+     op_ora,                  // FA
      op_add,                  // FB
      op_ldd,                  // FC
      op_std,                  // FD
@@ -4318,10 +4668,10 @@ struct
 char *opcode_names[256] =
     {
      "op_trap",                 // 00
-     "op_null",                 // 01
+     "op_nop",                  // 01
      "op_null",                 // 02
      "op_null",                 // 03
-     "op_null",                 // 04
+     "op_lsrd",                 // 04
      "op_null",                 // 05
      "op_tap",                  // 06
      "op_tpa",                  // 07
@@ -4333,8 +4683,8 @@ char *opcode_names[256] =
      "op_sec" ,                 // 0D
      "op_null",                 // 0E
      "op_null",                 // 0F
-     "op_null",                 // 10
-     "op_null",                 // 11
+     "op_sba",                  // 10
+     "op_cba",                  // 11
      "op_null",                 // 12
      "op_null",                 // 13
      "op_null",                 // 14
@@ -4365,7 +4715,7 @@ char *opcode_names[256] =
      "op_br",                   // 2D
      "op_br",                   // 2E
      "op_br",                   // 2F
-     "op_null",                 // 30
+     "op_tsx",                  // 30
      "op_inc16",                // 31
      "op_pul",                  // 32
      "op_pul",                  // 33
@@ -4385,7 +4735,7 @@ char *opcode_names[256] =
      "op_null",                 // 41
      "op_null",                 // 42
      "op_null",                 // 43
-     "op_null",                 // 44
+     "op_lsr",                  // 44
      "op_null",                 // 45
      "op_ror",                  // 46
      "op_asr",                  // 47
@@ -4401,7 +4751,7 @@ char *opcode_names[256] =
      "op_null",                 // 51
      "op_null",                 // 52
      "op_null",                 // 53
-     "op_null",                 // 54
+     "op_lsr",                  // 54
      "op_null",                 // 55
      "op_ror",                  // 56
      "op_asr",                  // 57
@@ -4417,7 +4767,7 @@ char *opcode_names[256] =
      "op_aim",                  // 61
      "op_oim",                  // 62
      "op_null",                 // 63
-     "op_null",                 // 64
+     "op_lsr",                  // 64
      "op_null",                 // 65
      "op_ror",                  // 66
      "op_asr",                  // 67
@@ -4433,7 +4783,7 @@ char *opcode_names[256] =
      "op_aim",                  // 71
      "op_oim",                  // 72
      "op_null",                 // 73
-     "op_null",                 // 74
+     "op_lsr",                  // 74
      "op_null",                 // 75
      "op_ror",                  // 76
      "op_asr",                  // 77
@@ -4447,15 +4797,15 @@ char *opcode_names[256] =
      "op_clr",                  // 7F
      "op_sub",                  // 80
      "op_cmp",                  // 81
-     "op_null",                 // 82
+     "op_sbc",                  // 82
      "op_subd",                 // 83
      "op_and",                  // 84
      "op_bit",                  // 85
      "op_lda",                  // 86
      "op_null",                 // 87
-     "op_null",                 // 88
-     "op_null",                 // 89
-     "op_null",                 // 8A
+     "op_eor",                  // 88
+     "op_adc",                  // 89
+     "op_ora",                  // 8A
      "op_add",                  // 8B
      "op_cpx",                  // 8C
      "op_jsr",                  // 8D
@@ -4463,15 +4813,15 @@ char *opcode_names[256] =
      "op_null",                 // 8F
      "op_sub",                  // 90
      "op_cmp",                  // 91
-     "op_null",                 // 92
+     "op_sbc",                  // 92
      "op_subd",                 // 93
      "op_and",                  // 94
      "op_bit",                  // 95
      "op_lda",                  // 96
      "op_sta",                  // 97
-     "op_null",                 // 98
-     "op_null",                 // 99
-     "op_null",                 // 9A
+     "op_eor",                  // 98
+     "op_adc",                  // 99
+     "op_ora",                  // 9A
      "op_add",                  // 9B
      "op_cpx",                  // 9C
      "op_null",                 // 9D
@@ -4479,15 +4829,15 @@ char *opcode_names[256] =
      "op_null",                 // 9F
      "op_sub",                  // A0
      "op_cmp",                  // A1
-     "op_null",                 // A2
+     "op_sbc",                  // A2
      "op_subd",                 // A3
      "op_and",                  // A4
      "op_bit",                  // A5
      "op_lda",                  // A6
      "op_sta",                  // A7
-     "op_null",                 // A8
-     "op_null",                 // A9
-     "op_null",                 // AA
+     "op_eor",                  // A8
+     "op_adc",                  // A9
+     "op_ora",                  // AA
      "op_add",                  // AB
      "op_cpx",                  // AC
      "op_null",                 // AD
@@ -4495,15 +4845,15 @@ char *opcode_names[256] =
      "op_null",                 // AF
      "op_sub",                  // B0
      "op_cmp",                  // B1
-     "op_null",                 // B2
+     "op_sbc",                  // B2
      "op_subd",                 // B3
      "op_and",                  // B4
      "op_bit",                  // B5
      "op_lda",                  // B6
      "op_sta",                  // B7
-     "op_null",                 // B8
-     "op_null",                 // B9
-     "op_null",                 // BA
+     "op_eor",                  // B8
+     "op_adc",                  // B9
+     "op_ora",                  // BA
      "op_add",                  // BB
      "op_cpx",                  // BC
      "op_jsr",                  // BD
@@ -4511,15 +4861,15 @@ char *opcode_names[256] =
      "op_null",                 // BF
      "op_sub",                  // C0
      "op_cmp",                  // C1
-     "op_null",                 // C2
+     "op_sbc",                  // C2
      "op_addd",                 // C3
      "op_and",                  // C4
      "op_bit",                  // C5
      "op_lda",                  // C6
      "op_null",                 // C7
-     "op_null",                 // C8
-     "op_null",                 // C9
-     "op_null",                 // CA
+     "op_eor",                  // C8
+     "op_adc",                  // C9
+     "op_ora",                  // CA
      "op_add",                  // CB
      "op_ldd",                  // CC
      "op_null",                 // CD
@@ -4527,15 +4877,15 @@ char *opcode_names[256] =
      "op_null",                 // CF
      "op_sub",                  // D0
      "op_cmp",                  // D1
-     "op_null",                 // D2
+     "op_sbc",                  // D2
      "op_addd",                 // D3
      "op_and",                  // D4
      "op_bit",                  // D5
      "op_lda",                  // D6
      "op_sta",                  // D7
-     "op_null",                 // D8
-     "op_null",                 // D9
-     "op_null",                 // DA
+     "op_eor",                  // D8
+     "op_adc",                  // D9
+     "op_ora",                  // DA
      "op_add",                  // DB
      "op_ldd",                  // DC
      "op_std",                  // DD
@@ -4543,15 +4893,15 @@ char *opcode_names[256] =
      "op_stx",                  // DF
      "op_sub",                  // E0
      "op_cmp",                  // E1
-     "op_null",                 // E2
+     "op_sbc",                  // E2
      "op_addd",                 // E3
      "op_and",                  // E4
      "op_bit",                  // E5
      "op_lda",                  // E6
      "op_sta",                  // E7
-     "op_null",                 // E8
-     "op_null",                 // E9
-     "op_null",                 // EA
+     "op_eor",                  // E8
+     "op_adc",                  // E9
+     "op_ora",                  // EA
      "op_add",                  // EB
      "op_ldd",                  // EC
      "op_std",                  // ED
@@ -4559,15 +4909,15 @@ char *opcode_names[256] =
      "op_stx",                  // EF
      "op_sub",                  // F0
      "op_cmp",                  // F1
-     "op_null",                 // F2
+     "op_sbc",                  // F2
      "op_addd",                 // F3
      "op_and",                  // F4
      "op_bit",                  // F5
      "op_lda",                  // F6
      "op_sta",                  // F7
-     "op_null",                 // F8
-     "op_null",                 // F9
-     "op_null",                 // FA
+     "op_eor",                  // F8
+     "op_adc",                  // F9
+     "op_ora",                  // FA
      "op_add",                  // FB
      "op_ldd",                  // FC
      "op_std",                  // FD
@@ -4646,6 +4996,7 @@ void main(void)
     {
       u_int8_t opcode;
       u_int8_t p1, p2;
+
       
       printf("\nPC:%04X: %02X", REG_PC, RD_ADDR(REG_PC));
 
@@ -4655,13 +5006,19 @@ void main(void)
       opcode = RD_ADDR(REG_PC);
 
       // Display opcode name
-      printf("\n                      %s", opcode_names[opcode]);
+      printf("\n                      %s at %04X", opcode_names[opcode], REG_PC);
       
       p1 = RD_ADDR(REG_PC+1);
       p2 = RD_ADDR(REG_PC+2);
       
       // Call opcode function to execute it
       (*opcode_table[opcode].fn)(opcode, &pstate, p1, p2);
+
+      if( (ramdata[0x7ffb] == 0x01) && (ramdata[0x7ffc] == 0x07) )
+	{
+	  printf("\nmatch at %04x", REG_PC);
+	  exit(-1);
+	}
 
       // Skip past the opcode, longer instruction skip whatever they need t
       // in the opcode functions
