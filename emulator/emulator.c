@@ -2129,12 +2129,13 @@ u_int8_t handle_lcd_read(u_int16_t addr)
     }
 }
 
-int lcd_ddram = 0;
+int lcd_ddram    = 0;
 char lcd_display_buffer[100] = "                                ";
-int display_on = 0;
-int lcd_cursor = 0;
-int lcd_blink = 0;
-
+int display_on   = 0;
+int lcd_cursor   = 0;
+int lcd_blink    = 0;
+int lcd_auto_inc = 0;
+int lcd_shift    = 0;
 void dump_lcd(void)
 {
 #if DISPLAY_LCD  
@@ -2167,6 +2168,14 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 	      lcd_ddram = 0;
 	      break;
 
+	    case 0x04:
+	    case 0x05:
+	    case 0x06:
+	    case 0x07:
+	      lcd_auto_inc = (value & 0x02)?1:0;
+	      lcd_shift    = (value & 0x01)?1:0;
+	      break;
+	      
 	    case 0x08:
 	    case 0x09:
 	    case 0x0A:
@@ -2175,9 +2184,9 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 	    case 0x0D:
 	    case 0x0E:
 	    case 0x0F:
-	      display_on = value & 0x04?1:0;
-	      lcd_cursor = value & 0x02?1:0;
-	      lcd_blink  = value & 0x01?1:0;
+	      display_on = (value & 0x04)?1:0;
+	      lcd_cursor = (value & 0x02)?1:0;
+	      lcd_blink  = (value & 0x01)?1:0;
 	      break;
 	    }
 	}
@@ -2188,7 +2197,9 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 #if 1
       printf("\nWrite of LCD data register Value %02X ('%c')\n", value,  value);
 #endif
-      lcd_display_buffer[lcd_ddram++] = value;
+      lcd_display_buffer[lcd_ddram] = value;
+
+      lcd_ddram += (lcd_auto_inc)?1:-1;
       
       if( lcd_ddram > 31 )
 	{
