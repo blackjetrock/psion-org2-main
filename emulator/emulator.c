@@ -8,6 +8,15 @@
 // Address list file
 FILE *af;
 
+int inst_length;
+int pc_before;
+
+// If EMBEDDED is non zero then code is compiled to run on embedded processor
+// so no printfs or logging
+
+#define EMBEDDED       1
+#define DISPLAY_LCD    1
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // LCD controller
@@ -33,7 +42,7 @@ u_int16_t timer1_compare = 0;
 
 // Increment the PC
 
-#define INC_PC  pstate.PC++;pstate.PC &= 0xFFFF
+#define INC_PC  pstate.PC++;pstate.PC &= 0xFFFF;inst_length++
 
 // Calculate relative jump signed offset
 #define CALC_REL(XX) ((int16_t)(XX<0x80?XX:(int16_t)XX-0x100))
@@ -2110,7 +2119,9 @@ u_int8_t handle_lcd_read(u_int16_t addr)
       break;
 
     case LCD_DATA_REG:
+#if !EMBEDDED      
       printf("\nRead of LCD data register\n");
+#endif
       //      exit(-1);
       return(0);
       break;
@@ -2121,11 +2132,15 @@ u_int8_t handle_lcd_read(u_int16_t addr)
 int lcd_ddram = 0;
 char lcd_display_buffer[100] = "                                ";
 int display_on = 0;
+int lcd_cursor = 0;
+int lcd_blink = 0;
 
 void dump_lcd(void)
 {
+#if DISPLAY_LCD  
   printf("\n          LCD:'%32s'", lcd_display_buffer);
   printf("\n          LCD:%s  DDRAM:%02X", display_on? "ON ": "OFF", lcd_ddram);
+#endif
 }
 
 void handle_lcd_write(u_int16_t addr, u_int8_t value)
@@ -2134,25 +2149,51 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
     {
     case LCD_CTRL_REG:
       // Control write
-      switch(value)
-	{
-	case 0x01:
-	  // Clear display
-	  strcpy(lcd_display_buffer, "                                ");
-	  lcd_ddram = 0;
-	  break;
-	  
-	case 0x0C:
-	  display_on = 1;
-	  break;
-	}
+#if DISPLAY_LCD
+      printf("\nWrite of LCD ctrl register Value %02X", value);
+#endif
 
+      if( (value >= 0x80) && (value <= 0xFF) )
+	{
+	  lcd_ddram = value & 0x7f;
+	}
+      else
+	{
+	  switch(value)
+	    {
+	    case 0x01:
+	      // Clear display
+	      strcpy(lcd_display_buffer, "                                ");
+	      lcd_ddram = 0;
+	      break;
+
+	    case 0x08:
+	    case 0x09:
+	    case 0x0A:
+	    case 0x0B:
+	    case 0x0C:
+	    case 0x0D:
+	    case 0x0E:
+	    case 0x0F:
+	      display_on = value & 0x04?1:0;
+	      lcd_cursor = value & 0x02?1:0;
+	      lcd_blink  = value & 0x01?1:0;
+	      break;
+	    }
+	}
       
       break;
 
     case LCD_DATA_REG:
-      printf("\nWrite of LCD data register Value %02X\n", value);
-
+#if 1
+      printf("\nWrite of LCD data register Value %02X ('%c')\n", value,  value);
+#endif
+      lcd_display_buffer[lcd_ddram++] = value;
+      
+      if( lcd_ddram > 31 )
+	{
+	  lcd_ddram = 31;
+	}
       break;
       
     }
@@ -2274,10 +2315,12 @@ u_int8_t *REF_ADDR(u_int16_t addr)
     }
   else
     {
+#if !EMBEDDED      
       if( addr < 0x1000 )
 	{
 	  printf(" REF of %04X: %02X", addr, ramdata[addr]);
 	}
+#endif
       return(&ramdata[addr]);
     }
   
@@ -2291,7 +2334,9 @@ u_int8_t RD_ADDR(u_int16_t addr)
   switch(addr)
     {
     case TIM1_TCSR:
+#if !EMBEDDED
       printf("\nTIM1ER PC:%04X:Read TCSR", REG_PC);
+#endif
       return(timer1_tcsr);
       break;
       
@@ -2307,7 +2352,9 @@ u_int8_t RD_ADDR(u_int16_t addr)
     }
   else
     {
+#if !EMBEDDED      
       printf("  RAM RD:%04X = %02X  ", addr, ramdata[addr]);
+#endif
       return(ramdata[addr]);
     }
 }
@@ -2327,7 +2374,9 @@ u_int16_t RDW_ADDR(u_int16_t addr)
       value = ramdata[addr];
       value <<= 8;
       value += ramdata[addr+1];
+#if !EMBEDDED
       printf(" RAM RDW:%04X = %04X", addr, value);
+#endif
       return(value);
     }
 }
@@ -2337,7 +2386,9 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
   switch(addr)
     {
     case TIM1_TCSR:
+#if !EMBEDDED
       printf("\nTIM1ER PC:%04X:Write TCSR", REG_PC);
+#endif
       timer1_tcsr = value;
       break;
       
@@ -2347,7 +2398,9 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
     case TIM1_OCOMP_L:
     case TIM1_ICAP_H:
     case TIM1_ICAP_L:
+#if !EMBEDDED
       printf("\nTimer1 Access");
+#endif
       break;
       
     case LCD_CTRL_REG:
@@ -2363,7 +2416,9 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
   else
     {
       ramdata[addr] = value;
+#if !EMBEDDED
       printf(" RAM WR:%04X = %02X", addr, value);
+#endif
     }
 }
 
@@ -2384,7 +2439,9 @@ void  WRW_ADDR(u_int16_t addr, u_int16_t value)
     {
       ramdata[addr+0] = v1;
       ramdata[addr+1] = v2;
+#if !EMBEDDED
       printf("  RAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
+#endif
     }
 }
 
@@ -2436,9 +2493,15 @@ void dump_ram(void)
 
 OPCODE_FN(op_null) 
 {
+#if !EMBEDDED  
   printf("\n                     Unknown opcode:%02X\n\n", opcode);
   dump_ram();
   exit(-1);
+#else
+  while(1)
+    {
+    }
+#endif
 }
 
 OPCODE_FN(op_nop) 
@@ -3186,12 +3249,24 @@ OPCODE_FN(op_tpa)
   REG_A = REG_FLAGS;
 }
 
+OPCODE_FN(op_rti)
+{
+  REG_FLAGS = RD_ADDR(++REG_SP);
+  REG_B     = RD_ADDR(++REG_SP);
+  REG_A     = RD_ADDR(++REG_SP);
+  REG_X     = ((u_int16_t)RD_ADDR(++REG_SP) << 8);
+  REG_X    |= RD_ADDR(++REG_SP);
+  REG_PC    = ((u_int16_t)RD_ADDR(++REG_SP) << 8);
+  REG_PC   |= RD_ADDR(++REG_SP);
+
+  // Compensate for the increment of PC we always do
+  REG_PC--;
+}
+
 OPCODE_FN(op_rts)
 {
-  REG_SP++;
-  REG_PC = ((u_int16_t)RD_ADDR(REG_SP) << 8);
-  REG_SP++;
-  REG_PC |= RD_ADDR(REG_SP);
+  REG_PC    = ((u_int16_t)RD_ADDR(++REG_SP) << 8);
+  REG_PC   |= RD_ADDR(++REG_SP);
 
   // Compensate for the increment of PC we always do
   REG_PC--;
@@ -3199,6 +3274,8 @@ OPCODE_FN(op_rts)
 
 OPCODE_FN(op_ldd)
 {
+  u_int16_t  src;
+
   switch(opcode)
     {
     case 0xCC:
@@ -3221,8 +3298,10 @@ OPCODE_FN(op_ldd)
       break;
 
     case 0xFC:
+#if !EMBEDDED      
       printf("\np1=%02X p2=%02X", p1,p2);
-      u_int16_t  src = p1;
+#endif
+      src = p1;
       src <<=8;
       src += p2;
       
@@ -3244,6 +3323,7 @@ OPCODE_FN(op_ld16)
 {
   u_int16_t *dest;
   u_int16_t value;
+  u_int16_t  src;
   
   switch(opcode)
     {
@@ -3269,8 +3349,10 @@ OPCODE_FN(op_ld16)
       break;
 
     case 0xFE:
+#if !EMBEDDED
       printf("\np1=%02X p2=%02X", p1,p2);
-      u_int16_t  src = p1;
+#endif
+      src = p1;
       src <<=8;
       src += p2;
       dest = &(REG_X);
@@ -3382,12 +3464,16 @@ OPCODE_FN(op_br)
   switch(opcode)
     {
     case 0x20:
+#if !EMBEDDED
       printf("\nPC=%04X", REG_PC);
       printf("\nrel=%d", rel);
+#endif
       REG_PC += 1 + rel;
       branched = 1;
+#if !EMBEDDED
       printf("\nPC=%04X", REG_PC);
       printf("\np1=%02X", p1);
+#endif
       break;
 
       // Branch never?
@@ -4201,6 +4287,23 @@ OPCODE_FN(op_lsrd)
   
 }
 
+OPCODE_FN(op_asld)
+{
+  u_int8_t val;
+
+  val = REG_D;
+  
+  // Special flag test
+  FL_CSET(val & 0x80);
+
+  val <<= 1;
+  FL_V_NXORC;
+  FL_ZT(val);
+  FL_N16T(val);
+  WRITE_REG_D(val);
+  
+}
+
 OPCODE_FN(op_asr)
 {
   u_int8_t *dest;
@@ -4420,6 +4523,37 @@ OPCODE_FN(op_jsr)
   
   switch(opcode)
     {
+    case 0xAD:
+      dest = REG_X + p1;
+
+      // Adjust for the increment of PC that occurs automatically
+      dest--;
+      
+      INC_PC;
+      INC_PC;
+
+      WR_ADDR(REG_SP--, REG_PC & 0xFF);
+      WR_ADDR(REG_SP--, REG_PC >> 8);
+      
+      // Jump to subroutine
+      REG_PC = dest;
+      break;
+
+    case 0x9D:
+      dest = RDW_ADDR(p1);
+
+      // Adjust for the increment of PC that occurs automatically
+      dest--;
+      
+      INC_PC;
+
+      WR_ADDR(REG_SP--, REG_PC & 0xFF);
+      WR_ADDR(REG_SP--, REG_PC >> 8);
+      
+      // Jump to subroutine
+      REG_PC = dest;
+      break;
+
     case 0xBD:
       dest = (p1 << 8) | p2;
 
@@ -4452,7 +4586,9 @@ OPCODE_FN(op_jsr)
       
       // Jump to subroutine
       REG_PC = dest;
+#if !EMBEDDED
       printf("\n   JSR  rel");
+#endif
       break;
     }
 }
@@ -4506,7 +4642,7 @@ struct
      op_null,                 // 02
      op_null,                 // 03
      op_lsrd,                 // 04
-     op_null,                 // 05
+     op_asld,                 // 05
      op_tap,                  // 06
      op_tpa,                  // 07
      op_inc16,                // 08
@@ -4560,7 +4696,7 @@ struct
      op_pul,                  // 38
      op_rts,                  // 39
      op_abx,                  // 3A
-     op_null,                 // 3B
+     op_rti,                  // 3B
      op_psh,                  // 3C
      op_null,                 // 3D
      op_null,                 // 3E
@@ -4658,7 +4794,7 @@ struct
      op_ora,                  // 9A
      op_add,                  // 9B
      op_cpx,                  // 9C
-     op_null,                 // 9D
+     op_jsr,                  // 9D
      op_ld16,                 // 9E
      op_null,                 // 9F
      op_sub,                  // A0
@@ -4674,7 +4810,7 @@ struct
      op_ora,                  // AA
      op_add,                  // AB
      op_cpx,                  // AC
-     op_null,                 // AD
+     op_jsr,                  // AD
      op_ld16,                 // AE
      op_null,                 // AF
      op_sub,                  // B0
@@ -4766,7 +4902,7 @@ char *opcode_names[256] =
      "op_null",                 // 02
      "op_null",                 // 03
      "op_lsrd",                 // 04
-     "op_null",                 // 05
+     "op_asld",                 // 05
      "op_tap",                  // 06
      "op_tpa",                  // 07
      "op_inc16",                // 08
@@ -4820,7 +4956,7 @@ char *opcode_names[256] =
      "op_pul",                  // 38
      "op_rts",                  // 39
      "op_abx",                  // 3A
-     "op_null",                 // 3B
+     "op_rti",                  // 3B
      "op_psh",                  // 3C
      "op_null",                 // 3D
      "op_null",                 // 3E
@@ -4918,7 +5054,7 @@ char *opcode_names[256] =
      "op_ora",                  // 9A
      "op_add",                  // 9B
      "op_cpx",                  // 9C
-     "op_null",                 // 9D
+     "op_jsr",                  // 9D
      "op_ld16",                 // 9E
      "op_null",                 // 9F
      "op_sub",                  // A0
@@ -4934,7 +5070,7 @@ char *opcode_names[256] =
      "op_ora",                  // AA
      "op_add",                  // AB
      "op_cpx",                  // AC
-     "op_null",                 // AD
+     "op_jsr",                  // AD
      "op_ld16",                 // AE
      "op_null",                 // AF
      "op_sub",                  // B0
@@ -5021,14 +5157,16 @@ char *opcode_names[256] =
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void dump_state(void)
+void dump_state(int opcode, int inst_length)
 {
+#if !EMBEDDED
   printf("\n=======================================");
-  printf("\nPC:%04X", pstate.PC);
+  printf("\nPC:%04X  %s   ", pc_before, opcode_names[opcode]);
+
   printf("  :  ");
-  for(int i=0; i<4; i++)
+  for(int i=0; i<inst_length; i++)
     {
-      printf("%02X ", RD_ADDR(REG_PC+i));
+      printf("%02X ", RD_ADDR(pc_before+i));
     }
   
   printf("\nSP:%04X", pstate.SP);
@@ -5046,6 +5184,8 @@ void dump_state(void)
 	}
     }
   printf("\nCC:%02X (%s)", pstate.FLAGS, str_flags);
+  printf("\n");
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5059,9 +5199,11 @@ void interrupt(u_int16_t vector_msb)
       // Interrupts are masked
       return;
     }
-
+  
+#if !EMBEDDED
   printf("\n---------------------------------------");
   printf("\nINTERRUPT:Vector %04X\n", vector_msb);
+#endif
   
   // Mask interrupts
   FL_I1;
@@ -5078,7 +5220,9 @@ void interrupt(u_int16_t vector_msb)
   // Vector
   REG_PC = (((u_int16_t)RD_ADDR(vector_msb)) << 8) | RD_ADDR(vector_msb+1);
 
+#if !EMBEDDED
   printf("\n    PC:%04X", REG_PC);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5094,7 +5238,10 @@ void update_timers(void)
       // set bit in status 
       timer1_tcsr |= 0x40;
 
-      interrupt(0xFFF4);
+      if( timer1_tcsr & 0x08 )
+	{
+	  interrupt(0xFFF4);
+	}
     }
 }
 
@@ -5102,9 +5249,11 @@ void update_timers(void)
 
 void main(void)
 {
+#if !EMBEDDED  
   printf("\n");
   printf("\nROM Size:%ld", sizeof(romdata));
-
+#endif
+  
   // Reset the processor
   // LAtch MP0,MP1
   // Set interrupt mask bit
@@ -5116,7 +5265,7 @@ void main(void)
   ramdata[0x14] = 0x00;
 
   // Initialise system variable for SWi screen clear
-#if 1
+#if 0
   ramdata[0x2052] = 0x82;
   ramdata[0x2053] = 0x42;
 #endif
@@ -5127,57 +5276,58 @@ void main(void)
   // hardware rom emulator trace file
 
 
-
+#if !EMBEDDED
   af = fopen("addrlist.txt", "w");
   if( af == NULL )
     {
       printf("\ncannot open address list file\n");
       exit(-1);
     }
-  
+#endif
     
   while(1)
     {
       u_int8_t opcode;
       u_int8_t p1, p2;
 
-      
-      printf("\nPC:%04X: %02X", REG_PC, RD_ADDR(REG_PC));
-
+#if !EMBEDDED
       fprintf(af, "%06X\n", REG_PC & 0x7fff);
+#endif
       
       // Fetch opcode
       opcode = RD_ADDR(REG_PC);
 
-      // Display opcode name
-      printf("\n                      %s at %04X", opcode_names[opcode], REG_PC);
-      
       p1 = RD_ADDR(REG_PC+1);
       p2 = RD_ADDR(REG_PC+2);
       
       // Call opcode function to execute it
+      inst_length = 0;
+      pc_before = REG_PC;
+      
       (*opcode_table[opcode].fn)(opcode, &pstate, p1, p2);
 
+#if !EMBEDDED
       if( (ramdata[0x7ffb] == 0x01) && (ramdata[0x7ffc] == 0x07) )
 	{
 	  printf("\nmatch at %04x", REG_PC);
 	  exit(-1);
 	}
-
+#endif
+      
       // Skip past the opcode, longer instruction skip whatever they need t
       // in the opcode functions
       INC_PC;
 
-      dump_state();
-
       // Update timers
       update_timers();
 
-      dump_state();
+      dump_state(opcode, inst_length);
     }
 
+#if !EMBEDDED  
   fclose(af);
     
   printf("\n");
+#endif
 }
 
