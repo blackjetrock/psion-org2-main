@@ -16,6 +16,19 @@ FILE *af;
 #define LCD_CTRL_REG   0x0180
 #define LCD_DATA_REG   0x0181
 
+// Timer1
+#define TIM1_TCSR       0x0008
+#define TIM1_COUNTER_H  0x0009
+#define TIM1_COUNTER_L  0x000A
+#define TIM1_OCOMP_H    0x000B
+#define TIM1_OCOMP_L    0x000C
+#define TIM1_ICAP_H     0x000D
+#define TIM1_ICAP_L     0x000E
+
+u_int8_t  timer1_tcsr = 0;
+u_int16_t timer1_counter = 0;
+u_int16_t timer1_compare = 0;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Increment the PC
@@ -2151,117 +2164,6 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 
 u_int8_t ramdata[32768];
 
-// Dereference a byte in the memory space
-#if 0
-#define RD_ADDR(XXX) (romdata[(XXX-0x8000) & 0x7fff])
-#define WR_ADDR(XXX, YYY) romdata[(XXX-0x8000) & 0x7fff] = YYY
-#else
-
-u_int8_t *REF_ADDR(u_int16_t addr)
-{
-  if( addr > 0x7fff)
-    {
-      return(&romdata[addr-0x8000]);
-    }
-  else
-    {
-      if( addr < 0x1000 )
-	{
-	  printf(" REF of %04X: %02X", addr, ramdata[addr]);
-	}
-      return(&ramdata[addr]);
-    }
-  
-}
-
-// Read a byte from memory
-// Has to handle LCD accesses
-
-u_int8_t RD_ADDR(u_int16_t addr)
-{
-  switch(addr)
-    {
-    case LCD_CTRL_REG:
-    case LCD_DATA_REG:
-      return(handle_lcd_read(addr));
-      break;
-    }
-  
-  if( addr > 0x7fff)
-    {
-      return(romdata[addr-0x8000]);
-    }
-  else
-    {
-      printf("  RAM RD:%04X = %02X  ", addr, ramdata[addr]);
-      return(ramdata[addr]);
-    }
-}
-
-u_int16_t RDW_ADDR(u_int16_t addr)
-{
-  u_int16_t value;
-  if( addr > 0x7fff)
-    {
-      value = romdata[addr-0x8000];
-      value <<= 8;
-      value += romdata[(addr-0x8000)+1];
-      return(value);
-    }
-  else
-    {
-      value = ramdata[addr];
-      value <<= 8;
-      value += ramdata[addr+1];
-      printf(" RAM RDW:%04X = %04X", addr, value);
-      return(value);
-    }
-}
-
-void  WR_ADDR(u_int16_t addr, u_int8_t value)
-{
-  switch(addr)
-    {
-    case LCD_CTRL_REG:
-    case LCD_DATA_REG:
-      return(handle_lcd_write(addr, value));
-      break;
-    }
-  
-  if( addr > 0x7fff)
-    {
-      romdata[addr-0x8000] = value;
-    }
-  else
-    {
-      ramdata[addr] = value;
-      printf(" RAM WR:%04X = %02X", addr, value);
-    }
-}
-
-// Write word to memory
-void  WRW_ADDR(u_int16_t addr, u_int16_t value)
-{
-  u_int8_t v1, v2;
-
-  v1 = value >> 8;
-  v2 = value & 0xff;
-  
-  if( addr > 0x7fff)
-    {
-      romdata[(addr-0x8000)+0] = v1;
-      romdata[(addr-0x8000)+1] = v2;
-    }
-  else
-    {
-      ramdata[addr+0] = v1;
-      ramdata[addr+1] = v2;
-      printf("  RAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
-    }
-}
-
-#endif
-
 
 #define REG_A  (pstate.A)
 #define REG_B  (pstate.B)
@@ -2362,6 +2264,129 @@ typedef struct _PROC6303_STATE
 
 
 PROC6303_STATE pstate;
+
+// Dereference a byte in the memory space
+u_int8_t *REF_ADDR(u_int16_t addr)
+{
+  if( addr > 0x7fff)
+    {
+      return(&romdata[addr-0x8000]);
+    }
+  else
+    {
+      if( addr < 0x1000 )
+	{
+	  printf(" REF of %04X: %02X", addr, ramdata[addr]);
+	}
+      return(&ramdata[addr]);
+    }
+  
+}
+
+// Read a byte from memory
+// Has to handle LCD accesses
+
+u_int8_t RD_ADDR(u_int16_t addr)
+{
+  switch(addr)
+    {
+    case TIM1_TCSR:
+      printf("\nTIM1ER PC:%04X:Read TCSR", REG_PC);
+      return(timer1_tcsr);
+      break;
+      
+    case LCD_CTRL_REG:
+    case LCD_DATA_REG:
+      return(handle_lcd_read(addr));
+      break;
+    }
+  
+  if( addr > 0x7fff)
+    {
+      return(romdata[addr-0x8000]);
+    }
+  else
+    {
+      printf("  RAM RD:%04X = %02X  ", addr, ramdata[addr]);
+      return(ramdata[addr]);
+    }
+}
+
+u_int16_t RDW_ADDR(u_int16_t addr)
+{
+  u_int16_t value;
+  if( addr > 0x7fff)
+    {
+      value = romdata[addr-0x8000];
+      value <<= 8;
+      value += romdata[(addr-0x8000)+1];
+      return(value);
+    }
+  else
+    {
+      value = ramdata[addr];
+      value <<= 8;
+      value += ramdata[addr+1];
+      printf(" RAM RDW:%04X = %04X", addr, value);
+      return(value);
+    }
+}
+
+void  WR_ADDR(u_int16_t addr, u_int8_t value)
+{
+  switch(addr)
+    {
+    case TIM1_TCSR:
+      printf("\nTIM1ER PC:%04X:Write TCSR", REG_PC);
+      timer1_tcsr = value;
+      break;
+      
+    case TIM1_COUNTER_H:
+    case TIM1_COUNTER_L:
+    case TIM1_OCOMP_H:
+    case TIM1_OCOMP_L:
+    case TIM1_ICAP_H:
+    case TIM1_ICAP_L:
+      printf("\nTimer1 Access");
+      break;
+      
+    case LCD_CTRL_REG:
+    case LCD_DATA_REG:
+      return(handle_lcd_write(addr, value));
+      break;
+    }
+  
+  if( addr > 0x7fff)
+    {
+      romdata[addr-0x8000] = value;
+    }
+  else
+    {
+      ramdata[addr] = value;
+      printf(" RAM WR:%04X = %02X", addr, value);
+    }
+}
+
+// Write word to memory
+void  WRW_ADDR(u_int16_t addr, u_int16_t value)
+{
+  u_int8_t v1, v2;
+
+  v1 = value >> 8;
+  v2 = value & 0xff;
+  
+  if( addr > 0x7fff)
+    {
+      romdata[(addr-0x8000)+0] = v1;
+      romdata[(addr-0x8000)+1] = v2;
+    }
+  else
+    {
+      ramdata[addr+0] = v1;
+      ramdata[addr+1] = v2;
+      printf("  RAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
+    }
+}
 
 
 // Opcode table
@@ -2533,21 +2558,16 @@ OPCODE_FN(op_psh)
   switch(opcode)
     {
     case 0x36:
-      WR_ADDR(REG_SP, REG_A);
-      (REG_SP)--;
+      WR_ADDR(REG_SP--, REG_A);
       break;
 
     case 0x37:
-      WR_ADDR(REG_SP, REG_B);
-      (REG_SP)--;
+      WR_ADDR(REG_SP--, REG_B);
       break;
 
     case 0x3C:
-      WR_ADDR(REG_SP, REG_X & 0xff);
-      (REG_SP)--;
-      WR_ADDR(REG_SP, REG_X >> 8);
-      (REG_SP)--;
-
+      WR_ADDR(REG_SP--, REG_X & 0xff);
+      WR_ADDR(REG_SP--, REG_X >> 8);
       break;
     }
 }
@@ -5030,6 +5050,56 @@ void dump_state(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Interrupt handler
+
+void interrupt(u_int16_t vector_msb)
+{
+  if( FLG_I )
+    {
+      // Interrupts are masked
+      return;
+    }
+
+  printf("\n---------------------------------------");
+  printf("\nINTERRUPT:Vector %04X\n", vector_msb);
+  
+  // Mask interrupts
+  FL_I1;
+
+  // Push registers
+  WR_ADDR(REG_SP--, REG_PC & 0xFF);
+  WR_ADDR(REG_SP--, REG_PC >> 8);
+  WR_ADDR(REG_SP--, REG_X & 0xff);
+  WR_ADDR(REG_SP--, REG_X >> 8);
+  WR_ADDR(REG_SP--, REG_A);
+  WR_ADDR(REG_SP--, REG_B);
+  WR_ADDR(REG_SP--, REG_FLAGS);
+
+  // Vector
+  REG_PC = (((u_int16_t)RD_ADDR(vector_msb)) << 8) | RD_ADDR(vector_msb+1);
+
+  printf("\n    PC:%04X", REG_PC);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void update_timers(void)
+{
+  timer1_counter++;
+
+  if( timer1_counter == timer1_compare )
+    {
+      // Compare interrupt
+
+      // set bit in status 
+      timer1_tcsr |= 0x40;
+
+      interrupt(0xFFF4);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void main(void)
 {
   printf("\n");
@@ -5097,6 +5167,11 @@ void main(void)
       // Skip past the opcode, longer instruction skip whatever they need t
       // in the opcode functions
       INC_PC;
+
+      dump_state();
+
+      // Update timers
+      update_timers();
 
       dump_state();
     }
