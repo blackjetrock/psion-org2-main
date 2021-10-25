@@ -14,7 +14,7 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED       1
+#define EMBEDDED       0
 #define DISPLAY_LCD    1
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@ int pc_before;
 
 #define LCD_CTRL_REG   0x0180
 #define LCD_DATA_REG   0x0181
+
+#define MAX_DDRAM 64
 
 // Timer1
 #define TIM1_TCSR       0x0008
@@ -39,10 +41,18 @@ u_int16_t timer1_counter = 0;
 u_int16_t timer1_compare = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
+#if !EMBEDDED 
+char opcode_decode[100] = "";
+#endif
+////////////////////////////////////////////////////////////////////////////////
 
 // Increment the PC
 
+#if !EMBEDDED
 #define INC_PC  pstate.PC++;pstate.PC &= 0xFFFF;inst_length++
+#else
+#define INC_PC  pstate.PC++;pstate.PC &= 0xFFFF
+#endif
 
 // Calculate relative jump signed offset
 #define CALC_REL(XX) ((int16_t)(XX<0x80?XX:(int16_t)XX-0x100))
@@ -2108,14 +2118,27 @@ u_int8_t romdata[] = {
 ////////////////////////////////////////////////////////////////////////////////
 // LCD handling
 
+int lcd_ddram    = 0;
+char lcd_display_buffer[100] = "                                                                ";
+int display_on   = 0;
+int lcd_cursor   = 0;
+int lcd_blink    = 0;
+int lcd_auto_inc = 0;
+int lcd_shift    = 0;
+
 u_int8_t handle_lcd_read(u_int16_t addr)
 {
   // handle each register
   switch(addr)
     {
     case LCD_CTRL_REG:
+#if !EMBEDDED
+      printf("\nRead of LCD control");
+#endif
+      
+      // read address counter
       // Read of busy flag. Always return not busy
-      return(0);
+      return(lcd_ddram & 0x7f);
       break;
 
     case LCD_DATA_REG:
@@ -2129,18 +2152,11 @@ u_int8_t handle_lcd_read(u_int16_t addr)
     }
 }
 
-int lcd_ddram    = 0;
-char lcd_display_buffer[100] = "                                ";
-int display_on   = 0;
-int lcd_cursor   = 0;
-int lcd_blink    = 0;
-int lcd_auto_inc = 0;
-int lcd_shift    = 0;
 void dump_lcd(void)
 {
 #if DISPLAY_LCD  
-  printf("\n          LCD:'%32s'", lcd_display_buffer);
-  printf("\n          LCD:%s  DDRAM:%02X", display_on? "ON ": "OFF", lcd_ddram);
+  printf("\n          LCD:'%s'", lcd_display_buffer);
+  printf("\n          LCD:%s  DDRAM:%02X AutoInc:%d", display_on? "ON ": "OFF", lcd_ddram, lcd_auto_inc);
 #endif
 }
 
@@ -2164,7 +2180,12 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 	    {
 	    case 0x01:
 	      // Clear display
-	      strcpy(lcd_display_buffer, "                                ");
+	      strcpy(lcd_display_buffer, "                                                                ");
+	      lcd_ddram = 0;
+	      break;
+
+	    case 0x02:
+	    case 0x03:
 	      lcd_ddram = 0;
 	      break;
 
@@ -2195,15 +2216,16 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 
     case LCD_DATA_REG:
 #if 1
-      printf("\nWrite of LCD data register Value %02X ('%c')\n", value,  value);
+      printf("\nWrite of LCD data register Value %02X ('%c') at %02X\n", value,  value, lcd_ddram);
+
 #endif
       lcd_display_buffer[lcd_ddram] = value;
 
       lcd_ddram += (lcd_auto_inc)?1:-1;
       
-      if( lcd_ddram > 31 )
+      if( lcd_ddram > MAX_DDRAM )
 	{
-	  lcd_ddram = 31;
+	  lcd_ddram = MAX_DDRAM;
 	}
       break;
       
@@ -3478,6 +3500,7 @@ OPCODE_FN(op_br)
 #if !EMBEDDED
       printf("\nPC=%04X", REG_PC);
       printf("\nrel=%d", rel);
+      sprintf(opcode_decode, "BRA %02X, (%d) %04X", p1, rel, REG_PC+1+rel); 
 #endif
       REG_PC += 1 + rel;
       branched = 1;
@@ -3489,9 +3512,15 @@ OPCODE_FN(op_br)
 
       // Branch never?
     case 0x21:
+#if !EMBEDDED
+            sprintf(opcode_decode, "BRN %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
       break;
 
     case 0x22:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BHI %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
       if( !(FLG_C || FLG_Z) )
 	{
 	  REG_PC += 1 + rel;
@@ -3500,6 +3529,9 @@ OPCODE_FN(op_br)
       break;
 
     case 0x23:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BLS %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
       if( FLG_C || FLG_Z )
 	{
 	  REG_PC += 1 + rel;
@@ -3508,6 +3540,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x24:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BCC %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( FLG_C == 0 )
 	{
 	  REG_PC += 1 + rel;
@@ -3516,6 +3552,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x25:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BCS %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( FLG_C )
 	{
 	  REG_PC += 1 + rel;
@@ -3524,6 +3564,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x26:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BNE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( !FLG_Z )
 	{
 	  REG_PC += 1 + rel;
@@ -3532,6 +3576,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x27:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BEQ %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( FLG_Z )
 	{
 	  REG_PC += 1 + rel;
@@ -3540,6 +3588,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x28:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BVC %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+      
       if( !FLG_V )
 	{
 	  REG_PC += 1 + rel;
@@ -3548,6 +3600,10 @@ OPCODE_FN(op_br)
       break;
       
     case 0x29:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BVS %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( FLG_V )
 	{
 	  REG_PC += 1 + rel;
@@ -3556,6 +3612,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x2A:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BPL %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( !FLG_N )
 	{
 	  REG_PC += 1 + rel;
@@ -3564,6 +3624,10 @@ OPCODE_FN(op_br)
       break;
 
     case 0x2B:
+#if !EMBEDDED
+      sprintf(opcode_decode, "BMI %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
       if( FLG_N )
 	{
 	  REG_PC += 1 + rel;
@@ -3572,31 +3636,47 @@ OPCODE_FN(op_br)
       break;
 
     case 0x2C:
-      if( !(FLG_N || FLG_V) )
+#if !EMBEDDED
+      sprintf(opcode_decode, "BGE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
+      if( (FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V)) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
-
+      
     case 0x2D:
-      if( FLG_N || FLG_V )
+#if !EMBEDDED
+      sprintf(opcode_decode, "BLT %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
+      if( ((!FLG_N) && FLG_V) || (FLG_N && (!FLG_V)) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
-
+      
     case 0x2E:
-      if( !(FLG_Z || (FLG_N ^ FLG_V)) )
+#if !EMBEDDED
+      sprintf(opcode_decode, "BGT %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
+      if( !(FLG_Z) && ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
 	}
       break;
-
+      
     case 0x2F:
-      if( FLG_Z || (FLG_N || FLG_V) )
+#if !EMBEDDED
+      sprintf(opcode_decode, "BLE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+#endif
+
+      if( FLG_Z || ((FLG_N && (!FLG_V)) || ((!FLG_N)) && FLG_V) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -3607,6 +3687,13 @@ OPCODE_FN(op_br)
   if( !branched )
     {
       INC_PC;
+    }
+  else
+    {
+      // Length of instruction is just for display purposes
+#if !EMBEDDED      
+      inst_length++;
+#endif
     }
 }
 
@@ -5172,7 +5259,7 @@ void dump_state(int opcode, int inst_length)
 {
 #if !EMBEDDED
   printf("\n=======================================");
-  printf("\nPC:%04X  %s   ", pc_before, opcode_names[opcode]);
+  printf("\nPC:%04X  %s   ", pc_before, (strlen(opcode_decode)==0)?opcode_names[opcode]:opcode_decode);
 
   printf("  :  ");
   for(int i=0; i<inst_length; i++)
@@ -5266,7 +5353,7 @@ void main(void)
 #endif
   
   // Reset the processor
-  // LAtch MP0,MP1
+  // Latch MP0,MP1
   // Set interrupt mask bit
   // Load PC from FFFE and FFFF
   REG_PC = (RD_ADDR(0xFFFE) << 8) | RD_ADDR(0xFFFF);
@@ -5286,6 +5373,16 @@ void main(void)
   // Address list to addrlist.txt which matches format of
   // hardware rom emulator trace file
 
+#if !EMBEDDED
+  // Create a crude disassembly
+  // from addresses executed
+  struct
+  {
+    char *name;
+  }
+  dislist[sizeof(romdata)];
+
+#endif
 
 #if !EMBEDDED
   af = fopen("addrlist.txt", "w");
@@ -5314,7 +5411,11 @@ void main(void)
       // Call opcode function to execute it
       inst_length = 0;
       pc_before = REG_PC;
-      
+
+#if !EMBEDDED      
+      strcpy(opcode_decode, "");
+#endif
+
       (*opcode_table[opcode].fn)(opcode, &pstate, p1, p2);
 
 #if !EMBEDDED
