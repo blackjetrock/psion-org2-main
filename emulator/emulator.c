@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +26,7 @@ int pc_before;
 #define LCD_CTRL_REG   0x0180
 #define LCD_DATA_REG   0x0181
 
-#define MAX_DDRAM 64
+#define MAX_DDRAM 0xFF
 
 // Timer1
 #define TIM1_TCSR       0x0008
@@ -2119,7 +2120,7 @@ u_int8_t romdata[] = {
 // LCD handling
 
 int lcd_ddram    = 0;
-char lcd_display_buffer[100] = "                                                                ";
+char lcd_display_buffer[MAX_DDRAM+1];
 int display_on   = 0;
 int lcd_cursor   = 0;
 int lcd_blink    = 0;
@@ -2154,8 +2155,36 @@ u_int8_t handle_lcd_read(u_int16_t addr)
 
 void dump_lcd(void)
 {
+  int i;
+  
 #if DISPLAY_LCD  
-  printf("\n          LCD:'%s'", lcd_display_buffer);
+  printf("\n          LCD:'");
+  for(i=0; i<=0x1F; i++)
+    {
+      if( isprint(lcd_display_buffer[i]) )
+	{
+	  printf("%c", lcd_display_buffer[i]);
+	}
+      else
+	{
+	  printf(".");
+	}
+    }
+  printf("' '");
+
+  for(i=0x40; i<=0x5F; i++)
+    {
+      if( isprint(lcd_display_buffer[i]) )
+	{
+	  printf("%c", lcd_display_buffer[i]);
+	}
+      else
+	{
+	  printf(".");
+	}
+    }
+  printf("'");
+
   printf("\n          LCD:%s  DDRAM:%02X AutoInc:%d", display_on? "ON ": "OFF", lcd_ddram, lcd_auto_inc);
 #endif
 }
@@ -2170,7 +2199,7 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
       printf("\nWrite of LCD ctrl register Value %02X", value);
 #endif
 
-      if( (value >= 0x80) && (value <= 0xFF) )
+      if( (value >= 0x40) && (value <= 0xFF) )
 	{
 	  lcd_ddram = value & 0x7f;
 	}
@@ -2180,7 +2209,10 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 	    {
 	    case 0x01:
 	      // Clear display
-	      strcpy(lcd_display_buffer, "                                                                ");
+	      for(int i=0; i<=MAX_DDRAM; i++)
+		{
+		  lcd_display_buffer[i] = ' ';
+		}
 	      lcd_ddram = 0;
 	      break;
 
@@ -3664,7 +3696,7 @@ OPCODE_FN(op_br)
       sprintf(opcode_decode, "BGT %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
 #endif
 
-      if( !(FLG_Z) && ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
+      if( FLG_Z || ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -3676,7 +3708,7 @@ OPCODE_FN(op_br)
       sprintf(opcode_decode, "BLE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
 #endif
 
-      if( FLG_Z || ((FLG_N && (!FLG_V)) || ((!FLG_N)) && FLG_V) )
+      if( !(FLG_Z || ( (FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V)))) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -3870,6 +3902,15 @@ OPCODE_FN(op_add)
   FL_N8T(*dest);
   FL_C8T(*dest,add,before);
   FL_H(*dest,add,before);
+}
+
+OPCODE_FN(op_mul)
+{
+  u_int16_t res;
+
+  res = ((u_int16_t)REG_A) * ((u_int16_t)REG_B);
+  WRITE_REG_D(res);
+  FL_CSET(res & 0x80);
 }
 
 OPCODE_FN(op_lda)
@@ -4796,7 +4837,7 @@ struct
      op_abx,                  // 3A
      op_rti,                  // 3B
      op_psh,                  // 3C
-     op_null,                 // 3D
+     op_mul,                  // 3D
      op_null,                 // 3E
      op_swi,                  // 3F
      op_neg,                  // 40
@@ -5056,7 +5097,7 @@ char *opcode_names[256] =
      "op_abx",                  // 3A
      "op_rti",                  // 3B
      "op_psh",                  // 3C
-     "op_null",                 // 3D
+     "op_mul",                  // 3D
      "op_null",                 // 3E
      "op_swi",                  // 3F
      "op_neg",                  // 40
@@ -5258,7 +5299,7 @@ char *opcode_names[256] =
 void dump_state(int opcode, int inst_length)
 {
 #if !EMBEDDED
-  printf("\n=======================================");
+  printf("\n----------------------------------------");
   printf("\nPC:%04X  %s   ", pc_before, (strlen(opcode_decode)==0)?opcode_names[opcode]:opcode_decode);
 
   printf("  :  ");
@@ -5283,6 +5324,7 @@ void dump_state(int opcode, int inst_length)
     }
   printf("\nCC:%02X (%s)", pstate.FLAGS, str_flags);
   printf("\n");
+  printf("========================================\n");
 #endif
 }
 
