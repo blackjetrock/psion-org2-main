@@ -15,7 +15,7 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED       0
+#define EMBEDDED       1
 #define DISPLAY_LCD    1
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2330,6 +2330,8 @@ struct
 #define FL_C1        (REG_FLAGS |= (FLAG_C_MASK))
 #define FL_I0        (REG_FLAGS &= (~FLAG_I_MASK))
 #define FL_I1        (REG_FLAGS |= FLAG_I_MASK)
+#define FL_H0        (REG_FLAGS &= (~FLAG_H_MASK))
+#define FL_H1        (REG_FLAGS |= FLAG_H_MASK)
 
 #define FL_VSET(XXX) XXX?FL_V1:FL_V0
 #define FL_V_NXORC   (((FLG_N && (!FLG_C)) || ((!FLG_N) && FLG_C)))?FL_V1:FL_V0
@@ -2338,11 +2340,11 @@ struct
 #define FL_C_0OR1    (FLG_C?1:0)
 
 #define FL_V80(XXX)  if(XXX==0x80) {REG_FLAGS |= FLAG_V_MASK;} else {REG_FLAGS &= ~FLAG_V_MASK;}
-#define FL_V8T(RR,MM,XX)  ( (B7(XX) && NB7(MM) && NB7(RR)) || (NB7(XX) &&  B7(MM) && B7(RR)) )
-#define FL_V8TP(RR,MM,XX) ( (B7(XX) &&  B7(MM) && NB7(RR)) || (NB7(XX) && NB7(MM) && B7(RR)) )
+#define FL_V8T(RR,MM,XX)  if( (B7(XX) && NB7(MM) && NB7(RR)) || (NB7(XX) &&  B7(MM) && B7(RR)) )FL_V1; else FL_V0;
+#define FL_V8TP(RR,MM,XX) if( (B7(XX) &&  B7(MM) && NB7(RR)) || (NB7(XX) && NB7(MM) && B7(RR)) )FL_V1; else FL_V0;
 
-#define FL_C8T(RR,MM,XX)  ( (NB7(XX) && B7(MM)) || (B7(MM) &&  B7(RR)) || ( B7(RR) && NB7(XX)))
-#define FL_C8TP(RR,MM,XX) (  (B7(XX) && B7(MM)) || (B7(MM) && NB7(RR)) || (NB7(RR) &&  B7(XX)))
+#define FL_C8T(RR,MM,XX)  ( (NB7(XX) && B7(MM)) || (B7(MM) &&  B7(RR)) || ( B7(RR) && NB7(XX)))?FL_C1:FL_C0
+#define FL_C8TP(RR,MM,XX) (  (B7(XX) && B7(MM)) || (B7(MM) && NB7(RR)) || (NB7(RR) &&  B7(XX)))?FL_C1:FL_C0
 
 // Flag testing
 #define FL_ZT(XXX)   if(XXX==0) {REG_FLAGS |= FLAG_Z_MASK;} else {REG_FLAGS &= ~FLAG_Z_MASK;}
@@ -2350,13 +2352,13 @@ struct
 #define FL_N8T(XXX)  if(XXX & 0x0080) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 #define FL_N16T(XXX) if(XXX & 0x8000) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 
-#define FL_H(RR,MM,XX) ( (B3(XX) && B3(MM)) || (B3(MM) && NB3(RR)) || (NB3(RR) && B3(XX)) )
+#define FL_H(RR,MM,XX) ( (B3(XX) && B3(MM)) || (B3(MM) && NB3(RR)) || (NB3(RR) && B3(XX)) )?FL_H1:FL_H0
 
-#define FL_V16AT(RR,MM,XX) (( B15(XX) &  B15(MM) & NB15(RR)) || (NB15(XX) & NB15(MM) &  B15(RR)) )
-#define FL_V16ST(RR,MM,XX) (( B15(XX) & NB15(MM) & NB15(RR)) || (NB15(XX) &  B15(MM) &  B15(RR)) )
+#define FL_V16AT(RR,MM,XX) (( B15(XX) &  B15(MM) & NB15(RR)) || (NB15(XX) & NB15(MM) &  B15(RR)) )?FL_V1:FL_V0
+#define FL_V16ST(RR,MM,XX) (( B15(XX) & NB15(MM) & NB15(RR)) || (NB15(XX) &  B15(MM) &  B15(RR)) )?FL_V1:FL_V0
 
-#define FL_C16AT(RR,MM,XX) (( B15(XX) &  B15(MM)) || (B15(MM) & NB15(RR)) || (NB15(RR) &  B15(XX)))
-#define FL_C16ST(RR,MM,XX) ((NB15(XX) &  B15(MM)) || (B15(MM) &  B15(RR)) || ( B15(RR) & NB15(XX)))
+#define FL_C16AT(RR,MM,XX) (( B15(XX) &  B15(MM)) || (B15(MM) & NB15(RR)) || (NB15(RR) &  B15(XX)))?FL_C1:FL_C0
+#define FL_C16ST(RR,MM,XX) ((NB15(XX) &  B15(MM)) || (B15(MM) &  B15(RR)) || ( B15(RR) & NB15(XX)))?FL_C1:FL_C0
 
 typedef struct _PROC6303_STATE
 {
@@ -3826,8 +3828,9 @@ OPCODE_FN(op_adc)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
   (*dest) += add + FL_C_0OR1;
+
+  FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_C8T(*dest,add,before);
@@ -3896,8 +3899,8 @@ OPCODE_FN(op_add)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
   (*dest) += add;
+  FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_C8T(*dest,add,before);
@@ -4043,8 +4046,9 @@ OPCODE_FN(op_cmp)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
   u_int8_t res = (*dest) - add;
+  printf("\n res= %02X", res);
+  FL_V8T(res,add,before);
   FL_ZT(res);
   FL_N8T(res);
   FL_C8T(res,add,before);
@@ -4064,8 +4068,9 @@ OPCODE_FN(op_cba)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
+
   u_int8_t res = *dest - add;
+  FL_V8T(res,add,before);
   FL_ZT(res);
   FL_N8T(res);
   FL_C8T(res,add,before);
@@ -4085,8 +4090,8 @@ OPCODE_FN(op_sba)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
   *dest -= add;
+  FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_C8T(*dest,add,before);
@@ -4155,8 +4160,8 @@ OPCODE_FN(op_sbc)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
   (*dest) -= add + FL_C_0OR1;
+  FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_C8T(*dest,add,before);
@@ -4225,8 +4230,8 @@ OPCODE_FN(op_sub)
   before = *dest;
   
   // Special flag test
-  FL_V8T(*dest,add,before);
   (*dest) -= add;
+  FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_C8T(*dest,add,before);
@@ -5300,7 +5305,7 @@ void dump_state(int opcode, int inst_length)
 {
 #if !EMBEDDED
   printf("\n----------------------------------------");
-  printf("\nPC:%04X  %s   ", pc_before, (strlen(opcode_decode)==0)?opcode_names[opcode]:opcode_decode);
+  printf("\n         %s   ", (strlen(opcode_decode)==0)?opcode_names[opcode]:opcode_decode);
 
   printf("  :  ");
   for(int i=0; i<inst_length; i++)
@@ -5442,8 +5447,9 @@ void main(void)
 
 #if !EMBEDDED
       fprintf(af, "%06X\n", REG_PC & 0x7fff);
-#endif
-      
+      printf("\nPC:%04x %04x %04x\n", REG_PC, REG_D, REG_X);
+#endif      
+
       // Fetch opcode
       opcode = RD_ADDR(REG_PC);
 
