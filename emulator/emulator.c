@@ -15,8 +15,9 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED       1
-#define DISPLAY_LCD    1
+#define EMBEDDED           1
+#define DISPLAY_LCD        1
+#define DISPLAY_LCD_HEX    0
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -25,6 +26,9 @@ int pc_before;
 
 #define LCD_CTRL_REG   0x0180
 #define LCD_DATA_REG   0x0181
+
+#define SCA_RESET      0x0300
+#define SCA_CLOCK      0x0340
 
 #define MAX_DDRAM 0xFF
 
@@ -2115,12 +2119,31 @@ u_int8_t romdata[] = {
 // ASSEMBLER_EMBEDDED_CODE_END
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// SCA counter handling
+
+u_int8_t sca_counter = 0;
+
+void handle_sca(u_int16_t addr)
+{
+  switch(addr)
+    {
+    case SCA_RESET:
+      sca_counter = 0;
+      break;
+      
+    case SCA_CLOCK:
+      sca_counter++;
+      break;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // LCD handling
 
 int lcd_ddram    = 0;
-char lcd_display_buffer[MAX_DDRAM+1];
+char lcd_display_buffer[MAX_DDRAM+2];
+char last_lcd_display_buffer[MAX_DDRAM+2];
 int display_on   = 0;
 int lcd_cursor   = 0;
 int lcd_blink    = 0;
@@ -2157,35 +2180,56 @@ void dump_lcd(void)
 {
   int i;
   
-#if DISPLAY_LCD  
-  printf("\n          LCD:'");
-  for(i=0; i<=0x1F; i++)
-    {
-      if( isprint(lcd_display_buffer[i]) )
-	{
-	  printf("%c", lcd_display_buffer[i]);
-	}
-      else
-	{
-	  printf(".");
-	}
-    }
-  printf("' '");
+#if DISPLAY_LCD
 
-  for(i=0x40; i<=0x5F; i++)
+  if( strcmp(last_lcd_display_buffer, lcd_display_buffer) != 0 )
     {
-      if( isprint(lcd_display_buffer[i]) )
+      printf("\n'");
+      for(i=0; i<=0x1F; i++)
 	{
-	  printf("%c", lcd_display_buffer[i]);
+	  if( isprint(lcd_display_buffer[i]) )
+	    {
+	      printf("%c", lcd_display_buffer[i]);
+	    }
+	  else
+	    {
+	      printf(".");
+	    }
 	}
-      else
+      printf("'\n'");
+      
+      for(i=0x40; i<=0x5F; i++)
 	{
-	  printf(".");
+	  if( isprint(lcd_display_buffer[i]) )
+	    {
+	      printf("%c", lcd_display_buffer[i]);
+	    }
+	  else
+	    {
+	      printf(".");
+	    }
 	}
-    }
-  printf("'");
+      printf("'\n");
 
-  printf("\n          LCD:%s  DDRAM:%02X AutoInc:%d", display_on? "ON ": "OFF", lcd_ddram, lcd_auto_inc);
+#if DISPLAY_LCD_HEX      
+      printf("\n'");
+      for(i=0; i<=0x1F; i++)
+	{
+	  printf("%02X", lcd_display_buffer[i]);
+	}
+      printf("'\n'");
+      
+      for(i=0x40; i<=0x5F; i++)
+	{
+	  printf("%02X", lcd_display_buffer[i]);
+	}
+      printf("'");
+      
+      printf("\n          LCD:%s  DDRAM:%02X AutoInc:%d", display_on? "ON ": "OFF", lcd_ddram, lcd_auto_inc);
+#endif
+      
+      strcpy(last_lcd_display_buffer, lcd_display_buffer);
+    }
 #endif
 }
 
@@ -2195,11 +2239,11 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
     {
     case LCD_CTRL_REG:
       // Control write
-#if DISPLAY_LCD
+#if !EMBEDDED
       printf("\nWrite of LCD ctrl register Value %02X", value);
 #endif
 
-      if( (value >= 0x40) && (value <= 0xFF) )
+      if( (value >= 0x70) && (value <= 0xFF) )
 	{
 	  lcd_ddram = value & 0x7f;
 	}
@@ -2247,9 +2291,8 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
       break;
 
     case LCD_DATA_REG:
-#if 1
+#if !EMBEDDED
       printf("\nWrite of LCD data register Value %02X ('%c') at %02X\n", value,  value, lcd_ddram);
-
 #endif
       lcd_display_buffer[lcd_ddram] = value;
 
@@ -2368,20 +2411,30 @@ typedef struct _PROC6303_STATE
   u_int8_t   A;
   u_int8_t   B;
   u_int8_t   FLAGS;
+  int        memory;        // Memory reference is being used
+  u_int16_t  memory_addr;   // Address of memory being referenced
 } PROC6303_STATE;
 
 
 PROC6303_STATE pstate;
 
-// Dereference a byte in the memory space
+// Returns a reference to a byte in the memory space
+// 
 u_int8_t *REF_ADDR(u_int16_t addr)
 {
+
   if( addr > 0x7fff)
     {
       return(&romdata[addr-0x8000]);
     }
   else
     {
+      // RAM accesses can perform hardware actions so
+      // set a flag saying we are referencing RAM and then
+      // allow the rd and wr actions to be performed on
+      // the address when the instruction is executed.
+      pstate.memory = 1;
+      pstate.memory_addr = addr;
 #if !EMBEDDED      
       if( addr < 0x1000 )
 	{
@@ -2390,9 +2443,73 @@ u_int8_t *REF_ADDR(u_int16_t addr)
 #endif
       return(&ramdata[addr]);
     }
-  
 }
 
+//------------------------------------------------------------------------------
+//
+// Memory reference read
+
+u_int8_t RD_REF(u_int16_t addr)
+{
+  switch(addr)
+    {
+    case TIM1_TCSR:
+#if !EMBEDDED
+      printf("\nTIM1ER PC:%04X:Read TCSR", REG_PC);
+#endif
+      return(timer1_tcsr);
+      break;
+      
+    case LCD_CTRL_REG:
+    case LCD_DATA_REG:
+      return(handle_lcd_read(addr));
+      break;
+
+    case SCA_RESET:
+    case SCA_CLOCK:
+      handle_sca(addr);
+      return(0);
+      break;
+    }
+
+}
+
+void WR_REF(u_int16_t addr, u_int8_t value)
+{
+  switch(addr)
+    {
+    case TIM1_TCSR:
+#if !EMBEDDED
+      printf("\nTIM1ER PC:%04X:Write TCSR", REG_PC);
+#endif
+      timer1_tcsr = value;
+      break;
+      
+    case TIM1_COUNTER_H:
+    case TIM1_COUNTER_L:
+    case TIM1_OCOMP_H:
+    case TIM1_OCOMP_L:
+    case TIM1_ICAP_H:
+    case TIM1_ICAP_L:
+#if !EMBEDDED
+      printf("\nTimer1 Access");
+#endif
+      break;
+      
+    case LCD_CTRL_REG:
+    case LCD_DATA_REG:
+      return(handle_lcd_write(addr, value));
+      break;
+
+    case SCA_RESET:
+    case SCA_CLOCK:
+      handle_sca(addr);
+      return;
+      break;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Read a byte from memory
 // Has to handle LCD accesses
 
@@ -2410,6 +2527,12 @@ u_int8_t RD_ADDR(u_int16_t addr)
     case LCD_CTRL_REG:
     case LCD_DATA_REG:
       return(handle_lcd_read(addr));
+      break;
+
+    case SCA_RESET:
+    case SCA_CLOCK:
+      handle_sca(addr);
+      return(0);
       break;
     }
   
@@ -2473,6 +2596,12 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
     case LCD_CTRL_REG:
     case LCD_DATA_REG:
       return(handle_lcd_write(addr, value));
+      break;
+
+    case SCA_RESET:
+    case SCA_CLOCK:
+      handle_sca(addr);
+      return;
       break;
     }
   
@@ -3758,9 +3887,21 @@ OPCODE_FN(op_dec8)
       break;
     }
   
-  // Special flag test
   FL_V80(*dest);
+  
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
   (*dest)--;
+  
+   if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+  
   FL_ZT(*dest);
   FL_N8T(*dest);
   
@@ -4047,7 +4188,6 @@ OPCODE_FN(op_cmp)
   
   // Special flag test
   u_int8_t res = (*dest) - add;
-  printf("\n res= %02X", res);
   FL_V8T(res,add,before);
   FL_ZT(res);
   FL_N8T(res);
@@ -4263,10 +4403,22 @@ OPCODE_FN(op_inc8)
       INC_PC;
       break;
     }
-  
-  // Special flag test
+
   FL_V80(*dest);
+
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
   (*dest)++;
+  
+   if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+
   FL_ZT(*dest);
   FL_N8T(*dest);
   
@@ -4299,7 +4451,19 @@ OPCODE_FN(op_clr)
     }
   
   // Special flag test
-  *dest = 0;
+    if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
+    *dest = 0;
+  
+    if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+ 
   FL_V0;
   FL_C0;
   FL_Z1;
@@ -4334,7 +4498,19 @@ OPCODE_FN(op_neg)
     }
   
   // Special flag test
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
   *dest = 0 - *dest;
+  
+  if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+  
   FL_V0;
   FL_C0;
   FL_Z1;
@@ -4371,7 +4547,20 @@ OPCODE_FN(op_asl)
   // Special flag test
   FL_CSET((*dest) & 0x80);
 
+
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
   *dest <<= 1;
+  
+  if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+    
   FL_V_NXORC;
   FL_ZT(*dest);
   FL_N8T(*dest);
@@ -4406,12 +4595,23 @@ OPCODE_FN(op_lsr)
   
   // Special flag test
   FL_CSET((*dest) & 1);
-
+  
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
   *dest >>= 1;
+  
+  if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+
   FL_VSET(FLG_C);
   FL_ZT(*dest);
   FL_N0;
-  
 }
 
 OPCODE_FN(op_lsrd)
@@ -4477,11 +4677,18 @@ OPCODE_FN(op_asr)
   // Special flag test
   FL_CSET((*dest) & 1);
 
-  *dest >>= 1;
-  if( (*dest) & 0x40 )
+  if(pstate.memory)
     {
-      *dest |= 0x80;
-    }
+      RD_REF(pstate.memory_addr);
+      *dest >>= 1;
+      if( (*dest) & 0x40 )
+	{
+	  *dest |= 0x80;
+	}
+      
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }					      
   
   FL_V_NXORC;
   FL_ZT(*dest);
@@ -4520,11 +4727,19 @@ OPCODE_FN(op_rol)
   
   FL_CSET((*dest) & 0x80);
 
-  *dest <<= 1;
-  if( carry )
+    if(pstate.memory)
     {
-      *dest |= 0x01;
-    }
+      RD_REF(pstate.memory_addr);
+
+      *dest <<= 1;
+      if( carry )
+	{
+	  *dest |= 0x01;
+	}
+      
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }					      
 
   FL_ZT(*dest);
   FL_N8T(*dest);
@@ -4562,11 +4777,19 @@ OPCODE_FN(op_ror)
   
   FL_CSET((*dest) & 1);
 
-  *dest >>= 1;
-  if( carry )
+  if(pstate.memory)
     {
-      *dest |= 0x80;
-    }
+      RD_REF(pstate.memory_addr);
+
+      *dest >>= 1;
+      if( carry )
+	{
+	  *dest |= 0x80;
+	}
+      
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }					      
 
   FL_ZT(*dest);
   FL_N8T(*dest);
@@ -4602,6 +4825,13 @@ OPCODE_FN(op_tst)
   // Special flag test
   FL_V0;
   FL_C0;
+
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+      pstate.memory = 0;
+    }					      
+
   FL_ZT(*dest);
   FL_N8T(*dest);
   
@@ -5328,8 +5558,8 @@ void dump_state(int opcode, int inst_length)
 	}
     }
   printf("\nCC:%02X (%s)", pstate.FLAGS, str_flags);
-  printf("\n");
-  printf("========================================\n");
+  printf("\nSCACNT:%02X", sca_counter);
+  printf("\n========================================\n");
 #endif
 }
 
@@ -5390,6 +5620,28 @@ void update_timers(void)
     }
 }
 
+u_int16_t sca_counter_a = 0;
+u_int16_t sca_counter_b = 0;
+
+void update_counter(void)
+{
+  sca_counter_a++;
+
+  if( sca_counter_a == 0 )
+    {
+      sca_counter_b++;
+
+      if( sca_counter_b == 0x0400 )
+	{
+	  sca_counter_b = 0;
+	  printf("\nNMI");
+	  interrupt(0xFFFC);
+	}
+    }
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void main(void)
@@ -5409,12 +5661,9 @@ void main(void)
 
   ramdata[0x14] = 0x00;
 
-  // Initialise system variable for SWi screen clear
-#if 0
-  ramdata[0x2052] = 0x82;
-  ramdata[0x2053] = 0x42;
-#endif
-  
+  // No key pressed
+  ramdata[0x15] = 0x7C;
+
   // Execute
   // Human readable output to stdout
   // Address list to addrlist.txt which matches format of
@@ -5480,7 +5729,8 @@ void main(void)
 
       // Update timers
       update_timers();
-
+      update_counter();
+      
       dump_state(opcode, inst_length);
     }
 
