@@ -2149,9 +2149,11 @@ u_int8_t romdata[] = {
 // SCA counter handling
 
 u_int8_t sca_counter = 0;
+int sca_i= 0;
 
 void handle_sca(u_int16_t addr)
 {
+  sca_i++;
   switch(addr)
     {
     case SCA_RESET:
@@ -2165,7 +2167,7 @@ void handle_sca(u_int16_t addr)
   
 #if DISPLAY_STATUS
   char scastr[100];
-  sprintf(scastr, "SCA:%02X keyk:%d keyp5:%02X", sca_counter, keyk, keyp5);
+  sprintf(scastr, "%d SCA:%02X keyk:%d keyp5:%02X", sca_i, sca_counter, keyk, keyp5);
   mvaddstr(6,10, scastr);
 #endif
   
@@ -2191,6 +2193,7 @@ void handle_sca(u_int16_t addr)
 	{
 	  if( (sca_counter & (1 << keyk))==0 )
 	    {
+	      mvaddch(7, 5+keyk, '*');	      
 #if !EMBEDDED
 	      printf("    KEY:key keyp5=%02X p5=%02X", keyp5, ramdata[P5_DATA]);
 #endif
@@ -2201,6 +2204,8 @@ void handle_sca(u_int16_t addr)
 	    }
 	  else
 	    {
+	      //mvaddch(7, 5+keyk, ' ');	      
+
 	      // Not our row
 	      ramdata[P5_DATA] = NO_KEY_STATE;
 	    }
@@ -2772,6 +2777,10 @@ OPCODE_FN(op_null)
   dump_ram();
   exit(-1);
 #else
+  char str[100];
+  sprintf(str, "Unknown opcode %02X", opcode);
+  mvaddstr(10,10, str);
+  refresh();
   while(1)
     {
     }
@@ -5872,7 +5881,8 @@ void main(void)
   REG_PC = (RD_ADDR(0xFFFE) << 8) | RD_ADDR(0xFFFF);
 
   // Top two bits of flags are 1
-  REG_FLAGS = 0xc0;
+  // I is set and H may be
+  REG_FLAGS = 0xf0;
   
   // Set up various hardware values
 
@@ -5943,19 +5953,19 @@ void main(void)
 		      
 		      keyp5 = ~(1<< keys[i].p5);
 		      keyp5 &= 0x7c;
-		      keyk = keys[i].p5;
+		      keyk = keys[i].k-1;
 		    }
 		}
 	    }
 	  char keystr[100];
-	  sprintf(keystr, "%02X", ramdata[P5_DATA]);
-	  mvaddstr(6,5, keystr);
+	  sprintf(keystr, "P5:%02X   ", ramdata[P5_DATA]);
+	  mvaddstr(8,5, keystr);
 	  
 	}
       
 #if !EMBEDDED
       fprintf(af, "%06X\n", REG_PC & 0x7fff);
-      printf("\nPC:%x %x %x\n", REG_PC, REG_D, REG_X);
+      printf("\nPC:%x %x %x %x\n", REG_PC, REG_D, REG_X, REG_FLAGS);
 #endif      
 
       // Fetch opcode
