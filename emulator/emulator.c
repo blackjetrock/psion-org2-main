@@ -25,7 +25,7 @@ int pc_before;
 #define DISPLAY_STATUS     1
 #define DUMP_RAM           1
 #define DISPLAY_PROCESSOR  0
-#define DISPLAY_PROC_PC    1
+#define DISPLAY_PROC_PC    0
 
 
 #define LAST_N_PC   10
@@ -4695,11 +4695,10 @@ OPCODE_FN(op_asl)
       WR_REF(pstate.memory_addr, *dest);
       pstate.memory = 0;
     }
-    
-  FL_V_NXORC;
+
   FL_ZT(*dest);
   FL_N8T(*dest);
-  
+  FL_V_NXORC;  
 }
 
 OPCODE_FN(op_com)
@@ -4821,9 +4820,9 @@ OPCODE_FN(op_asld)
   FL_CSET(val & 0x80);
 
   val <<= 1;
-  FL_V_NXORC;
   FL_ZT(val);
   FL_N16T(val);
+  FL_V_NXORC;
   WRITE_REG_D(val);
   
 }
@@ -4873,11 +4872,10 @@ OPCODE_FN(op_asr)
       WR_REF(pstate.memory_addr, *dest);
       pstate.memory = 0;
     }					      
-  
-  FL_V_NXORC;
+
   FL_ZT(*dest);
   FL_N0;
-  
+  FL_V_NXORC;  
 }
 
 OPCODE_FN(op_rol)
