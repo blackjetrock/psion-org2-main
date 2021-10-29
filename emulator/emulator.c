@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <ncurses.h>
+#include <termio.h>
+#include <unistd.h>
+
 // Emulates the 6303 processor
 // Emulates the HD44780 LCD controller
 
@@ -18,6 +22,26 @@ int pc_before;
 #define EMBEDDED           1
 #define DISPLAY_LCD        1
 #define DISPLAY_LCD_HEX    0
+#define DISPLAY_STATUS     1
+#define DUMP_RAM           1
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+
+#define COLD_START_STATE   0x00
+#define WARM_START_STATE   0x80
+
+#define P5_DATA  0x15
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Keyboard
+//
+
+#define NO_KEY_STATE  0x7c
+int keyp5 = NO_KEY_STATE;
+int keyk = 3;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -64,6 +88,8 @@ char opcode_decode[100] = "";
 
 // Calculate word address from two bytes
 #define ADDR_WORD(HI,LO)    ((((u_int16_t)HI)<<8)+LO)
+
+u_int8_t ramdata[32768];
 
 u_int8_t romdata[] = {
    // ASSEMBLER_EMBEDDED_CODE_START
@@ -2136,6 +2162,55 @@ void handle_sca(u_int16_t addr)
       sca_counter++;
       break;
     }
+  
+#if DISPLAY_STATUS
+  char scastr[100];
+  sprintf(scastr, "SCA:%02X keyk:%d keyp5:%02X", sca_counter, keyk, keyp5);
+  mvaddstr(6,10, scastr);
+#endif
+  
+  // No key?
+  if( keyk == -1 )
+    {
+#if !EMBEDDED
+      printf("    KEY:No key");
+#endif
+      ramdata[P5_DATA] = NO_KEY_STATE;
+    }
+  else
+    {
+      // Scanning for all keys?
+      if( sca_counter == 0x7f )
+	{
+#if !EMBEDDED
+      printf("    KEY:All keys");
+#endif
+	  ramdata[P5_DATA] = keyp5; 
+	}
+      else
+	{
+	  if( (sca_counter & (1 << keyk))==0 )
+	    {
+#if !EMBEDDED
+	      printf("    KEY:key keyp5=%02X p5=%02X", keyp5, ramdata[P5_DATA]);
+#endif
+	      ramdata[P5_DATA] = keyp5;
+#if !EMBEDDED
+	      printf("    KEY:key keyp5=%02X p5=%02X", keyp5, ramdata[P5_DATA]);
+#endif
+	    }
+	  else
+	    {
+	      // Not our row
+	      ramdata[P5_DATA] = NO_KEY_STATE;
+	    }
+	}
+    }
+  
+#if !EMBEDDED
+  printf("    KEY:p5 now %02X", ramdata[P5_DATA]);
+#endif
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2184,33 +2259,34 @@ void dump_lcd(void)
 
   if( strcmp(last_lcd_display_buffer, lcd_display_buffer) != 0 )
     {
-      printf("\n'");
+      //      printf("\n'");
       for(i=0; i<=0x1F; i++)
 	{
 	  if( isprint(lcd_display_buffer[i]) )
 	    {
-	      printf("%c", lcd_display_buffer[i]);
+	      mvaddch(0, i, lcd_display_buffer[i]);
 	    }
 	  else
 	    {
-	      printf(".");
+	      mvaddch(0, i, '.');
 	    }
 	}
-      printf("'\n'");
-      
+	  //      printf("'\n'");
+
       for(i=0x40; i<=0x5F; i++)
 	{
 	  if( isprint(lcd_display_buffer[i]) )
 	    {
-	      printf("%c", lcd_display_buffer[i]);
+	      mvaddch(1, i-0x40, lcd_display_buffer[i]);
 	    }
 	  else
 	    {
-	      printf(".");
+	      mvaddch(1, i-0x40, '.');
 	    }
 	}
-      printf("'\n");
-
+	  //printf("'\n");
+      refresh();
+      
 #if DISPLAY_LCD_HEX      
       printf("\n'");
       for(i=0; i<=0x1F; i++)
@@ -2311,7 +2387,7 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-u_int8_t ramdata[32768];
+
 
 
 #define REG_A  (pstate.A)
@@ -2395,13 +2471,13 @@ struct
 #define FL_N8T(XXX)  if(XXX & 0x0080) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 #define FL_N16T(XXX) if(XXX & 0x8000) {REG_FLAGS |= FLAG_N_MASK;} else {REG_FLAGS &= ~FLAG_N_MASK;}
 
-#define FL_H(RR,MM,XX) ( (B3(XX) && B3(MM)) || (B3(MM) && NB3(RR)) || (NB3(RR) && B3(XX)) )?FL_H1:FL_H0
+#define FL_H(RR,MM,XX)     (( B3(XX) && B3(MM)) || (B3(MM) && NB3(RR)) || (NB3(RR) && B3(XX)) )?FL_H1:FL_H0
 
-#define FL_V16AT(RR,MM,XX) (( B15(XX) &  B15(MM) & NB15(RR)) || (NB15(XX) & NB15(MM) &  B15(RR)) )?FL_V1:FL_V0
-#define FL_V16ST(RR,MM,XX) (( B15(XX) & NB15(MM) & NB15(RR)) || (NB15(XX) &  B15(MM) &  B15(RR)) )?FL_V1:FL_V0
+#define FL_V16AT(RR,MM,XX) (( B15(XX) &&  B15(MM) && NB15(RR)) || (NB15(XX) && NB15(MM) &&  B15(RR)) )?FL_V1:FL_V0
+#define FL_V16ST(RR,MM,XX) (( B15(XX) && NB15(MM) && NB15(RR)) || (NB15(XX) &&  B15(MM) &&  B15(RR)) )?FL_V1:FL_V0
 
-#define FL_C16AT(RR,MM,XX) (( B15(XX) &  B15(MM)) || (B15(MM) & NB15(RR)) || (NB15(RR) &  B15(XX)))?FL_C1:FL_C0
-#define FL_C16ST(RR,MM,XX) ((NB15(XX) &  B15(MM)) || (B15(MM) &  B15(RR)) || ( B15(RR) & NB15(XX)))?FL_C1:FL_C0
+#define FL_C16AT(RR,MM,XX) (( B15(XX) &&  B15(MM)) || (B15(MM) && NB15(RR)) || (NB15(RR) &&  B15(XX)))?FL_C1:FL_C0
+#define FL_C16ST(RR,MM,XX) ((NB15(XX) &&  B15(MM)) || (B15(MM) &&  B15(RR)) || ( B15(RR) && NB15(XX)))?FL_C1:FL_C0
 
 typedef struct _PROC6303_STATE
 {
@@ -2436,10 +2512,7 @@ u_int8_t *REF_ADDR(u_int16_t addr)
       pstate.memory = 1;
       pstate.memory_addr = addr;
 #if !EMBEDDED      
-      if( addr < 0x1000 )
-	{
-	  printf(" REF of %04X: %02X", addr, ramdata[addr]);
-	}
+      printf(" REF of %04X: %02X", addr, ramdata[addr]);
 #endif
       return(&ramdata[addr]);
     }
@@ -2625,7 +2698,8 @@ void  WRW_ADDR(u_int16_t addr, u_int16_t value)
 
   v1 = value >> 8;
   v2 = value & 0xff;
-  
+
+#if 0  
   if( addr > 0x7fff)
     {
       romdata[(addr-0x8000)+0] = v1;
@@ -2639,6 +2713,10 @@ void  WRW_ADDR(u_int16_t addr, u_int16_t value)
       printf("  RAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
 #endif
     }
+#else
+  WR_ADDR(addr+0, v1);
+  WR_ADDR(addr+1, v2);
+#endif
 }
 
 
@@ -3663,7 +3741,7 @@ OPCODE_FN(op_br)
 #if !EMBEDDED
       printf("\nPC=%04X", REG_PC);
       printf("\nrel=%d", rel);
-      sprintf(opcode_decode, "BRA %02X, (%d) %04X", p1, rel, REG_PC+1+rel); 
+      sprintf(opcode_decode, "BRA %02X, (%d) %04X", p1, rel, REG_PC+2+rel); 
 #endif
       REG_PC += 1 + rel;
       branched = 1;
@@ -3676,13 +3754,13 @@ OPCODE_FN(op_br)
       // Branch never?
     case 0x21:
 #if !EMBEDDED
-            sprintf(opcode_decode, "BRN %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+            sprintf(opcode_decode, "BRN %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
       break;
 
     case 0x22:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BHI %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BHI %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
       if( !(FLG_C || FLG_Z) )
 	{
@@ -3693,7 +3771,7 @@ OPCODE_FN(op_br)
 
     case 0x23:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BLS %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BLS %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
       if( FLG_C || FLG_Z )
 	{
@@ -3704,7 +3782,7 @@ OPCODE_FN(op_br)
 
     case 0x24:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BCC %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BCC %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( FLG_C == 0 )
@@ -3716,7 +3794,7 @@ OPCODE_FN(op_br)
 
     case 0x25:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BCS %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BCS %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( FLG_C )
@@ -3728,7 +3806,7 @@ OPCODE_FN(op_br)
 
     case 0x26:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BNE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BNE %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( !FLG_Z )
@@ -3740,7 +3818,7 @@ OPCODE_FN(op_br)
 
     case 0x27:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BEQ %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BEQ %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( FLG_Z )
@@ -3752,7 +3830,7 @@ OPCODE_FN(op_br)
 
     case 0x28:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BVC %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BVC %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
       
       if( !FLG_V )
@@ -3764,7 +3842,7 @@ OPCODE_FN(op_br)
       
     case 0x29:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BVS %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BVS %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( FLG_V )
@@ -3776,7 +3854,7 @@ OPCODE_FN(op_br)
 
     case 0x2A:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BPL %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BPL %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( !FLG_N )
@@ -3788,7 +3866,7 @@ OPCODE_FN(op_br)
 
     case 0x2B:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BMI %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BMI %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( FLG_N )
@@ -3800,7 +3878,7 @@ OPCODE_FN(op_br)
 
     case 0x2C:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BGE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BGE %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( (FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V)) )
@@ -3812,7 +3890,7 @@ OPCODE_FN(op_br)
       
     case 0x2D:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BLT %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BLT %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( ((!FLG_N) && FLG_V) || (FLG_N && (!FLG_V)) )
@@ -3824,7 +3902,7 @@ OPCODE_FN(op_br)
       
     case 0x2E:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BGT %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BGT %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( FLG_Z || ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
@@ -3836,7 +3914,7 @@ OPCODE_FN(op_br)
       
     case 0x2F:
 #if !EMBEDDED
-      sprintf(opcode_decode, "BLE %02X, (%d) %04X", p1, rel, REG_PC+1+rel);
+      sprintf(opcode_decode, "BLE %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
       if( !(FLG_Z || ( (FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V)))) )
@@ -3877,7 +3955,8 @@ OPCODE_FN(op_dec8)
       break;
 
     case 0x7A:
-      dest = REF_ADDR(p1);
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
       INC_PC;
       break;
 
@@ -4394,7 +4473,8 @@ OPCODE_FN(op_inc8)
       break;
 
     case 0x7C:
-      dest = REF_ADDR(p1);
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
       INC_PC;
       break;
 
@@ -4680,12 +4760,16 @@ OPCODE_FN(op_asr)
   if(pstate.memory)
     {
       RD_REF(pstate.memory_addr);
-      *dest >>= 1;
-      if( (*dest) & 0x40 )
-	{
-	  *dest |= 0x80;
-	}
-      
+    }
+  
+  *dest >>= 1;
+  if( (*dest) & 0x40 )
+    {
+      *dest |= 0x80;
+    }
+
+  if( pstate.memory )
+    {
       WR_REF(pstate.memory_addr, *dest);
       pstate.memory = 0;
     }					      
@@ -4726,21 +4810,24 @@ OPCODE_FN(op_rol)
   int carry = FLG_C;
   
   FL_CSET((*dest) & 0x80);
-
-    if(pstate.memory)
+  
+  if(pstate.memory)
     {
       RD_REF(pstate.memory_addr);
-
-      *dest <<= 1;
-      if( carry )
-	{
-	  *dest |= 0x01;
-	}
-      
+    }
+  
+  *dest <<= 1;
+  if( carry )
+    {
+      *dest |= 0x01;
+    }
+  
+  if( pstate.memory )
+    {
       WR_REF(pstate.memory_addr, *dest);
       pstate.memory = 0;
     }					      
-
+  
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_V_NXORC;
@@ -4780,13 +4867,15 @@ OPCODE_FN(op_ror)
   if(pstate.memory)
     {
       RD_REF(pstate.memory_addr);
-
-      *dest >>= 1;
-      if( carry )
-	{
-	  *dest |= 0x80;
-	}
-      
+    }
+  
+  *dest >>= 1;
+  if( carry )
+    {
+      *dest |= 0x80;
+    }
+  if( pstate.memory )
+    {
       WR_REF(pstate.memory_addr, *dest);
       pstate.memory = 0;
     }					      
@@ -4861,7 +4950,9 @@ OPCODE_FN(op_swi)
   // Decrement as there is an automatic increment by one
   // for opcode skipping
   REG_PC--;
-  
+
+  // Display the SWi code
+  inst_length++;
 }
 
 OPCODE_FN(op_trap)
@@ -5558,7 +5649,7 @@ void dump_state(int opcode, int inst_length)
 	}
     }
   printf("\nCC:%02X (%s)", pstate.FLAGS, str_flags);
-  printf("\nSCACNT:%02X", sca_counter);
+  printf("\nSCACNT:%02X keyk:%d keyp5:%02X", sca_counter, keyk, keyp5);
   printf("\n========================================\n");
 #endif
 }
@@ -5580,9 +5671,7 @@ void interrupt(u_int16_t vector_msb)
   printf("\nINTERRUPT:Vector %04X\n", vector_msb);
 #endif
   
-  // Mask interrupts
-  FL_I1;
-
+ 
   // Push registers
   WR_ADDR(REG_SP--, REG_PC & 0xFF);
   WR_ADDR(REG_SP--, REG_PC >> 8);
@@ -5594,6 +5683,9 @@ void interrupt(u_int16_t vector_msb)
 
   // Vector
   REG_PC = (((u_int16_t)RD_ADDR(vector_msb)) << 8) | RD_ADDR(vector_msb+1);
+
+  // Mask interrupts
+  FL_I1;
 
 #if !EMBEDDED
   printf("\n    PC:%04X", REG_PC);
@@ -5615,6 +5707,9 @@ void update_timers(void)
 
       if( timer1_tcsr & 0x08 )
 	{
+#if !EMBEDDED
+	  printf("\nOCI Int\n");
+#endif
 	  interrupt(0xFFF4);
 	}
     }
@@ -5634,21 +5729,140 @@ void update_counter(void)
       if( sca_counter_b == 0x0400 )
 	{
 	  sca_counter_b = 0;
-	  printf("\nNMI");
+#if DISPLAY_STATUS
+	  mvaddstr(6, 5, "NMI");
+#endif
 	  interrupt(0xFFFC);
 	}
     }
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void init_curses(void)
+{
+  //initscr();  
+  //timeout(1);
+
+  initscr();
+
+  cbreak();
+  noecho();
+  nodelay(stdscr, TRUE);
+
+    //scrollok(stdscr, TRUE);
+}
+
+void end_curses(void)
+{
+  endwin();
+}
+#if 0
+bool kbhit(void)
+{
+    struct termios original;
+    tcgetattr(STDIN_FILENO, &original);
+
+    struct termios term;
+    memcpy(&term, &original, sizeof(term));
+
+    term.c_lflag &= ~ICANON;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
+
+    int characters_buffered = 0;
+    ioctl(STDIN_FILENO, FIONREAD, &characters_buffered);
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &original);
+
+    bool pressed = (characters_buffered != 0);
+
+    return pressed;
+}
+#endif
+void echoOff(void)
+{
+    struct termios term;
+    tcgetattr(STDIN_FILENO, &term);
+
+    term.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+
+void echoOn(void)
+{
+    struct termios term;
+    tcgetattr(STDIN_FILENO, &term);
+
+    term.c_lflag |= ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Keyboard
+
+#define NUM_KEYS 35
+
+struct
+{
+  char c;
+  int k;
+  int p5;
+} keys[NUM_KEYS] =
+  {
+   {'a', 2, 6},
+   {'b', 3, 6},
+   {'c', 4, 6},
+   {'d', 7, 6},
+   {'e', 5, 6},
+   {'f', 6, 6},
+   {'g', 2, 5},
+   {'h', 3, 5},
+   {'i', 4, 5},
+   {'j', 7, 5},
+   {'k', 5, 5},
+   {'l', 6, 5},
+   {'m', 2, 4},
+   {'n', 3, 4},
+   {'o', 4, 4},
+   {'p', 7, 4},
+   {'q', 5, 4},
+   {'r', 6, 4},
+   {'s', 2, 3},
+   {'t', 3, 3},
+   {'u', 4, 3},
+   {'v', 7, 3},
+   {'w', 5, 3},
+   {'x', 6, 3},
+   {'y', 4, 2},
+   {'z', 7, 2},
+   {' ', 5, 2},
+   { 10, 6, 2},  // EXE
+   {'^', 2, 2},  // SHIFT
+   {'[', 3, 2},  // DEL
+   {'!', 2, 1},  // Mode
+   {'+', 3, 1},  // UP
+   {'-', 4, 1},  // DOWN
+   {'<', 5, 1},
+   {'>', 6, 1},
+
+  };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void main(void)
 {
-#if !EMBEDDED  
+#if !EMBEDDED
+
+  echoOff();
+  
   printf("\n");
   printf("\nROM Size:%ld", sizeof(romdata));
+#endif
+
+#if DISPLAY_LCD  
+  init_curses();
 #endif
   
   // Reset the processor
@@ -5657,12 +5871,15 @@ void main(void)
   // Load PC from FFFE and FFFF
   REG_PC = (RD_ADDR(0xFFFE) << 8) | RD_ADDR(0xFFFF);
 
+  // Top two bits of flags are 1
+  REG_FLAGS = 0xc0;
+  
   // Set up various hardware values
 
   ramdata[0x14] = 0x00;
 
   // No key pressed
-  ramdata[0x15] = 0x7C;
+  ramdata[P5_DATA] = COLD_START_STATE | NO_KEY_STATE;
 
   // Execute
   // Human readable output to stdout
@@ -5688,15 +5905,57 @@ void main(void)
       exit(-1);
     }
 #endif
-    
-  while(1)
+
+  int done = 0;
+  
+  while(!done)
     {
       u_int8_t opcode;
       u_int8_t p1, p2;
+      int c = wgetch(stdscr);
+      
+      if( c != ERR )
+	{
+	  char hexc[10];
+	  sprintf(hexc, "%02x", c);
+	  mvaddch(5,5, c);
+	  mvaddstr(5, 10, hexc);
 
+	  // If '~' then exit
+	  if ( c == '~' )
+	    {
+	      done = 1;
+	      continue;
+	    }
+	  
+	  // Run through and find key
+	  if( c == 0x1b )
+	    {
+	      keyp5 = 0x7c;
+	      keyk = -1;
+	    }
+	  else
+	    {
+	      for(int i=0; i<NUM_KEYS;i++)
+		{
+		  if( keys[i].c == c )
+		    {
+		      
+		      keyp5 = ~(1<< keys[i].p5);
+		      keyp5 &= 0x7c;
+		      keyk = keys[i].p5;
+		    }
+		}
+	    }
+	  char keystr[100];
+	  sprintf(keystr, "%02X", ramdata[P5_DATA]);
+	  mvaddstr(6,5, keystr);
+	  
+	}
+      
 #if !EMBEDDED
       fprintf(af, "%06X\n", REG_PC & 0x7fff);
-      printf("\nPC:%04x %04x %04x\n", REG_PC, REG_D, REG_X);
+      printf("\nPC:%x %x %x\n", REG_PC, REG_D, REG_X);
 #endif      
 
       // Fetch opcode
@@ -5738,6 +5997,16 @@ void main(void)
   fclose(af);
     
   printf("\n");
+
+
+#endif
+
+#if DISPLAY_LCD
+  end_curses();
+#endif
+  
+#if DUMP_RAM
+  dump_ram();
 #endif
 }
 
