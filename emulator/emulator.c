@@ -19,11 +19,16 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED           0
-#define DISPLAY_LCD        0
+#define EMBEDDED           1
+#define DISPLAY_LCD        1
 #define DISPLAY_LCD_HEX    0
 #define DISPLAY_STATUS     1
 #define DUMP_RAM           1
+#define DISPLAY_PROCESSOR  0
+#define DISPLAY_PROC_PC    1
+
+
+#define LAST_N_PC   10
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -6003,11 +6008,55 @@ void main(void)
 #endif
 
   int done = 0;
+
+  int last_n_pc[LAST_N_PC];
   
   while(!done)
     {
       u_int8_t opcode;
       u_int8_t p1, p2;
+
+      // Display processor status
+#if DISPLAY_PROCESSOR
+      char procstate[100];
+      sprintf(procstate, "PC:%04X A:%02X B:%02X X:%04X", REG_PC, REG_A, REG_B, REG_X);
+      
+      mvaddstr(12, 10, procstate);
+#endif
+
+#if DISPLAY_PROC_PC
+      // If pc isn't in list, push it on
+      int in_list = 0;
+      int change = 0;
+      for(int i=0; i<LAST_N_PC; i++)
+	{
+	  if( REG_PC == last_n_pc[i] )
+	    {
+	      in_list = 1;
+	    }
+	}
+
+      if( !in_list )
+	{
+	  change = 1;
+	  for(int i=0; i<LAST_N_PC-1; i++)
+	    {
+	      last_n_pc[i] = last_n_pc[i+1];
+	    }
+	  last_n_pc[LAST_N_PC-1] = REG_PC;
+	}
+
+      if( change )
+	{
+	  
+	  for(int i=0; i<LAST_N_PC;i++)
+	    {
+	      char pcstr[100];
+	      sprintf(pcstr, "%04X", last_n_pc[i]);
+	      mvaddstr(i+5, 60, pcstr);
+	    }
+	}
+#endif
       int c = wgetch(stdscr);
       
       if( c != ERR )
