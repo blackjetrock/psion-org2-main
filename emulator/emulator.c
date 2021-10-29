@@ -19,8 +19,8 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED           1
-#define DISPLAY_LCD        1
+#define EMBEDDED           0
+#define DISPLAY_LCD        0
 #define DISPLAY_LCD_HEX    0
 #define DISPLAY_STATUS     1
 #define DUMP_RAM           1
@@ -4066,6 +4066,42 @@ OPCODE_FN(op_adc)
   FL_H(*dest,add,before);
 }
 
+OPCODE_FN(op_daa)
+{
+  u_int8_t msn, lsn;
+  u_int16_t t, cf = 0;
+  
+  msn = REG_A & 0xf0;
+  lsn = REG_A & 0x0f;
+
+  if( FLG_H )
+    {
+      REG_A += 0x06;
+    }
+
+  if( lsn > 0x09 )
+    {
+      REG_A += 0x06;
+    }
+
+  if( FLG_C )
+    {
+      REG_A += 0x60;
+    }
+
+  if( REG_A > 0x9f )
+    {
+      REG_A += 0x60;
+    }
+  if( REG_A > 0x99 )
+    {
+      FL_C1;
+    }
+
+    FL_N8T(REG_A);
+    FL_ZT(REG_A);
+}
+
 OPCODE_FN(op_add)
 {
   u_int8_t add;
@@ -4074,6 +4110,11 @@ OPCODE_FN(op_add)
   
   switch(opcode)
     {
+    case 0x1B:
+      dest = &(REG_A);
+      add = REG_B;
+      break;
+      
     case 0x8B:
       dest = &(REG_A);
       add = p1;
@@ -4656,6 +4697,51 @@ OPCODE_FN(op_asl)
   
 }
 
+OPCODE_FN(op_com)
+{
+  u_int8_t *dest;
+  
+  switch(opcode)
+    {
+    case 0x44:
+      dest = &(REG_A);
+      break;
+      
+    case 0x54:
+      dest = &(REG_B);
+      break;
+
+    case 0x74:
+      dest = REF_ADDR(ADDR_WORD(p1,p2));
+      INC_PC;
+      INC_PC;
+      break;
+
+    case 0x64:
+      dest = REF_ADDR(REG_X+p1);
+      INC_PC;
+      break;
+    }
+  
+  if(pstate.memory)
+    {
+      RD_REF(pstate.memory_addr);
+    }
+  
+  *dest ^= 0xFF;
+  
+  if(pstate.memory)
+    {
+      WR_REF(pstate.memory_addr, *dest);
+      pstate.memory = 0;
+    }
+
+  FL_V0;
+  FL_C1;
+  FL_ZT(*dest);
+  FL_N8T(*dest);
+}
+
 OPCODE_FN(op_lsr)
 {
   u_int8_t *dest;
@@ -5136,9 +5222,9 @@ struct
      op_tab,                  // 16
      op_tba,                  // 17
      op_xgdx,                 // 18
-     op_null,                 // 19
+     op_daa,                  // 19
      op_slp,                  // 1A
-     op_null,                 // 1B
+     op_add,                  // 1B
      op_null,                 // 1C
      op_null,                 // 1D
      op_null,                 // 1E
@@ -5178,7 +5264,7 @@ struct
      op_neg,                  // 40
      op_null,                 // 41
      op_null,                 // 42
-     op_null,                 // 43
+     op_com,                  // 43
      op_lsr,                  // 44
      op_null,                 // 45
      op_ror,                  // 46
@@ -5194,7 +5280,7 @@ struct
      op_neg,                  // 50
      op_null,                 // 51
      op_null,                 // 52
-     op_null,                 // 53
+     op_com,                  // 53
      op_lsr,                  // 54
      op_null,                 // 55
      op_ror,                  // 56
@@ -5210,7 +5296,7 @@ struct
      op_neg,                  // 60
      op_aim,                  // 61
      op_oim,                  // 62
-     op_null,                 // 63
+     op_com,                  // 63
      op_lsr,                  // 64
      op_null,                 // 65
      op_ror,                  // 66
@@ -5226,7 +5312,7 @@ struct
      op_neg,                  // 70
      op_aim,                  // 71
      op_oim,                  // 72
-     op_null,                 // 73
+     op_com,                  // 73
      op_lsr,                  // 74
      op_null,                 // 75
      op_ror,                  // 76
@@ -5396,9 +5482,9 @@ char *opcode_names[256] =
      "op_tab",                  // 16
      "op_tba",                  // 17
      "op_xgdx",                 // 18
-     "op_null",                 // 19
+     "op_daa",                  // 19
      "op_slp",                  // 1A
-     "op_null",                 // 1B
+     "op_aba",                  // 1B
      "op_null",                 // 1C
      "op_null",                 // 1D
      "op_null",                 // 1E
@@ -5438,7 +5524,7 @@ char *opcode_names[256] =
      "op_neg",                  // 40
      "op_null",                 // 41
      "op_null",                 // 42
-     "op_null",                 // 43
+     "op_com",                  // 43
      "op_lsr",                  // 44
      "op_null",                 // 45
      "op_ror",                  // 46
@@ -5454,7 +5540,7 @@ char *opcode_names[256] =
      "op_neg",                  // 50
      "op_null",                 // 51
      "op_null",                 // 52
-     "op_null",                 // 53
+     "op_com",                  // 53
      "op_lsr",                  // 54
      "op_null",                 // 55
      "op_ror",                  // 56
@@ -5470,7 +5556,7 @@ char *opcode_names[256] =
      "op_neg",                  // 60
      "op_aim",                  // 61
      "op_oim",                  // 62
-     "op_null",                 // 63
+     "op_com",                  // 63
      "op_lsr",                  // 64
      "op_null",                 // 65
      "op_ror",                  // 66
@@ -5486,7 +5572,7 @@ char *opcode_names[256] =
      "op_neg",                  // 70
      "op_aim",                  // 71
      "op_oim",                  // 72
-     "op_null",                 // 73
+     "op_com",                  // 73
      "op_lsr",                  // 74
      "op_null",                 // 75
      "op_ror",                  // 76
