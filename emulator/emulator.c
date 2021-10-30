@@ -2434,7 +2434,7 @@ struct
 
 #define REG_FLAGS     (pstate.FLAGS)
 
-#define B3(XXX)   (XXX & 0x0004)
+#define B3(XXX)   (XXX & 0x0008)
 #define B7(XXX)   (XXX & 0x0080)
 #define B15(XXX)  (XXX & 0x8000)
 
