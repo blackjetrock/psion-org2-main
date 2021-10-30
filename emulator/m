@@ -1,4 +1,5 @@
 ./embed_rom_in_emulator.tcl 33-la.rom
+#./embed_rom_in_emulator.tcl 31-xp.rom
 cc -o emulator emulator.c -lncurses
 #./emulator
 

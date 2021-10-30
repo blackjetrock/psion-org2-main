@@ -2732,7 +2732,7 @@ typedef void (*OPCODE_FN)(u_int8_t opcode, PROC6303_STATE *ps, u_int8_t p1, u_in
 void dump_ram(void)
 {
   int i;
-
+  char ascii[20];
   FILE *fp;
 
   fp = fopen("ram.dmp", "w");
@@ -2741,15 +2741,24 @@ void dump_ram(void)
     {
       return;
     }
+
+  ascii[16] = '\0';
   
   for(i=0; i< 0x8000; i++)
     {
+      ascii[i%16] = isprint(ramdata[i])?ramdata[i]:'.';
+      
       if( (i % 16) == 0 )
 	{
 	  fprintf(fp, "\n%04X:", i);
 	}
-      
       fprintf(fp, "%02X ", ramdata[i]);
+
+      if( (i % 16) == 0xf )
+	{
+	  fprintf(fp, "  %s", ascii);
+	}
+
     }
 
   fprintf(fp, "\n");
