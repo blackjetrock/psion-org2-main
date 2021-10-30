@@ -22,7 +22,7 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED           1
+#define EMBEDDED           0
 #define DISPLAY_LCD        1
 #define DISPLAY_LCD_HEX    0
 #define DISPLAY_STATUS     1
