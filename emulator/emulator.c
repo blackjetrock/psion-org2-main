@@ -22,7 +22,7 @@ int pc_before;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED           0
+#define EMBEDDED           1
 #define DISPLAY_LCD        1
 #define DISPLAY_LCD_HEX    0
 #define DISPLAY_STATUS     1
@@ -2854,6 +2854,31 @@ OPCODE_FN(op_aim)
   FL_ZT(result);
 }
 
+OPCODE_FN(op_eim)
+{
+  u_int8_t result;
+  
+  switch(opcode)
+    {
+    case 0x65:
+      result = RD_ADDR(p2 + REG_X) ^ p1;
+      WR_ADDR(p2, result);
+      break;
+
+    case 0x75:
+      result = RD_ADDR(p2) ^ p1;
+      WR_ADDR(p2, result);
+      break;
+    }
+  
+  INC_PC;
+  INC_PC;
+
+  FL_V0;
+  FL_N8T(result);
+  FL_ZT(result);
+}
+
 OPCODE_FN(op_tim)
 {
   u_int8_t result;
@@ -3291,6 +3316,42 @@ OPCODE_FN(op_stx)
     case 0xEF:
       dest = REG_X + p1;
       value = REG_X;
+      INC_PC;
+      break;
+    }
+
+  WRW_ADDR(dest, value);
+  
+  FL_V0;
+  FL_ZT(value);
+  FL_N16T(value);
+}
+
+OPCODE_FN(op_sts)
+{
+  u_int16_t dest;
+  u_int16_t  value;
+  
+  switch(opcode)
+    {
+    case 0x9F:
+      dest = p1;
+      value = REG_SP;
+      INC_PC;
+      break;
+      
+    case 0xBF:
+      dest = p1;
+      dest <<= 8;
+      dest |= p2;
+      value = REG_SP;
+      INC_PC;
+      INC_PC;
+      break;
+      
+    case 0xAF:
+      dest = REG_X + p1;
+      value = REG_SP;
       INC_PC;
       break;
     }
@@ -4180,7 +4241,7 @@ OPCODE_FN(op_add)
   FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
-  FL_C8T(*dest,add,before);
+  FL_C8TP(*dest,add,before);
   FL_H(*dest,add,before);
 }
 
@@ -4707,21 +4768,21 @@ OPCODE_FN(op_com)
   
   switch(opcode)
     {
-    case 0x44:
+    case 0x43:
       dest = &(REG_A);
       break;
       
-    case 0x54:
+    case 0x53:
       dest = &(REG_B);
       break;
 
-    case 0x74:
+    case 0x73:
       dest = REF_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
       INC_PC;
       break;
 
-    case 0x64:
+    case 0x63:
       dest = REF_ADDR(REG_X+p1);
       INC_PC;
       break;
@@ -5301,7 +5362,7 @@ struct
      op_oim,                  // 62
      op_com,                  // 63
      op_lsr,                  // 64
-     op_null,                 // 65
+     op_eim,                  // 65
      op_ror,                  // 66
      op_asr,                  // 67
      op_asl,                  // 68
@@ -5317,7 +5378,7 @@ struct
      op_oim,                  // 72
      op_com,                  // 73
      op_lsr,                  // 74
-     op_null,                 // 75
+     op_eim,                  // 75
      op_ror,                  // 76
      op_asr,                  // 77
      op_asl,                  // 78
@@ -5359,7 +5420,7 @@ struct
      op_cpx,                  // 9C
      op_jsr,                  // 9D
      op_ld16,                 // 9E
-     op_null,                 // 9F
+     op_sts,                  // 9F
      op_sub,                  // A0
      op_cmp,                  // A1
      op_sbc,                  // A2
@@ -5375,7 +5436,7 @@ struct
      op_cpx,                  // AC
      op_jsr,                  // AD
      op_ld16,                 // AE
-     op_null,                 // AF
+     op_sts,                  // AF
      op_sub,                  // B0
      op_cmp,                  // B1
      op_sbc,                  // B2
@@ -5391,7 +5452,7 @@ struct
      op_cpx,                  // BC
      op_jsr,                  // BD
      op_ld16,                 // BE
-     op_null,                 // BF
+     op_sts,                  // BF
      op_sub,                  // C0
      op_cmp,                  // C1
      op_sbc,                  // C2
@@ -5561,7 +5622,7 @@ char *opcode_names[256] =
      "op_oim",                  // 62
      "op_com",                  // 63
      "op_lsr",                  // 64
-     "op_null",                 // 65
+     "op_eim",                  // 65
      "op_ror",                  // 66
      "op_asr",                  // 67
      "op_asl",                  // 68
@@ -5577,7 +5638,7 @@ char *opcode_names[256] =
      "op_oim",                  // 72
      "op_com",                  // 73
      "op_lsr",                  // 74
-     "op_null",                 // 75
+     "op_eim",                  // 75
      "op_ror",                  // 76
      "op_asr",                  // 77
      "op_asl",                  // 78
@@ -5619,7 +5680,7 @@ char *opcode_names[256] =
      "op_cpx",                  // 9C
      "op_jsr",                  // 9D
      "op_ld16",                 // 9E
-     "op_null",                 // 9F
+     "op_sts",                  // 9F
      "op_sub",                  // A0
      "op_cmp",                  // A1
      "op_sbc",                  // A2
@@ -5635,7 +5696,7 @@ char *opcode_names[256] =
      "op_cpx",                  // AC
      "op_jsr",                  // AD
      "op_ld16",                 // AE
-     "op_null",                 // AF
+     "op_sts",                  // AF
      "op_sub",                  // B0
      "op_cmp",                  // B1
      "op_sbc",                  // B2
@@ -5651,7 +5712,7 @@ char *opcode_names[256] =
      "op_cpx",                  // BC
      "op_jsr",                  // BD
      "op_ld16",                 // BE
-     "op_null",                 // BF
+     "op_sts",                  // BF
      "op_sub",                  // C0
      "op_cmp",                  // C1
      "op_sbc",                  // C2
@@ -5977,7 +6038,7 @@ void main(void)
 
   // Top two bits of flags are 1
   // I is set and H may be
-  REG_FLAGS = 0xf0;
+  REG_FLAGS = 0xf1;
   
   // Set up various hardware values
 
