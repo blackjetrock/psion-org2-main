@@ -18,6 +18,7 @@ FILE *lf;
 
 int inst_length;
 int pc_before;
+int on_key = 0;
 
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
@@ -2172,14 +2173,14 @@ void handle_sca(u_int16_t addr)
       sca_counter++;
       break;
     }
-  
+
   // No key?
   if( keyk == -1 )
     {
 #if !EMBEDDED
       fprintf(lf, "    KEY:No key");
 #endif
-      ramdata[P5_DATA] = NO_KEY_STATE;
+      ramdata[P5_DATA] = NO_KEY_STATE | on_key;
     }
   else
     {
@@ -2199,7 +2200,7 @@ void handle_sca(u_int16_t addr)
 	  //mvaddch(7, 5+keyk, ' ');	      
 	  
 	  // Not our row
-	  ramdata[P5_DATA] = NO_KEY_STATE;
+	  ramdata[P5_DATA] = NO_KEY_STATE | on_key;
 	}
     }
 
@@ -3727,13 +3728,13 @@ OPCODE_FN(op_ld16)
       INC_PC;
       break;
 
-    case 0xBE:
+    case 0xAE:
       dest = &(REG_SP);
       value = RDW_ADDR(REG_X+p1);
       INC_PC;
       break;
 
-    case 0xAE:
+    case 0xBE:
       dest = &(REG_SP);
       value = RDW_ADDR(ADDR_WORD(p1,p2));
       INC_PC;
@@ -6010,6 +6011,8 @@ struct
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int rel = 0;
+
 void main(void)
 {
 #if !EMBEDDED
@@ -6045,7 +6048,7 @@ void main(void)
   ramdata[0x14] = 0x00;
 
   // No key pressed
-  ramdata[P5_DATA] = COLD_START_STATE | NO_KEY_STATE;
+  ramdata[P5_DATA] = COLD_START_STATE | NO_KEY_STATE | on_key;
 
   // Execute
   // Human readable output to stdout
@@ -6124,10 +6127,10 @@ void main(void)
 #endif
       int c = wgetch(stdscr);
       
-      if( c != ERR )
+       if( c != ERR )
 	{
 	  char hexc[10];
-	  sprintf(hexc, "%02x", c);
+	  sprintf(hexc, "%02x  rel:%d", c, rel);
 	  mvaddch(5,5, c);
 	  mvaddstr(5, 10, hexc);
 
@@ -6141,8 +6144,10 @@ void main(void)
 	  // Run through and find key
 	  if( c == 0x1b )
 	    {
-	      keyp5 = NO_KEY_STATE;
+	      on_key = 0x80;
+	      keyp5 = NO_KEY_STATE | on_key;
 	      keyk = -1;
+	      rel = 1000000;
 	    }
 	  else
 	    {
@@ -6154,14 +6159,33 @@ void main(void)
 		      keyp5 &= 0x7c;
 		      keyp5 |= 0x00;
 		      keyk = keys[i].k-1;
+		      rel = 1000000;
 		      break;
 		    }
 		}
 	    }
 	  char keystr[100];
-	  sprintf(keystr, "keyp5:%02X keyk:%02X      ", keyp5, keyk);
+	  sprintf(keystr, "keyp5:%02X keyk:%02X rel:%d      ", keyp5, keyk, rel);
 	  mvaddstr(8,5, keystr);
-	  
+
+	   mvaddstr(15,5, "HIT");
+	   
+	}
+      else
+	{
+	  // Key released
+	  if( rel > 0 )
+	    {
+	      rel--;
+
+	      if( rel == 0 )
+		{
+		  on_key = 0;
+		  keyp5 = NO_KEY_STATE | on_key;
+		  keyk = -1;
+		  mvaddstr(15,5, "REL");
+		}
+	    }
 	}
       
 #if !EMBEDDED
