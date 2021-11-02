@@ -4239,7 +4239,7 @@ OPCODE_FN(op_add)
   
   // Special flag test
   (*dest) += add;
-  FL_V8T(*dest,add,before);
+  FL_V8TP(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
   FL_C8TP(*dest,add,before);
