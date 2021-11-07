@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 6
+Sheet 2 2
 Title ""
 Date ""
 Rev ""
@@ -858,10 +858,10 @@ Connection ~ 6050 5650
 Text GLabel 4200 1950 0    50   Input ~ 0
 P57
 $Comp
-L power:+3V3 #PWR?
+L power:+3V3 #PWR036
 U 1 1 61827F51
 P 6050 1150
-F 0 "#PWR?" H 6050 1000 50  0001 C CNN
+F 0 "#PWR036" H 6050 1000 50  0001 C CNN
 F 1 "+3V3" H 6065 1323 50  0000 C CNN
 F 2 "" H 6050 1150 50  0001 C CNN
 F 3 "" H 6050 1150 50  0001 C CNN
