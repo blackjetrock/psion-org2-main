@@ -11,3 +11,17 @@ and transfer data.
 
 The code running will hopefully be an emulation of the 6303 running one of the original
 organiser ROMs with the hardware emulation done on the Pico.
+
+Main PCB
+========
+
+This has a RP Pico on it as a controller and several IO expanders. These are becuase the Pico doesn't have enough GPIOs to
+run all of the hardware that is needed.
+
+
+Power PCB
+=========
+
+The original power PCB doesn't really fit with the new main board, so rather than try to work around it, a new PCB is used with the
+new main board. It has the slot connectors and any hardware needed to drive them. The slot level shifters are on this board. It would be possible to design a different poiwer PCB that, for example, didn't have slots but had sd cards instead. The hardware for the slots is then replaced by the ne wPCB, but the main PCB still has whatever circuitry is needed for its own hardware.
+
