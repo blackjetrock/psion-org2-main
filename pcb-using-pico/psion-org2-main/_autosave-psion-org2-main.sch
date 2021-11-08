@@ -358,7 +358,7 @@ Wire Wire Line
 Text GLabel 2175 3675 0    50   Input ~ 0
 P_SPGM
 Text GLabel 2175 3775 0    50   Input ~ 0
-P_SS
+LATCHOUT2
 Text GLabel 2175 3975 0    50   Input ~ 0
 P_SCLK
 Text GLabel 2175 2675 0    50   Input ~ 0
@@ -742,7 +742,7 @@ $EndComp
 Text GLabel 5525 3200 0    50   Input ~ 0
 SDAOUT
 Text GLabel 5525 3700 0    50   Input ~ 0
-LATCHOUT
+LATCHOUT1
 Text GLabel 5525 3400 0    50   Input ~ 0
 SCLKOUT
 $Comp
@@ -792,7 +792,7 @@ Wire Wire Line
 Text GLabel 3575 3475 2    50   Input ~ 0
 SDAOUT
 Text GLabel 3575 3775 2    50   Input ~ 0
-LATCHOUT
+LATCHOUT1
 Text GLabel 3575 3575 2    50   Input ~ 0
 SCLKOUT
 $Comp
@@ -1965,4 +1965,81 @@ Text Notes 12575 6450 0    50   ~ 0
 850nA  1300mV\n1200nA  3000mV\n9000nA  5500mV\n
 Wire Wire Line
 	3575 3875 4200 3875
+$Comp
+L 74xx:74HC595 U?
+U 1 1 6191178A
+P 5925 1550
+F 0 "U?" H 6225 2325 50  0000 C CNN
+F 1 "74HC595" H 6300 2250 50  0000 C CNN
+F 2 "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm" H 5925 1550 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/sn74hc595.pdf" H 5925 1550 50  0001 C CNN
+	1    5925 1550
+	1    0    0    -1  
+$EndComp
+Text GLabel 5525 1150 0    50   Input ~ 0
+SDAOUT
+Text GLabel 5525 1650 0    50   Input ~ 0
+LATCHOUT2
+Text GLabel 5525 1350 0    50   Input ~ 0
+SCLKOUT
+$Comp
+L power:GND #PWR?
+U 1 1 61911793
+P 5925 2375
+F 0 "#PWR?" H 5925 2125 50  0001 C CNN
+F 1 "GND" H 5930 2202 50  0000 C CNN
+F 2 "" H 5925 2375 50  0001 C CNN
+F 3 "" H 5925 2375 50  0001 C CNN
+	1    5925 2375
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5925 2375 5925 2325
+Wire Wire Line
+	5925 2325 5450 2325
+Wire Wire Line
+	5450 2325 5450 1750
+Wire Wire Line
+	5450 1750 5525 1750
+Connection ~ 5925 2325
+Wire Wire Line
+	5925 2325 5925 2250
+$Comp
+L power:+3V3 #PWR?
+U 1 1 6191179F
+P 5925 825
+F 0 "#PWR?" H 5925 675 50  0001 C CNN
+F 1 "+3V3" H 5925 1000 50  0000 C CNN
+F 2 "" H 5925 825 50  0001 C CNN
+F 3 "" H 5925 825 50  0001 C CNN
+	1    5925 825 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5925 825  5925 875 
+Wire Wire Line
+	5525 1450 4975 1450
+Wire Wire Line
+	4975 1450 4975 875 
+Wire Wire Line
+	4975 875  5925 875 
+Connection ~ 5925 875 
+Wire Wire Line
+	5925 875  5925 950 
+Text GLabel 6325 1850 2    50   Input ~ 0
+OLED_RES
+Text GLabel 6325 1150 2    50   Input ~ 0
+K1
+Text GLabel 6325 1250 2    50   Input ~ 0
+K2
+Text GLabel 6325 1350 2    50   Input ~ 0
+K3
+Text GLabel 6325 1450 2    50   Input ~ 0
+K4
+Text GLabel 6325 1550 2    50   Input ~ 0
+K5
+Text GLabel 6325 1650 2    50   Input ~ 0
+K6
+Text GLabel 6325 1750 2    50   Input ~ 0
+K7
 $EndSCHEMATC
