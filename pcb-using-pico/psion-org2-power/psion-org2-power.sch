@@ -584,4 +584,6 @@ Text GLabel 10650 6225 0    50   Input ~ 0
 VCC2
 Wire Wire Line
 	11175 6225 10650 6225
+Text GLabel 1950 8175 2    50   Input ~ 0
+LS_DIR
 $EndSCHEMATC
