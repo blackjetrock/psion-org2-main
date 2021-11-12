@@ -1910,8 +1910,8 @@ U 1 1 61F59F4C
 P 13825 2350
 AR Path="/61F3F57A/61F59F4C" Ref="U?"  Part="1" 
 AR Path="/61F59F4C" Ref="U7"  Part="1" 
-F 0 "U7" H 13825 1861 50  0000 C CNN
-F 1 "MCP7940N-xSN" H 13825 1770 50  0000 C CNN
+F 0 "U7" H 13150 1800 50  0000 C CNN
+F 1 "MCP7940N-xSN" H 13400 1700 50  0000 C CNN
 F 2 "Package_SO:SO-8_3.9x4.9mm_P1.27mm" H 13825 2350 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20005010F.pdf" H 13825 2350 50  0001 C CNN
 	1    13825 2350
@@ -2251,7 +2251,7 @@ Text GLabel 3275 6600 0    50   Input ~ 0
 VBAT_SW_ON
 Text GLabel 3325 6275 0    50   Input ~ 0
 P57
-Text GLabel 5125 6075 0    50   Input ~ 0
+Text GLabel 4750 5475 0    50   Input ~ 0
 VBAT
 Text GLabel 12625 2250 0    50   Input ~ 0
 OLED_SDA
@@ -2379,10 +2379,10 @@ Wire Wire Line
 Wire Wire Line
 	4350 8050 5075 8050
 $Comp
-L Connector:Conn_01x27_Female J?
+L Connector:Conn_01x27_Female J3
 U 1 1 6245D35C
 P 4150 9350
-F 0 "J?" H 4042 10835 50  0000 C CNN
+F 0 "J3" H 4042 10835 50  0000 C CNN
 F 1 "Conn_01x27_Female" H 4042 10744 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x27_P2.54mm_Vertical" H 4150 9350 50  0001 C CNN
 F 3 "~" H 4150 9350 50  0001 C CNN
@@ -2390,10 +2390,10 @@ F 3 "~" H 4150 9350 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L power:+3V3 #PWR?
+L power:+3V3 #PWR0118
 U 1 1 6245D362
 P 5150 10575
-F 0 "#PWR?" H 5150 10425 50  0001 C CNN
+F 0 "#PWR0118" H 5150 10425 50  0001 C CNN
 F 1 "+3V3" H 5165 10748 50  0000 C CNN
 F 2 "" H 5150 10575 50  0001 C CNN
 F 3 "" H 5150 10575 50  0001 C CNN
@@ -2405,8 +2405,8 @@ L power:GND #PWR?
 U 1 1 6245D368
 P 5075 8050
 AR Path="/6104FF77/6245D368" Ref="#PWR?"  Part="1" 
-AR Path="/6245D368" Ref="#PWR?"  Part="1" 
-F 0 "#PWR?" H 5075 7800 50  0001 C CNN
+AR Path="/6245D368" Ref="#PWR0119"  Part="1" 
+F 0 "#PWR0119" H 5075 7800 50  0001 C CNN
 F 1 "GND" H 5075 7875 50  0000 C CNN
 F 2 "" H 5075 8050 50  0001 C CNN
 F 3 "" H 5075 8050 50  0001 C CNN
@@ -2437,32 +2437,21 @@ Text GLabel 4350 8450 2    50   Input ~ 0
 SD3
 Text GLabel 4350 8250 2    50   Input ~ 0
 SD1
-$Comp
-L Connector:Conn_01x27_Female J?
-U 1 1 624A5169
-P 5500 9350
-F 0 "J?" H 5392 10835 50  0000 C CNN
-F 1 "Conn_01x27_Female" H 5392 10744 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x27_P2.54mm_Vertical" H 5500 9350 50  0001 C CNN
-F 3 "~" H 5500 9350 50  0001 C CNN
-	1    5500 9350
-	-1   0    0    -1  
-$EndComp
 Wire Wire Line
-	5700 10650 6500 10650
+	5700 9050 6500 9050
 Wire Wire Line
-	6500 10650 6500 10575
+	6500 9050 6500 8975
 Wire Wire Line
 	5700 8050 6425 8050
 $Comp
-L power:+3V3 #PWR?
+L power:+3V3 #PWR0120
 U 1 1 624EB449
-P 6500 10575
-F 0 "#PWR?" H 6500 10425 50  0001 C CNN
-F 1 "+3V3" H 6515 10748 50  0000 C CNN
-F 2 "" H 6500 10575 50  0001 C CNN
-F 3 "" H 6500 10575 50  0001 C CNN
-	1    6500 10575
+P 6500 8975
+F 0 "#PWR0120" H 6500 8825 50  0001 C CNN
+F 1 "+3V3" H 6515 9148 50  0000 C CNN
+F 2 "" H 6500 8975 50  0001 C CNN
+F 3 "" H 6500 8975 50  0001 C CNN
+	1    6500 8975
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2470,8 +2459,8 @@ L power:GND #PWR?
 U 1 1 624EB44F
 P 6425 8050
 AR Path="/6104FF77/624EB44F" Ref="#PWR?"  Part="1" 
-AR Path="/624EB44F" Ref="#PWR?"  Part="1" 
-F 0 "#PWR?" H 6425 7800 50  0001 C CNN
+AR Path="/624EB44F" Ref="#PWR0121"  Part="1" 
+F 0 "#PWR0121" H 6425 7800 50  0001 C CNN
 F 1 "GND" H 6425 7875 50  0000 C CNN
 F 2 "" H 6425 8050 50  0001 C CNN
 F 3 "" H 6425 8050 50  0001 C CNN
@@ -2482,4 +2471,93 @@ Text GLabel 4350 9750 2    50   Input ~ 0
 SD_OE
 Text GLabel 4350 9850 2    50   Input ~ 0
 SC_OE
+Text GLabel 6325 1750 2    50   Input ~ 0
+SD_OE
+Text GLabel 6325 1850 2    50   Input ~ 0
+SC_OE
+Text GLabel 5700 8950 2    50   Input ~ 0
+LATCHOUT2
+Text GLabel 5700 8850 2    50   Input ~ 0
+LATCHOUT1
+Text GLabel 5700 8650 2    50   Input ~ 0
+SDAOUT
+Text GLabel 5700 8550 2    50   Input ~ 0
+SCLKOUT
+Text GLabel 5700 8750 2    50   Input ~ 0
+QH_O
+Text Notes 12700 1100 0    50   ~ 0
+Slave Address\n1101111 (RW)
+Text Notes 2750 8375 0    50   ~ 0
+Slave Address\n0 1 1 1 1 0 SA0 RW
+$Comp
+L Connector:Conn_01x11_Female J6
+U 1 1 62622985
+P 5500 8550
+F 0 "J6" H 5392 9235 50  0000 C CNN
+F 1 "Conn_01x11_Female" H 5392 9144 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical" H 5500 8550 50  0001 C CNN
+F 3 "~" H 5500 8550 50  0001 C CNN
+	1    5500 8550
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Device:D D8
+U 1 1 62654BEA
+P 4900 5475
+F 0 "D8" H 4900 5259 50  0000 C CNN
+F 1 "D" H 4900 5350 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 4900 5475 50  0001 C CNN
+F 3 "~" H 4900 5475 50  0001 C CNN
+	1    4900 5475
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5050 5475 5125 5475
+Wire Wire Line
+	5125 5475 5125 6075
+$Comp
+L Device:D D9
+U 1 1 626BD11F
+P 5575 5475
+F 0 "D9" H 5575 5259 50  0000 C CNN
+F 1 "D" H 5575 5350 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 5575 5475 50  0001 C CNN
+F 3 "~" H 5575 5475 50  0001 C CNN
+	1    5575 5475
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5425 5475 5350 5475
+Connection ~ 5125 5475
+Text GLabel 6150 5475 2    50   Input ~ 0
+EXT_PWR_IN
+Wire Wire Line
+	5725 5475 5850 5475
+$Comp
+L Device:Jumper_NO_Small JP10
+U 1 1 6274C629
+P 5600 5200
+F 0 "JP10" H 5600 5385 50  0000 C CNN
+F 1 "Jumper_NO_Small" H 5600 5294 50  0000 C CNN
+F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 5600 5200 50  0001 C CNN
+F 3 "~" H 5600 5200 50  0001 C CNN
+	1    5600 5200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5700 5200 5850 5200
+Wire Wire Line
+	5850 5200 5850 5475
+Connection ~ 5850 5475
+Wire Wire Line
+	5850 5475 6150 5475
+Wire Wire Line
+	5500 5200 5350 5200
+Wire Wire Line
+	5350 5200 5350 5475
+Connection ~ 5350 5475
+Wire Wire Line
+	5350 5475 5125 5475
+Text GLabel 4350 9950 2    50   Input ~ 0
+EXT_PWR_IN
 $EndSCHEMATC

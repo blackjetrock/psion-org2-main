@@ -1,4 +1,4 @@
--9206331491408568390
+-9206329854750080390
 8wTermBlk
 8wTermBlk
 
@@ -75501,6 +75501,13 @@ SRX882
 0
 6
 6
+ajm_kicad
+PinHeader_2x08_P2.54mm_Horizontal_psionSide
+Through hole angled pin header, 2x08, 2.54mm pitch, 6mm pin length, double rows
+Through hole angled pin header THT 2x08 2.54mm double row
+0
+16
+16
 ajm_kicad
 TE_2-1734839-4_1x24-1MP_P0.5mm_Horizontal_reversed_pinout
 TE FPC connector, 24 top-side contacts, 0.5mm pitch, SMT, https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Customer+Drawing%7F1734839%7FC%7Fpdf%7FEnglish%7FENG_CD_1734839_C_C_1734839.pdf%7F4-1734839-0
