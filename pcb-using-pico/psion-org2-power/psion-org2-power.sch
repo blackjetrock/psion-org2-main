@@ -129,10 +129,6 @@ Text GLabel 1350 9450 2    50   Input ~ 0
 SMR
 Text GLabel 1350 9350 2    50   Input ~ 0
 SOE
-Text GLabel 1350 9150 2    50   Input ~ 0
-SPGM
-Text GLabel 1350 9550 2    50   Input ~ 0
-SS1
 Text GLabel 1350 9250 2    50   Input ~ 0
 SCLK
 Text GLabel 1350 8350 2    50   Input ~ 0
@@ -470,10 +466,6 @@ F 3 "" H 8925 2850 50  0001 C CNN
 	1    8925 2850
 	1    0    0    -1  
 $EndComp
-Text GLabel 1350 9650 2    50   Input ~ 0
-SS2
-Text GLabel 1350 9750 2    50   Input ~ 0
-SS3
 Text GLabel 8425 2025 0    50   Input ~ 0
 SS2
 Text GLabel 8425 2125 0    50   Input ~ 0
@@ -1185,10 +1177,6 @@ Text GLabel 8800 9750 2    50   Input ~ 0
 VPP_X1
 Text GLabel 8800 9850 2    50   Input ~ 0
 VPP_X2
-Text GLabel 8800 9950 2    50   Input ~ 0
-VPP_X3
-Text GLabel 8800 10050 2    50   Input ~ 0
-VPP_X4
 Wire Wire Line
 	9925 8100 9925 7950
 Connection ~ 10425 7500
@@ -1276,17 +1264,6 @@ F 3 "" H 11600 9050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L New_Library:Si2302CDS-n-channel TR5
-U 1 1 61AB7A55
-P 13950 9050
-F 0 "TR5" H 14228 9096 50  0000 L CNN
-F 1 "AO3400" H 14228 9005 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 13980 9200 20  0001 C CNN
-F 3 "" H 13950 9050 50  0001 C CNN
-	1    13950 9050
-	1    0    0    -1  
-$EndComp
-$Comp
 L Device:R_Small R?
 U 1 1 61AB89B8
 P 11700 8550
@@ -1302,22 +1279,6 @@ F 3 "~" H 11700 8550 50  0001 C CNN
 	1    11700 8550
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:R_Small R?
-U 1 1 61ABD6B4
-P 14050 8550
-AR Path="/6001B7D3/60296A19/61ABD6B4" Ref="R?"  Part="1" 
-AR Path="/6001B7D3/61ABD6B4" Ref="R?"  Part="1" 
-AR Path="/61535A67/61ABD6B4" Ref="R?"  Part="1" 
-AR Path="/61A1673D/61ABD6B4" Ref="R?"  Part="1" 
-AR Path="/61ABD6B4" Ref="R6"  Part="1" 
-F 0 "R6" H 14109 8596 50  0000 L CNN
-F 1 "18k" H 14109 8505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 14050 8550 50  0001 C CNN
-F 3 "~" H 14050 8550 50  0001 C CNN
-	1    14050 8550
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	11700 8750 11700 8650
 Wire Wire Line
@@ -1325,33 +1286,6 @@ Wire Wire Line
 Connection ~ 11700 7950
 Wire Wire Line
 	11700 7950 10425 7950
-$Comp
-L New_Library:Si2302CDS-n-channel TR6
-U 1 1 61AD3932
-P 15000 9050
-F 0 "TR6" H 15278 9096 50  0000 L CNN
-F 1 "AO3400" H 15278 9005 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 15030 9200 20  0001 C CNN
-F 3 "" H 15000 9050 50  0001 C CNN
-	1    15000 9050
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_Small R?
-U 1 1 61AD3938
-P 15100 8550
-AR Path="/6001B7D3/60296A19/61AD3938" Ref="R?"  Part="1" 
-AR Path="/6001B7D3/61AD3938" Ref="R?"  Part="1" 
-AR Path="/61535A67/61AD3938" Ref="R?"  Part="1" 
-AR Path="/61A1673D/61AD3938" Ref="R?"  Part="1" 
-AR Path="/61AD3938" Ref="R7"  Part="1" 
-F 0 "R7" H 15159 8596 50  0000 L CNN
-F 1 "18k" H 15159 8505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 15100 8550 50  0001 C CNN
-F 3 "~" H 15100 8550 50  0001 C CNN
-	1    15100 8550
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	12575 7950 13350 7950
 Connection ~ 12575 7950
@@ -1363,14 +1297,7 @@ Wire Wire Line
 	12575 9500 12575 9350
 Wire Wire Line
 	12575 9500 13350 9500
-Wire Wire Line
-	14050 9500 14050 9350
 Connection ~ 12575 9500
-Wire Wire Line
-	14050 9500 15100 9500
-Wire Wire Line
-	15100 9500 15100 9350
-Connection ~ 14050 9500
 $Comp
 L power:GND #PWR0119
 U 1 1 61AF50AF
@@ -1388,10 +1315,6 @@ Text GLabel 11400 9150 0    50   Input ~ 0
 VPP_X1
 Text GLabel 12275 9150 0    50   Input ~ 0
 VPP_X2
-Text GLabel 13750 9050 0    50   Input ~ 0
-VPP_X3
-Text GLabel 14800 9050 0    50   Input ~ 0
-VPP_X4
 Text GLabel 4800 9950 2    50   Input ~ 0
 OLED_SCL
 Text GLabel 4800 9850 2    50   Input ~ 0
@@ -1567,25 +1490,8 @@ F 3 "~" H 13350 8550 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	13350 8450 13350 7950
-Connection ~ 13350 7950
 Wire Wire Line
 	13350 8650 13350 9500
-Connection ~ 13350 9500
-Wire Wire Line
-	13350 9500 14050 9500
-Wire Wire Line
-	13350 7950 14050 7950
-Wire Wire Line
-	14050 8750 14050 8650
-Wire Wire Line
-	14050 8450 14050 7950
-Connection ~ 14050 7950
-Wire Wire Line
-	14050 7950 15100 7950
-Wire Wire Line
-	15100 8450 15100 7950
-Wire Wire Line
-	15100 8650 15100 8750
 $Comp
 L New_Library:Si2302CDS-n-channel TR7
 U 1 1 61D13006
@@ -1712,4 +1618,12 @@ Wire Wire Line
 	4450 8800 4450 8700
 Wire Wire Line
 	4450 8700 4600 8700
+Text GLabel 8800 10050 2    50   Input ~ 0
+SS1
+Text GLabel 8800 10150 2    50   Input ~ 0
+SS2
+Text GLabel 8800 10250 2    50   Input ~ 0
+SS3
+Text GLabel 8800 9950 2    50   Input ~ 0
+SPGM
 $EndSCHEMATC
