@@ -1,12 +1,12 @@
 G04 #@! TF.GenerationSoftware,KiCad,Pcbnew,5.1.5+dfsg1-2build2*
-G04 #@! TF.CreationDate,2021-11-13T06:25:14+00:00*
+G04 #@! TF.CreationDate,2021-11-13T09:19:55+00:00*
 G04 #@! TF.ProjectId,psion-org2-main,7073696f-6e2d-46f7-9267-322d6d61696e,rev?*
 G04 #@! TF.SameCoordinates,Original*
 G04 #@! TF.FileFunction,Paste,Bot*
 G04 #@! TF.FilePolarity,Positive*
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 5.1.5+dfsg1-2build2) date 2021-11-13 06:25:14*
+G04 Created by KiCad (PCBNEW 5.1.5+dfsg1-2build2) date 2021-11-13 09:19:55*
 %MOMM*%
 %LPD*%
 G04 APERTURE LIST*
@@ -59,8 +59,8 @@ X199100000Y-104200000D01*
 X146600000Y-156700000D02*
 X199100000Y-156700000D01*
 D11*
-X178550000Y-70800000D03*
-X175250000Y-70800000D03*
+X171600000Y-69650000D03*
+X168300000Y-69650000D03*
 D12*
 X169600000Y-64400000D03*
 X169600000Y-67700000D03*
