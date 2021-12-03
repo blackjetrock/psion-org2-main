@@ -1,0 +1,7 @@
+V1.0 Psion recreate Main PCB Errata
+===================================
+
+1. S_PGM pin needs to be attached for paged datapacks.
+2. Pin headers don't line up
+3. holes missing for top slot
+4. 

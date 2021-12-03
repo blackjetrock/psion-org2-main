@@ -1,0 +1,4 @@
+V1.0 Psion recreate Power PCB Errata
+===================================
+
+1. S_PGM pin needs to be attached for paged datapacks.
