@@ -12003,8 +12003,11 @@ COLDS   STAB    M0042                    ;CD00: D7 42          '.B'
         PULA                             ;CD02: 32             '2'
 WARMS   PULB                             ;CD03: 33             '3'
         BRA     ZCD71                    ;CD04: 20 6B          ' k'
+
+; CALC routine
 RENTER  SWI                              ;CD06: 3F             '?'
         SEV                              ;CD07: 0B             '.'
+	
         FCB     $03                      ;CD08: 03             '.'
 INCH    LDAB    M007B                    ;CD09: D6 7B          '.{'
         ORAB    #$40                     ;CD0B: CA 40          '.@'
@@ -14517,6 +14520,9 @@ MDEF2   LSRD                             ;DEF2: 04             '.'
         FCB     $52                      ;DEF4: 52             'R'
         FCB     $45                      ;DEF5: 45             'E'
         FCB     $45                      ;DEF6: 45             'E'
+
+
+;Main menu structure
 MDEF7   LSRD                             ;DEF7: 04             '.'
         RORA                             ;DEF8: 46             'F'
         ROLA                             ;DEF9: 49             'I'

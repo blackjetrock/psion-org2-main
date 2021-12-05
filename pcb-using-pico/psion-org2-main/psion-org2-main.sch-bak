@@ -2133,8 +2133,6 @@ Text GLabel 4350 8150 2    50   Input ~ 0
 SD0
 Text GLabel 4350 9050 2    50   Input ~ 0
 SCLK
-Text GLabel 4350 8950 2    50   Input ~ 0
-SPGM
 Text GLabel 4350 9150 2    50   Input ~ 0
 SOE
 Text GLabel 4350 9250 2    50   Input ~ 0

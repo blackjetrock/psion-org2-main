@@ -817,7 +817,7 @@ P55
 Text GLabel 5200 3700 0    50   Input ~ 0
 P54
 Text GLabel 5200 4425 0    50   Input ~ 0
-p53
+P53
 Text GLabel 5200 5175 0    50   Input ~ 0
 P52
 Connection ~ 6050 5175

@@ -16,6 +16,9 @@ FILE *af;
 // Logging output file
 FILE *lf;
 
+// Arithmetic logging
+FILE *mf;
+
 int inst_length;
 int pc_before;
 int on_key = 0;
@@ -30,7 +33,7 @@ int on_key = 0;
 #define DUMP_RAM           1
 #define DISPLAY_PROCESSOR  0
 #define DISPLAY_PROC_PC    0
-
+#define MATHS_DEBUG        1
 
 #define LAST_N_PC   10
 
@@ -4131,44 +4134,74 @@ OPCODE_FN(op_adc)
   FL_V8T(*dest,add,before);
   FL_ZT(*dest);
   FL_N8T(*dest);
-  FL_C8T(*dest,add,before);
+  FL_C8TP(*dest,add,before);
   FL_H(*dest,add,before);
+
+#if MATHS_DEBUG
+  fprintf(mf, "\nADC:%02X+%02X=%02X   FLAGS:%02X", before, add, *dest, REG_FLAGS); 
+#endif
 }
 
 OPCODE_FN(op_daa)
 {
   u_int8_t msn, lsn;
   u_int16_t t, cf = 0;
+
+  int orig_a = REG_A;
+  int ans = REG_A;
   
   msn = REG_A & 0xf0;
   lsn = REG_A & 0x0f;
 
   if( FLG_H )
     {
-      REG_A += 0x06;
+      ans += 0x06;
     }
 
   if( lsn > 0x09 )
     {
-      REG_A += 0x06;
+      ans += 0x06;
     }
 
   if( FLG_C )
     {
-      REG_A += 0x60;
+#if MATHS_DEBUG    
+    fprintf(mf, "\n   :C set on entry");
+#endif
+      
+      ans += 0x60;
     }
 
-  if( REG_A > 0x9f )
+  if( ans > 0x9f )
     {
-      REG_A += 0x60;
+      ans += 0x60;
     }
-  if( REG_A > 0x99 )
+  
+  if( ans > 0x99 )
     {
+#if MATHS_DEBUG    
+    fprintf(mf, "\n   :C set on exit");
+#endif
+      
       FL_C1;
     }
 
-    FL_N8T(REG_A);
-    FL_ZT(REG_A);
+    FL_N8T(ans);
+    FL_ZT(ans);
+
+#if MATHS_DEBUG    
+    fprintf(mf, "\nDAA:%02X => %02X  FLAGS=%02X", orig_a, ans, REG_FLAGS);
+#endif
+    if( ((orig_a ^ ans) & 0x80) != 0 )
+      {
+	FL_V1;
+      }
+    else
+      {
+	FL_V0;
+      }
+    
+    REG_A = (ans & 0xff);
 }
 
 OPCODE_FN(op_add)
@@ -6015,10 +6048,20 @@ int rel = 0;
 
 void main(void)
 {
+#if MATHS_DEBUG
+  mf = fopen("maths.txt", "w");
+  if( mf == NULL )
+    {
+      printf("\nCannot open arithmetic logging file...");
+      exit(-2);
+    }
+#endif
+  
 #if !EMBEDDED
 
   echoOff();
 
+  
   lf = fopen("em.txt", "w");
   if( lf == NULL )
     {
@@ -6228,12 +6271,14 @@ void main(void)
       dump_state(opcode, inst_length);
     }
 
+#if MATHS_DEBUG
+  fclose(mf);
+#endif
+  
 #if !EMBEDDED  
   fclose(af);
   fclose(lf);
   fprintf(lf, "\n");
-
-
 #endif
 
 #if DISPLAY_LCD

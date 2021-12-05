@@ -4,4 +4,8 @@ V1.0 Psion recreate Main PCB Errata
 1. S_PGM pin needs to be attached for paged datapacks.
 2. Pin headers don't line up
 3. holes missing for top slot
-4. 
+4. OLED pin 10 should be GND not open.
+5. Top row of keys wired up wrong.
+6. Mislabelled P52 as p52 on keyboard.
+7. Put battery voltage circuit on the 'off' side of ON switch to reduce supply current draw when off.
+
