@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+#include <ctype.h>
 
 #include <ncurses.h>
 #include <termio.h>
@@ -9,6 +11,16 @@
 
 // Emulates the 6303 processor
 // Emulates the HD44780 LCD controller
+
+int write_occurred = 0;
+int write_address = 0;
+int write_data = 0;
+
+void hd6303(int inst);
+void hd6303_check(void);
+void mstate(void);
+void end_curses(void);
+
 
 // Address list file
 FILE *af;
@@ -19,6 +31,9 @@ FILE *lf;
 // Arithmetic logging
 FILE *mf;
 
+// Monitor logging
+FILE *monf;
+
 int inst_length;
 int pc_before;
 int on_key = 0;
@@ -26,7 +41,7 @@ int on_key = 0;
 // If EMBEDDED is non zero then code is compiled to run on embedded processor
 // so no printfs or logging
 
-#define EMBEDDED           1
+#define EMBEDDED           0
 #define DISPLAY_LCD        1
 #define DISPLAY_LCD_HEX    0
 #define DISPLAY_STATUS     1
@@ -34,8 +49,16 @@ int on_key = 0;
 #define DISPLAY_PROCESSOR  0
 #define DISPLAY_PROC_PC    0
 #define MATHS_DEBUG        1
+#define MON_DUMP           1     // log to file the monitor emulator
+#define MONITOR_EMULATOR   1     // Monitor emulator with second emulator
+#define ROM_WRITEABLE      0
+#define TRACE_ADDR         1     // Trace addresses to file
 
 #define LAST_N_PC   10
+
+int trace_addr_on = 0;
+int trace_addr_addr = 0x93FC;
+int trace_addr_count = 100000;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -101,7 +124,7 @@ char opcode_decode[100] = "";
 // Calculate word address from two bytes
 #define ADDR_WORD(HI,LO)    ((((u_int16_t)HI)<<8)+LO)
 
-u_int8_t ramdata[32768];
+u_int8_t ramdata[65536];
 
 u_int8_t romdata[] = {
    // ASSEMBLER_EMBEDDED_CODE_START
@@ -4282,6 +4305,8 @@ int lcd_shift    = 0;
 
 u_int8_t handle_lcd_read(u_int16_t addr)
 {
+  int ctrl;
+  
   // handle each register
   switch(addr)
     {
@@ -4292,7 +4317,13 @@ u_int8_t handle_lcd_read(u_int16_t addr)
       
       // read address counter
       // Read of busy flag. Always return not busy
-      return(lcd_ddram & 0x7f);
+      ctrl = lcd_ddram & 0x7f;
+
+#if !EMBEDDED
+      fprintf(lf, " %02X\n", ctrl);
+#endif
+      
+      return(ctrl);
       break;
 
     case LCD_DATA_REG:
@@ -4484,6 +4515,7 @@ struct
      {FLAG_C_MASK, 'C'},
     };
 
+
 #define REG_FLAGS     (pstate.FLAGS)
 
 #define B3(XXX)   (XXX & 0x0008)
@@ -4549,6 +4581,53 @@ typedef struct _PROC6303_STATE
 
 PROC6303_STATE pstate;
 
+char str_flags[7] = "______";
+void decode_flags(void)
+{
+  strcpy(str_flags, "______");
+  for(int i=0;i<6; i++)
+    {
+      if( pstate.FLAGS & flag_data[i].mask )
+	{
+	  str_flags[i] = flag_data[i].name;
+	}
+    }
+}
+
+
+#if MONITOR_EMULATOR
+void monitor_write(int addr, int data)
+{
+if( !write_occurred )
+    {
+      end_curses();
+      printf("\nNo write monitored ADDR:%04X DATA:%04X", addr, data);
+      printf("\nPC:%04X", pstate.PC);
+      mstate();
+      exit(-4);
+    }
+  else
+    {
+      if( write_address != addr )
+	{
+	  printf("\nBad write address");
+	  mstate();
+	  exit(-3);
+	}
+
+      if( write_data != data )
+	{
+	  printf("\nBad write data");
+	  mstate();
+	  exit(-3);
+	}
+      
+    }
+ 
+ write_occurred = 0;
+}
+#endif
+
 // Returns a reference to a byte in the memory space
 // 
 u_int8_t *REF_ADDR(u_int16_t addr)
@@ -4576,6 +4655,7 @@ u_int8_t *REF_ADDR(u_int16_t addr)
 //------------------------------------------------------------------------------
 //
 // Memory reference read
+//
 
 u_int8_t RD_REF(u_int16_t addr)
 {
@@ -4610,7 +4690,7 @@ u_int8_t RD_REF(u_int16_t addr)
     case LCD_DATA_REG:
       return(handle_lcd_read(addr));
       break;
-      
+
     case SCA_RESET:
     case SCA_CLOCK:
       handle_sca(addr);
@@ -4634,6 +4714,11 @@ u_int8_t RD_REF(u_int16_t addr)
 
 void WR_REF(u_int16_t addr, u_int8_t value)
 {
+
+#if MONITOR_EMULATOR
+  //monitor_write(addr, value);
+#endif
+  
   switch(addr)
     {
     case TIM1_TCSR:
@@ -4752,6 +4837,10 @@ u_int16_t RDW_ADDR(u_int16_t addr)
 
 void  WR_ADDR(u_int16_t addr, u_int8_t value)
 {
+#if MONITOR_EMULATOR
+  //monitor_write(addr, value);
+#endif
+
   switch(addr)
     {
     case TIM1_TCSR:
@@ -4786,7 +4875,9 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
   
   if( addr > 0x7fff)
     {
+#if ROM_WRITEABLE
       romdata[addr-0x8000] = value;
+#endif
     }
   else
     {
@@ -4805,24 +4896,8 @@ void  WRW_ADDR(u_int16_t addr, u_int16_t value)
   v1 = value >> 8;
   v2 = value & 0xff;
 
-#if 0  
-  if( addr > 0x7fff)
-    {
-      romdata[(addr-0x8000)+0] = v1;
-      romdata[(addr-0x8000)+1] = v2;
-    }
-  else
-    {
-      ramdata[addr+0] = v1;
-      ramdata[addr+1] = v2;
-#if !EMBEDDED
-      fprintf(lf, "  RAM WRW:%04X = %04X (%02X %02X)", addr, value, v1, v2);
-#endif
-    }
-#else
   WR_ADDR(addr+0, v1);
   WR_ADDR(addr+1, v2);
-#endif
 }
 
 
@@ -4915,7 +4990,7 @@ OPCODE_FN(op_oim)
     {
     case 0x62:
       result = RD_ADDR(p2 + REG_X) | p1;
-      WR_ADDR(p2, result);
+      WR_ADDR(p2+REG_X, result);
       break;
       
     case 0x72:
@@ -4940,7 +5015,7 @@ OPCODE_FN(op_aim)
     {
     case 0x61:
       result = RD_ADDR(p2 + REG_X) & p1;
-      WR_ADDR(p2, result);
+      WR_ADDR(p2+REG_X, result);
       break;
 
     case 0x71:
@@ -4965,7 +5040,7 @@ OPCODE_FN(op_eim)
     {
     case 0x65:
       result = RD_ADDR(p2 + REG_X) ^ p1;
-      WR_ADDR(p2, result);
+      WR_ADDR(p2+REG_X, result);
       break;
 
     case 0x75:
@@ -5010,21 +5085,30 @@ OPCODE_FN(op_pul)
   switch(opcode)
     {
     case 0x32:
-      (REG_SP)++;
       REG_A = RD_ADDR(REG_SP);
+      (REG_SP)++;
       break;
 
     case 0x33:
-      (REG_SP)++;
       REG_B = RD_ADDR(REG_SP);
+      (REG_SP)++;
       break;
 
     case 0x38:
-      (REG_SP)++;
+
+#if !EMBEDDED
+      fprintf(lf, "0x38A:");
+#endif
+
       REG_X = RD_ADDR(REG_SP);
       REG_X <<=8;
       (REG_SP)++;
+#if !EMBEDDED
+      fprintf(lf, "0x38B:");
+#endif
+
       REG_X += RD_ADDR(REG_SP);
+      (REG_SP)++;
       break;
     }
 }
@@ -5039,16 +5123,16 @@ OPCODE_FN(op_psh)
   switch(opcode)
     {
     case 0x36:
-      WR_ADDR(REG_SP--, REG_A);
+      WR_ADDR(--REG_SP, REG_A);
       break;
 
     case 0x37:
-      WR_ADDR(REG_SP--, REG_B);
+      WR_ADDR(--REG_SP, REG_B);
       break;
 
     case 0x3C:
-      WR_ADDR(REG_SP--, REG_X & 0xff);
-      WR_ADDR(REG_SP--, REG_X >> 8);
+      WR_ADDR(--REG_SP, REG_X & 0xff);
+      WR_ADDR(--REG_SP, REG_X >> 8);
       break;
     }
 }
@@ -5056,7 +5140,7 @@ OPCODE_FN(op_psh)
 OPCODE_FN(op_and)
 {
   u_int8_t *dest;
-  u_int8_t  value;
+  u_int16_t  value;
   
   switch(opcode)
     {
@@ -5117,7 +5201,7 @@ OPCODE_FN(op_and)
       break;
     }
 
-  *dest &= value;
+  *dest &= (value & 0xff);
   
   FL_V0;
   FL_ZT(*dest);
@@ -5127,7 +5211,7 @@ OPCODE_FN(op_and)
 OPCODE_FN(op_eor)
 {
   u_int8_t *dest;
-  u_int8_t  value;
+  u_int16_t  value;
   
   switch(opcode)
     {
@@ -5188,7 +5272,7 @@ OPCODE_FN(op_eor)
       break;
     }
 
-  *dest ^= value;
+  *dest ^= (value & 0xff);
   
   FL_V0;
   FL_ZT(*dest);
@@ -5198,7 +5282,7 @@ OPCODE_FN(op_eor)
 OPCODE_FN(op_ora)
 {
   u_int8_t *dest;
-  u_int8_t  value;
+  u_int16_t  value;
   
   switch(opcode)
     {
@@ -5259,7 +5343,7 @@ OPCODE_FN(op_ora)
       break;
     }
 
-  *dest |= value;
+  *dest |= (value & 0xff);
   
   FL_V0;
   FL_ZT(*dest);
@@ -5269,7 +5353,7 @@ OPCODE_FN(op_ora)
 OPCODE_FN(op_bit)
 {
   u_int8_t *dest;
-  u_int8_t  value;
+  u_int16_t  value;
   
   switch(opcode)
     {
@@ -5330,7 +5414,7 @@ OPCODE_FN(op_bit)
       break;
     }
 
-  u_int8_t res = *dest & value;
+  u_int8_t res = *dest & (value & 0xff);
   
   FL_V0;
   FL_ZT(res);
@@ -5667,14 +5751,17 @@ OPCODE_FN(op_xgdx)
   WRITE_REG_D(temp);
 }
 
+// Took out incr/decr
 OPCODE_FN(op_txs)
 {
-  REG_SP = REG_X - 1;
+  //  REG_SP = REG_X - 1;
+  REG_SP = REG_X;
 }
 
 OPCODE_FN(op_tsx)
 {
-  REG_X = REG_SP + 1;
+  //  REG_X = REG_SP + 1;
+  REG_X = REG_SP;
 }
 
 OPCODE_FN(op_tab)
@@ -5693,6 +5780,7 @@ OPCODE_FN(op_tba)
   FL_N8T(REG_A);
 }
 
+// Preserve the top two bits
 OPCODE_FN(op_tap)
 {
   REG_FLAGS &= 0xC0;
@@ -5706,13 +5794,13 @@ OPCODE_FN(op_tpa)
 
 OPCODE_FN(op_rti)
 {
-  REG_FLAGS = RD_ADDR(++REG_SP);
-  REG_B     = RD_ADDR(++REG_SP);
-  REG_A     = RD_ADDR(++REG_SP);
-  REG_X     = ((u_int16_t)RD_ADDR(++REG_SP) << 8);
-  REG_X    |= RD_ADDR(++REG_SP);
-  REG_PC    = ((u_int16_t)RD_ADDR(++REG_SP) << 8);
-  REG_PC   |= RD_ADDR(++REG_SP);
+  REG_FLAGS = RD_ADDR(REG_SP++);
+  REG_B     = RD_ADDR(REG_SP++);
+  REG_A     = RD_ADDR(REG_SP++);
+  REG_X     = ((u_int16_t)RD_ADDR(REG_SP++) << 8);
+  REG_X    |= RD_ADDR(REG_SP++);
+  REG_PC    = ((u_int16_t)RD_ADDR(REG_SP++) << 8);
+  REG_PC   |= RD_ADDR(REG_SP++);
 
   // Compensate for the increment of PC we always do
   REG_PC--;
@@ -5720,8 +5808,8 @@ OPCODE_FN(op_rti)
 
 OPCODE_FN(op_rts)
 {
-  REG_PC    = ((u_int16_t)RD_ADDR(++REG_SP) << 8);
-  REG_PC   |= RD_ADDR(++REG_SP);
+  REG_PC    = ((u_int16_t)RD_ADDR(REG_SP++) << 8);
+  REG_PC   |= RD_ADDR(REG_SP++);
 
   // Compensate for the increment of PC we always do
   REG_PC--;
@@ -5943,7 +6031,7 @@ OPCODE_FN(op_br)
 #if !EMBEDDED
       sprintf(opcode_decode, "BHI %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
-      if( !(FLG_C || FLG_Z) )
+      if( !(FLG_C) && !(FLG_Z) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -5966,7 +6054,7 @@ OPCODE_FN(op_br)
       sprintf(opcode_decode, "BCC %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
-      if( FLG_C == 0 )
+      if( !FLG_C )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -6086,7 +6174,8 @@ OPCODE_FN(op_br)
       sprintf(opcode_decode, "BGT %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
-      if( FLG_Z || ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
+      //      if( FLG_Z || ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
+      if( (!FLG_Z) && ((FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V))) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -6098,7 +6187,8 @@ OPCODE_FN(op_br)
       sprintf(opcode_decode, "BLE %02X, (%d) %04X", p1, rel, REG_PC+2+rel);
 #endif
 
-      if( !(FLG_Z || ( (FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V)))) )
+      //      if( !(FLG_Z || ( (FLG_N && FLG_V) || ((!FLG_N) && (!FLG_V)))) )
+      if( FLG_Z || ((FLG_N && (!FLG_V)) || ((!FLG_N) && FLG_V)) )
 	{
 	  REG_PC += 1 + rel;
 	  branched = 1;
@@ -6246,13 +6336,10 @@ OPCODE_FN(op_daa)
 {
   u_int8_t msn, lsn;
   u_int16_t t, cf = 0;
-  int orig_a = REG_A;
 
-  // We need this variable as REG_A is 8 bits and the algorithm requires
-  // the answer tooverflow out of 8 bits
-  
+  int orig_a = REG_A;
   int ans = REG_A;
- 
+  
   msn = REG_A & 0xf0;
   lsn = REG_A & 0x0f;
 
@@ -6289,21 +6376,22 @@ OPCODE_FN(op_daa)
       FL_C1;
     }
 
-  //  REG_A &= 0xff;
-  
-  FL_N8T(ans);
-  FL_ZT(ans);
+    FL_N8T(ans);
+    FL_ZT(ans);
 
-  if( ((orig_a ^ ans) & 0x80) != 0 )
-    {
-      FL_V1;
-    }
-  else
-    {
-      FL_V0;
-    }
-  
-  REG_A = (ans & 0xff);
+#if MATHS_DEBUG    
+    fprintf(mf, "\nDAA:%02X => %02X  FLAGS=%02X PC=%04X", orig_a, ans, REG_FLAGS, pstate.PC);
+#endif
+    if( ((orig_a ^ ans) & 0x80) != 0 )
+      {
+	FL_V1;
+      }
+    else
+      {
+	FL_V0;
+      }
+    
+    REG_A = (ans & 0xff);
 }
 
 OPCODE_FN(op_add)
@@ -6736,8 +6824,6 @@ OPCODE_FN(op_inc8)
       break;
     }
 
-  FL_V80(*dest);
-
   if(pstate.memory)
     {
       RD_REF(pstate.memory_addr);
@@ -6745,14 +6831,15 @@ OPCODE_FN(op_inc8)
   
   (*dest)++;
   
-   if(pstate.memory)
+  if(pstate.memory)
     {
       WR_REF(pstate.memory_addr, *dest);
       pstate.memory = 0;
     }
 
-  FL_ZT(*dest);
-  FL_N8T(*dest);
+   FL_V80(*dest);
+   FL_ZT(*dest);
+   FL_N8T(*dest);
   
 }
 
@@ -7217,6 +7304,9 @@ OPCODE_FN(op_tst)
   if(pstate.memory)
     {
       int byte = RD_REF(pstate.memory_addr);
+#if !EMBEDDED
+      fprintf(lf, "\nRD_REF %04X byte = %02X", pstate.memory_addr, byte);
+#endif
       pstate.memory = 0;
       FL_ZT(byte);
       FL_N8T(byte);
@@ -7233,13 +7323,13 @@ OPCODE_FN(op_swi)
   u_int8_t *dest;
 
   // Push everything on to stack
-  WR_ADDR(REG_SP--, (REG_PC+1) & 0xFF);
-  WR_ADDR(REG_SP--, (REG_PC+1) >> 8);
-  WR_ADDR(REG_SP--, REG_X & 0xFF);
-  WR_ADDR(REG_SP--, REG_X >> 8);
-  WR_ADDR(REG_SP--, REG_A);
-  WR_ADDR(REG_SP--, REG_B);
-  WR_ADDR(REG_SP--, REG_FLAGS);
+  WR_ADDR(--REG_SP, (REG_PC+1) & 0xFF);
+  WR_ADDR(--REG_SP, (REG_PC+1) >> 8);
+  WR_ADDR(--REG_SP, REG_X & 0xFF);
+  WR_ADDR(--REG_SP, REG_X >> 8);
+  WR_ADDR(--REG_SP, REG_A);
+  WR_ADDR(--REG_SP, REG_B);
+  WR_ADDR(--REG_SP, REG_FLAGS);
 
   FL_I1;
   u_int8_t h = RD_ADDR(0xFFFA);
@@ -7262,13 +7352,13 @@ OPCODE_FN(op_trap)
   u_int8_t *dest;
 
   // Push everything on to stack
-  WR_ADDR(REG_SP--, (REG_PC+1) & 0xFF);
-  WR_ADDR(REG_SP--, (REG_PC+1) >> 8);
-  WR_ADDR(REG_SP--, REG_X & 0xFF);
-  WR_ADDR(REG_SP--, REG_X >> 8);
-  WR_ADDR(REG_SP--, REG_A);
-  WR_ADDR(REG_SP--, REG_B);
-  WR_ADDR(REG_SP--, REG_FLAGS);
+  WR_ADDR(--REG_SP, (REG_PC+1) & 0xFF);
+  WR_ADDR(--REG_SP, (REG_PC+1) >> 8);
+  WR_ADDR(--REG_SP, REG_X & 0xFF);
+  WR_ADDR(--REG_SP, REG_X >> 8);
+  WR_ADDR(--REG_SP, REG_A);
+  WR_ADDR(--REG_SP, REG_B);
+  WR_ADDR(--REG_SP, REG_FLAGS);
 
   FL_I1;
   u_int8_t h = RD_ADDR(0xFFEE);
@@ -7299,8 +7389,8 @@ OPCODE_FN(op_jsr)
       INC_PC;
       INC_PC;
 
-      WR_ADDR(REG_SP--, REG_PC & 0xFF);
-      WR_ADDR(REG_SP--, REG_PC >> 8);
+      WR_ADDR(--REG_SP, REG_PC & 0xFF);
+      WR_ADDR(--REG_SP, REG_PC >> 8);
       
       // Jump to subroutine
       REG_PC = dest;
@@ -7314,8 +7404,8 @@ OPCODE_FN(op_jsr)
       
       INC_PC;
 
-      WR_ADDR(REG_SP--, REG_PC & 0xFF);
-      WR_ADDR(REG_SP--, REG_PC >> 8);
+      WR_ADDR(--REG_SP, REG_PC & 0xFF);
+      WR_ADDR(--REG_SP, REG_PC >> 8);
       
       // Jump to subroutine
       REG_PC = dest;
@@ -7331,8 +7421,8 @@ OPCODE_FN(op_jsr)
       INC_PC;
       INC_PC;
 
-      WR_ADDR(REG_SP--, REG_PC & 0xFF);
-      WR_ADDR(REG_SP--, REG_PC >> 8);
+      WR_ADDR(--REG_SP, REG_PC & 0xFF);
+      WR_ADDR(--REG_SP, REG_PC >> 8);
 
       
       // Jump to subroutine
@@ -7348,8 +7438,8 @@ OPCODE_FN(op_jsr)
       INC_PC;
       INC_PC;
 
-      WR_ADDR(REG_SP--, REG_PC & 0xFF);
-      WR_ADDR(REG_SP--, REG_PC >> 8);
+      WR_ADDR(--REG_SP, REG_PC & 0xFF);
+      WR_ADDR(--REG_SP, REG_PC >> 8);
       
       // Jump to subroutine
       REG_PC = dest;
@@ -7942,14 +8032,10 @@ void dump_state(int opcode, int inst_length)
   fprintf(lf, "\nD :%02X%02X", pstate.A, pstate.B);
   fprintf(lf, "\nX :%04X", pstate.X);
 
-  char str_flags[7] = "______";
-  for(int i=0;i<6; i++)
-    {
-      if( pstate.FLAGS & flag_data[i].mask )
-	{
-	  str_flags[i] = flag_data[i].name;
-	}
-    }
+  
+
+  decode_flags();
+  
   fprintf(lf, "\nCC:%02X (%s)", pstate.FLAGS, str_flags);
   fprintf(lf, "\nSCACNT:%02X keyk:%d keyp5:%02X", sca_counter, keyk, keyp5);
   fprintf(lf, "\n========================================\n");
@@ -7975,13 +8061,13 @@ void interrupt(u_int16_t vector_msb)
   
  
   // Push registers
-  WR_ADDR(REG_SP--, REG_PC & 0xFF);
-  WR_ADDR(REG_SP--, REG_PC >> 8);
-  WR_ADDR(REG_SP--, REG_X & 0xff);
-  WR_ADDR(REG_SP--, REG_X >> 8);
-  WR_ADDR(REG_SP--, REG_A);
-  WR_ADDR(REG_SP--, REG_B);
-  WR_ADDR(REG_SP--, REG_FLAGS);
+  WR_ADDR(--REG_SP, REG_PC & 0xFF);
+  WR_ADDR(--REG_SP, REG_PC >> 8);
+  WR_ADDR(--REG_SP, REG_X & 0xff);
+  WR_ADDR(--REG_SP, REG_X >> 8);
+  WR_ADDR(--REG_SP, REG_A);
+  WR_ADDR(--REG_SP, REG_B);
+  WR_ADDR(--REG_SP, REG_FLAGS);
 
   // Vector
   REG_PC = (((u_int16_t)RD_ADDR(vector_msb)) << 8) | RD_ADDR(vector_msb+1);
@@ -8153,10 +8239,60 @@ struct
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#if MON_DUMP
+void monprintf(char *fmt, ...)
+{
+  
+  va_list args;
+  va_start(args, fmt);
+  vfprintf(monf, fmt, args);
+  va_end(args);
+}
+#else
+void monprintf(char *fmt, ...)
+{
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Dump some memory in hex and ascii
+
+void dump_memory(int n, int addr)
+{
+  int a = addr;
+  fprintf(af, "\n");
+  for(int i=0; i<n; i++)
+    {
+      fprintf(af, "%02X ", RD_ADDR(a++));
+    }
+
+  a = addr;
+  fprintf(af, "\n");
+  for(int i=0; i<n; i++)
+    {
+      int b = RD_ADDR(a);
+      fprintf(af, "%c ", isprint(b)?b:'.');
+      a++;
+    }
+  fprintf(af, "\n");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int rel = 0;
 
 void main(void)
 {
+#if MON_DUMP
+  monf = fopen("monitor.txt", "w");
+  if( monf == NULL )
+    {
+      printf("\nCannot open monitor logging file...");
+      exit(-2);
+    }
+#endif
+  
 #if MATHS_DEBUG
   mf = fopen("maths.txt", "w");
   if( mf == NULL )
@@ -8193,7 +8329,7 @@ void main(void)
 
   // Top two bits of flags are 1
   // I is set and H may be
-  REG_FLAGS = 0xf1;
+  REG_FLAGS = 0x71;
   
   // Set up various hardware values
 
@@ -8218,7 +8354,7 @@ void main(void)
 
 #endif
 
-#if !EMBEDDED
+#if TRACE_ADDR
   af = fopen("addrlist.txt", "w");
   if( af == NULL )
     {
@@ -8310,7 +8446,8 @@ void main(void)
 		      keyp5 = ~(1<< keys[i].p5);
 		      keyp5 &= 0x7c;
 		      keyp5 |= 0x00;
-		      keyk = keys[i].k-1;
+		      // Spurious '-1' on following line caused problem with keys
+		      keyk = keys[i].k;
 		      rel = 1000000;
 		      break;
 		    }
@@ -8340,14 +8477,42 @@ void main(void)
 	    }
 	}
       
-#if !EMBEDDED
-      fprintf(af, "%06X\n", REG_PC & 0x7fff);
-      fprintf(lf, "\nPC:%x %x %x %x\n", REG_PC, REG_D, REG_X, REG_FLAGS);
+#if TRACE_ADDR
+       // Only trace if we have triggered
+       if( (REG_PC == trace_addr_addr) && (trace_addr_count > 0))
+	 {
+	   trace_addr_on = 1;
+	 }
+
+       if( trace_addr_on )
+	 {
+	   fprintf(af, "%06X\n", REG_PC & 0x7fff);
+	   fprintf(af, "\nPC:%x A:%x B:%x X:%x FLAGS:%02X\n", REG_PC, REG_A, REG_B, REG_X, REG_FLAGS);
+	   fprintf(af, "\nPC:%x A:%c B:%c X:%x FLAGS:%02X\n", REG_PC, isprint(REG_A)?REG_A:'.', isprint(REG_B)?REG_B:'.', REG_X, REG_FLAGS);
+
+	   fprintf(af, "\nX:");
+	   dump_memory(16,REG_X);
+	   fprintf(af, "\n0x2188");
+	   dump_memory(16, 0x2188);
+	   fprintf(af, "\n0x0053");
+	   dump_memory(16, 0x0053);
+	   
+	   trace_addr_count--;
+	   if( trace_addr_count == 0 )
+	     {
+	       trace_addr_on = 0;
+	     }
+	 }
 #endif      
 
+      //      end_curses();
+      
       // Fetch opcode
       opcode = RD_ADDR(REG_PC);
 
+      // Run monitor
+      hd6303(opcode);
+      
       p1 = RD_ADDR(REG_PC+1);
       p2 = RD_ADDR(REG_PC+2);
       
@@ -8357,6 +8522,10 @@ void main(void)
 
 #if !EMBEDDED      
       strcpy(opcode_decode, "");
+#endif
+
+#if !EMBEDDED
+      fprintf(lf, "0x38C:");
 #endif
 
       (*opcode_table[opcode].fn)(opcode, &pstate, p1, p2);
@@ -8373,19 +8542,32 @@ void main(void)
       // in the opcode functions
       INC_PC;
 
+      dump_state(opcode, inst_length);
+
+      // Check against monitor
+      hd6303_check();
+
       // Update timers
       update_timers();
       update_counter();
       
-      dump_state(opcode, inst_length);
+
     }
+
+  
+#if MON_DUMP
+  fclose(monf);
+#endif
 
 #if MATHS_DEBUG
   fclose(mf);
 #endif
   
-#if !EMBEDDED  
+#if TRACE_ADDR
   fclose(af);
+#endif
+  
+#if !EMBEDDED  
   fclose(lf);
   fprintf(lf, "\n");
 #endif

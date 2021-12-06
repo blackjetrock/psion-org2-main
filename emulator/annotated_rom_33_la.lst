@@ -1601,7 +1601,10 @@ Z86F6   CLRA                             ;86F6: 4F             'O'
 Z86FF   CLR     >M0042                   ;86FF: 7F 00 42       '..B'
 Z8702   CLR     >M0041                   ;8702: 7F 00 41       '..A'
         RTS                              ;8705: 39             '9'
+
+
 Z8706   BSR     Z8702                    ;8706: 8D FA          '..'
+
 Z8708   STD     M0045                    ;8708: DD 45          '.E'
         LDD     M0041                    ;870A: DC 41          '.A'
         BEQ     Z8769                    ;870C: 27 5B          ''['
@@ -1659,6 +1662,7 @@ Z873B   ADDD    #svec_IRQ                ;873B: C3 FF F8       '...'
 Z8765   CPX     M0047                    ;8765: 9C 47          '.G'
         BNE     Z873B                    ;8767: 26 D2          '&.'
 Z8769   RTS                              ;8769: 39             '9'
+
 Z876A   STX     M0043                    ;876A: DF 43          '.C'
         ADDD    M0043                    ;876C: D3 43          '.C'
         STD     M0047                    ;876E: DD 47          '.G'
@@ -3421,19 +3425,32 @@ Z93E9   PSHX                             ;93E9: 3C             '<'
         OIM     #$80,$00,X               ;93FC: 62 80 00       'b..'
         LDAA    #$18                     ;93FF: 86 18          '..'
         STAA    M004D                    ;9401: 97 4D          '.M'
+
+;================================================================================
+
+; Start of OPL tokens
         LDX     #M9F33                   ;9403: CE 9F 33       '..3'
+	
+;End of tokens
         LDD     #MA123                   ;9406: CC A1 23       '..#'
         STD     M0053                    ;9409: DD 53          '.S'
+
+; Load token we are looking for in to C3
 Z940B   LDD     #M2188                   ;940B: CC 21 88       '.!.'
         STD     M00C3                    ;940E: DD C3          '..'
-Z9410   LDAA    ,X                       ;9410: A6 00          '..'
-        PSHX                             ;9412: 3C             '<'
-        LDX     M00C3                    ;9413: DE C3          '..'
-        CMPA    ,X                       ;9415: A1 00          '..'
-        PULX                             ;9417: 38             '8'
-        BNE     Z9453                    ;9418: 26 39          '&9'
+	
+Z9410   LDAA    ,X                       ;9410: A6 00          '..' ; Get char
+        PSHX                             ;9412: 3C             '<'  ; Save ptr
+        LDX     M00C3                    ;9413: DE C3          '..' ; Get test char
+        CMPA    ,X                       ;9415: A1 00          '..' ; Compare
+        PULX                             ;9417: 38             '8'  ; Get ptr back
+        BNE     NOT_SAME_CH              ;9418: 26 39          '&9' ; Same char?
+
+; Same character, a match
         TSTA                             ;941A: 4D             'M'
         BPL     Z9447                    ;941B: 2A 2A          '**'
+
+;End of token found
         LDAA    M004D                    ;941D: 96 4D          '.M'
         CMPA    #$1B                     ;941F: 81 1B          '..'
         BCC     Z942F                    ;9421: 24 0C          '$.'
@@ -3456,20 +3473,37 @@ Z942F   LDAB    #$02                     ;942F: C6 02          '..'
 Z9440   STAB    M23D3                    ;9440: F7 23 D3       '.#.'
         LDAB    #$03                     ;9443: C6 03          '..'
         BRA     Z9427                    ;9445: 20 E0          ' .'
+
+;Matched char, and top bit clear
+
+; Next char
 Z9447   INX                              ;9447: 08             '.'
+
         LDD     M00C3                    ;9448: DC C3          '..'
         ADDD    #M0001                   ;944A: C3 00 01       '...'
         STD     M00C3                    ;944D: DD C3          '..'
+	
         SUBD    M00C1                    ;944F: 93 C1          '..'
         BLS     Z9410                    ;9451: 23 BD          '#.'
-Z9453   DEX                              ;9453: 09             '.'
+
+;--------------------------------------------------------------------------------
+; No match with this character, but it could be due to top bit set on end
+; character?
+
+NOT_SAME_CH   DEX                              ;9453: 09             '.'
+
+;Find end of this token, top bit set on last char
 Z9454   INX                              ;9454: 08             '.'
         TST     ,X                       ;9455: 6D 00          'm.'
         BPL     Z9454                    ;9457: 2A FB          '*.'
         INX                              ;9459: 08             '.'
         INC     >M004D                   ;945A: 7C 00 4D       '|.M'
+
+;Any more tokens to search?
         CPX     M0053                    ;945D: 9C 53          '.S'
         BCS     Z940B                    ;945F: 25 AA          '%.'
+
+`; End of token list
         LDX     M00C1                    ;9461: DE C1          '..'
         DEX                              ;9463: 09             '.'
         AIM     #$7F,$00,X               ;9464: 61 7F 00       'a..'
@@ -7453,6 +7487,8 @@ ZAE0D   LDD     M004D                    ;AE0D: DC 4D          '.M'
         TST     $4F,X                    ;AE18: 6D 4F          'mO'
         LDAB    M0080                    ;AE1A: D6 80          '..'
         ADDB    M2187                    ;AE1C: FB 21 87       '.!.'
+
+; This is an ADC that is oinvolved in CALC addition
         ADCA    #$00                     ;AE1F: 89 00          '..'
         STD     M0089                    ;AE21: DD 89          '..'
         LDAA    M0081                    ;AE23: 96 81          '..'
@@ -7926,7 +7962,7 @@ ZB175   LDAA    M0063                    ;B175: 96 63          '.c'
         LDAA    M0062                    ;B178: 96 62          '.b'
         PSHA                             ;B17A: 36             '6'
         JSR     ZAB3D                    ;B17B: BD AB 3D       '..='
-        BSR     ZB1A6                    ;B17E: 8D 26          '.&'
+        BSR     FINDERRMSG                    ;B17E: 8D 26          '.&'
         PSHX                             ;B180: 3C             '<'
         SWI                              ;B181: 3F             '?'
         JMP     Z2573                    ;B182: 7E 25 73       '~%s'
@@ -7950,9 +7986,11 @@ ZB1A0   PULA                             ;B1A0: 32             '2'
         FCB     $14                      ;B1A3: 14             '.'
         PULX                             ;B1A4: 38             '8'
         RTS                              ;B1A5: 39             '9'
-ZB1A6   TBA                              ;B1A6: 17             '.'
+
+;Error messages at dfd7
+FINDERRMSG   TBA                              ;B1A6: 17             '.'
         CLRB                             ;B1A7: 5F             '_'
-        LDX     #MDFD7                   ;B1A8: CE DF D7       '...'
+        LDX     #MDFD7                   ;B1A8: CE DF D7       '...'       ;9F33: 4E             'N'
 ZB1AB   ABX                              ;B1AB: 3A             ':'
         INX                              ;B1AC: 08             '.'
         LDAB    ,X                       ;B1AD: E6 00          '..'
@@ -13049,20 +13087,27 @@ ZD438   JSR     ZD624                    ;D438: BD D6 24       '..$'
         BSR     ZD499                    ;D446: 8D 51          '.Q'
 ZD448   JSR     ZD5DA                    ;D448: BD D5 DA       '...'
         BRA     ZD44F                    ;D44B: 20 02          ' .'
+
 ZD44D   BSR     ZD454                    ;D44D: 8D 05          '..'
 ZD44F   BSR     ZD488                    ;D44F: 8D 37          '.7'
         JMP     ZD659                    ;D451: 7E D6 59       '~.Y'
+
+
 ZD454   LDAB    #$07                     ;D454: C6 07          '..'
         LDX     #M00C5                   ;D456: CE 00 C5       '...'
         CLC                              ;D459: 0C             '.'
+
 ZD45A   LDAA    ,X                       ;D45A: A6 00          '..'
         ADCA    $09,X                    ;D45C: A9 09          '..'
+
+;This DAA is involved in CALC addition
         DAA                              ;D45E: 19             '.'
         STAA    ,X                       ;D45F: A7 00          '..'
         INX                              ;D461: 08             '.'
         DECB                             ;D462: 5A             'Z'
         BNE     ZD45A                    ;D463: 26 F5          '&.'
         BCC     ZD476                    ;D465: 24 0F          '$.'
+
         LDX     #M00C5                   ;D467: CE 00 C5       '...'
         LDAB    #$07                     ;D46A: C6 07          '..'
         JSR     ZD60C                    ;D46C: BD D6 0C       '...'
@@ -13071,6 +13116,7 @@ ZD45A   LDAA    ,X                       ;D45A: A6 00          '..'
         INCB                             ;D473: 5C             '\'
         STD     M00CB                    ;D474: DD CB          '..'
 ZD476   RTS                              ;D476: 39             '9'
+
 ZD477   CLRA                             ;D477: 4F             'O'
         STAA    M00C5                    ;D478: 97 C5          '..'
         STAA    M00CE                    ;D47A: 97 CE          '..'
@@ -13079,6 +13125,8 @@ ZD477   CLRA                             ;D477: 4F             'O'
         LDX     #M00CF                   ;D480: CE 00 CF       '...'
         LDD     #M2289                   ;D483: CC 22 89       '.".'
         BRA     ZD494                    ;D486: 20 0C          ' .'
+
+; CALC
 ZD488   CLRA                             ;D488: 4F             'O'
         STAA    M00CE                    ;D489: 97 CE          '..'
         LDAB    #$08                     ;D48B: C6 08          '..'
@@ -13088,6 +13136,7 @@ ZD488   CLRA                             ;D488: 4F             'O'
 ZD494   JSR     Z8708                    ;D494: BD 87 08       '...'
 ZD497   CLC                              ;D497: 0C             '.'
         RTS                              ;D498: 39             '9'
+
 ZD499   LDX     #M00CD                   ;D499: CE 00 CD       '...'
 ZD49C   LDAA    ,X                       ;D49C: A6 00          '..'
         LDAB    $09,X                    ;D49E: E6 09          '..'
@@ -14728,6 +14777,8 @@ MDFC9   LSRD                             ;DFC9: 04             '.'
         FCB     $00                      ;DFD5: 00             '.'
         FCB     $00                      ;DFD6: 00             '.'
 MDFD7   FCB     $00                      ;DFD7: 00             '.'
+
+;Error messages length prefixed
         CLI                              ;DFD8: 0E             '.'
         FCB     $4E                      ;DFD9: 4E             'N'
         CLRA                             ;DFDA: 4F             'O'
