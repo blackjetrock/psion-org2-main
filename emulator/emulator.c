@@ -4209,7 +4209,7 @@ u_int8_t romdata[] = {
 // SCA counter handling
 
 u_int8_t sca_counter = 0;
-int sca_i= 0;
+int sca_i = 0;
 
 void handle_sca(u_int16_t addr)
 {

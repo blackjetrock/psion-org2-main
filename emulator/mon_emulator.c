@@ -22,6 +22,12 @@ void mstate(void);
 void end_curses(void);
 
 
+#define MODEL_XP                 0
+#define MODEL_LZ                 1
+
+// The model we are emulating
+int model = MODEL_LZ;
+
 // Address list file
 FILE *af;
 
@@ -49,10 +55,10 @@ int on_key = 0;
 #define DISPLAY_PROCESSOR  0
 #define DISPLAY_PROC_PC    0
 #define MATHS_DEBUG        1
-#define MON_DUMP           1     // log to file the monitor emulator
+#define MON_DUMP           0     // log to file the monitor emulator
 #define MONITOR_EMULATOR   1     // Monitor emulator with second emulator
 #define ROM_WRITEABLE      0
-#define TRACE_ADDR         1     // Trace addresses to file
+#define TRACE_ADDR         0     // Trace addresses to file
 
 #define LAST_N_PC   10
 
@@ -124,9 +130,132 @@ char opcode_decode[100] = "";
 // Calculate word address from two bytes
 #define ADDR_WORD(HI,LO)    ((((u_int16_t)HI)<<8)+LO)
 
-u_int8_t ramdata[65536];
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROM and RAM data, and bank switching
+//
+//
+// *******************************************************************************
+// Rom
+// 
+// Both the LZ and LZ64 have 64k of ROM.  The ROM from $8000 to $BFFF
+// is bank-switched in 3 banks of 16k and the ROM from $C000 to $FFFF
+// is fixed. (see appendix C of the LZ(64) programming manual). The bank-switching
+// is carried out by accessing the following addresses (reading or writing):
+// 
+//     $360    - Reset ROM/RAM to bank 0
+//     $3E0    - Select next ROM bank
+// 
+// Note that the operating system may switch ROM banks when any system
+// service is called and during interrupts.
+// 
+// *******************************************************************************
+// Ram
+// 
+// The model LZ has 32k of RAM and the LZ64 has 64k. The RAM from $4000
+// to $7FFF is bank switched in 3 banks of 16k and the RAM below $4000
+// is fixed. (see appendix C of the LZ(64) programming manual). The bank-switching
+// is carried out by accessing the following addresses (reading or writing):
+// 
+//     $360    - Reset ROM/RAM to bank 0
+//     $3A0    - Select next RAM bank
+// 
+// 
+// See chapter 29, LZ64 RAM USAGE for details of the use of the "extra"
+// 32k of RAM.
 
-u_int8_t romdata[] = {
+// How big ram and rom are
+#define RAM_SIZE 655360
+#define ROM_SIZE (sizeof(romdata))
+#define ROM_START (0x8000)
+
+#define BANK_RESET       0x0360
+#define BANK_NEXT_ROM    0x03e0
+#define BANK_NEXT_RAM    0x03a0
+
+#define BANK_START       0x4000
+// If we know we are accessing fixed RAM then we can ignore bank switching
+
+int badram(int addr)
+{
+  fprintf(lf, "\nBAD RAM Addr:%04X", addr);
+  exit(-1);
+}
+
+int badrom(int addr)
+{
+  fprintf(lf, "\nBAD ROM Addr:%04X", addr);
+  exit(-1);
+}
+
+#if PROT
+#define RAMDATA_FIX(AAA)  ramdata[(AAA>=0x8000)?badram():AAA]
+#define RAMDATA(AAA)      ramdata[((AAA>=0x8000)?badram():AAA)<BANK_START)?AAA:(AAA+ram_bank_off)]
+
+#define ROMDATA_FIX(AAA)  romdata[(AAA>=0x8000)?badrom():AAA]
+#define ROMDATA(AAA)      romdata[((AAA>=0x8000)?badrom():AAA)>BANK_START)?AAA:(AAA+rom_bank_off)]
+
+//#define ROMDATA_FIX(AAA)  romdata[AAA]
+//#define ROMDATA(AAA)      romdata[(AAA>BANK_START)?AAA:(AAA+rom_bank_off)]
+#else
+#define RAMDATA_FIX(AAA)  ramdata[AAA]
+#define RAMDATA(AAA)      ramdata[(AAA<BANK_START)?AAA:(AAA+ram_bank_off)]
+
+#define ROMDATA_FIX(AAA)  romdata[AAA]
+#define ROMDATA(AAA)      romdata[(AAA>BANK_START)?AAA:(AAA+rom_bank_off)]
+#endif
+
+// Offsets of current bank
+int ram_bank_off = 0x4000;
+int rom_bank_off = 0x0000;
+
+u_int8_t ramdata[RAM_SIZE];
+
+//--------------------------------------------------------------------------------
+void handle_bank(int addr)
+{
+  switch(addr)
+    {
+    case BANK_RESET:
+      ram_bank_off = 0x4000;
+      rom_bank_off = 0x0000;
+      break;
+      
+    case BANK_NEXT_RAM:
+      ram_bank_off += 0x4000;
+      break;
+
+      // ROM fixed bank is from (adjusted ROm addreses)
+      // 0x4000 to 0x7FFF
+      // banked area is 0x0000 to 0x3FFF
+      // In image we have bank 0, fixed, bank1, bank2, bank n, ...
+    case BANK_NEXT_ROM:
+#if !EMBEDDED
+      fprintf(lf, "\nBANK_NEXT_ROM:%X", rom_bank_off); 
+#endif
+      switch(rom_bank_off)
+	{
+	  // If in first bank, jump over fixed area to bank 1
+	case 0x0000:
+	  rom_bank_off = 0x8000;
+	  break;
+	  
+	default:
+	  // Move to next bank from bank 1 onwards
+	  rom_bank_off += 0x4000;
+	  break;
+	}
+      break;
+    }
+#if !EMBEDDED
+      fprintf(lf, "\nBANK_NEXT_ROM:%X", rom_bank_off); 
+#endif
+
+}
+
+//--------------------------------------------------------------------------------
+
+u_int8_t romdata[1000000] = {
    // ASSEMBLER_EMBEDDED_CODE_START
 0x01,0xbd,0xc3,0x8e,0x07,0xdd,0x41,0xc3,0x00,0x05,0xdd,0x4f,0x3c,0xde,0x41,0xc6,
 0x08,0xbd,0xd0,0xbc,0xd7,0x43,0x4a,0xdd,0x45,0x38,0xbd,0x80,0xb7,0x3c,0xde,0x41,
@@ -4232,7 +4361,7 @@ u_int8_t romdata[] = {
 // SCA counter handling
 
 u_int8_t sca_counter = 0;
-int sca_i= 0;
+int sca_i = 0;
 
 void handle_sca(u_int16_t addr)
 {
@@ -4254,7 +4383,7 @@ void handle_sca(u_int16_t addr)
 #if !EMBEDDED
       fprintf(lf, "    KEY:No key");
 #endif
-      ramdata[P5_DATA] = NO_KEY_STATE | on_key;
+      RAMDATA_FIX(P5_DATA) = NO_KEY_STATE | on_key;
     }
   else
     {
@@ -4262,11 +4391,11 @@ void handle_sca(u_int16_t addr)
 	{
 	  mvaddch(7, 5+keyk, '*');	      
 #if !EMBEDDED
-	  fprintf(lf, "    KEY:key keyp5=%02X p5=%02X", keyp5, ramdata[P5_DATA]);
+	  fprintf(lf, "    KEY:key keyp5=%02X p5=%02X", keyp5, RAMDATA_FIX(P5_DATA));
 #endif
-	  ramdata[P5_DATA] = keyp5;
+	  RAMDATA_FIX(P5_DATA) = keyp5;
 #if !EMBEDDED
-	  fprintf(lf, "    KEY:key keyp5=%02X p5=%02X", keyp5, ramdata[P5_DATA]);
+	  fprintf(lf, "    KEY:key keyp5=%02X p5=%02X", keyp5, RAMDATA_FIX(P5_DATA));
 #endif
 	}
       else
@@ -4274,19 +4403,19 @@ void handle_sca(u_int16_t addr)
 	  //mvaddch(7, 5+keyk, ' ');	      
 	  
 	  // Not our row
-	  ramdata[P5_DATA] = NO_KEY_STATE | on_key;
+	  RAMDATA_FIX(P5_DATA) = NO_KEY_STATE | on_key;
 	}
     }
 
 
 #if DISPLAY_STATUS
   char scastr[100];
-  sprintf(scastr, "%d SCA:%02X keyk:%d keyp5:%02X P5:%02X", sca_i, sca_counter, keyk, keyp5, ramdata[P5_DATA]);
+  sprintf(scastr, "%d SCA:%02X keyk:%d keyp5:%02X P5:%02X", sca_i, sca_counter, keyk, keyp5, RAMDATA_FIX(P5_DATA));
   mvaddstr(6,10, scastr);
 #endif
 
 #if !EMBEDDED
-  fprintf(lf, "    KEY:p5 now %02X", ramdata[P5_DATA]);
+  fprintf(lf, "    KEY:p5 now %02X", RAMDATA_FIX(P5_DATA));
 #endif
 
 }
@@ -4302,6 +4431,9 @@ int lcd_cursor   = 0;
 int lcd_blink    = 0;
 int lcd_auto_inc = 0;
 int lcd_shift    = 0;
+
+int lcd_linelen = 16;
+int lcd_dispsize = 32;
 
 u_int8_t handle_lcd_read(u_int16_t addr)
 {
@@ -4337,6 +4469,28 @@ u_int8_t handle_lcd_read(u_int16_t addr)
     }
 }
 
+
+
+//
+// the mapping of the display is different between LZ and XP, so
+// we have a compile time switch for now
+
+// LZ display mapping
+u_int8_t lz_mapping[] =
+  {
+   0,1,2,3,8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,
+   64,65,66,67, 72,73,74,75,76,77,78,79, 88,89,90,91,92,93,94,95,
+   4,5,6,7,16,17,18,19,20,21,22,23,32,33,34,35,36,37,38,39,
+   68,69,70,71, 80,81,82,83,84,85,86,87, 96,97,98,99,100,101,102,103};
+
+u_int8_t xp_mapping[] =
+  {
+   0,   1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+   64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79
+  };
+
+
+
 void dump_lcd(void)
 {
   int i;
@@ -4345,32 +4499,26 @@ void dump_lcd(void)
 
   if( strcmp(last_lcd_display_buffer, lcd_display_buffer) != 0 )
     {
-      //      printf("\n'");
-      for(i=0; i<=0x1F; i++)
+      
+      switch(model)
 	{
-	  if( isprint(lcd_display_buffer[i]) )
+	case MODEL_XP:
+	case MODEL_LZ:
+	  for(i=0; i<lcd_dispsize; i++)
 	    {
-	      mvaddch(0, i, lcd_display_buffer[i]);
+	      if( isprint(lcd_display_buffer[lz_mapping[i]]),1 )
+		{
+		  mvaddch(i / lcd_linelen, i % lcd_linelen, lcd_display_buffer[lz_mapping[i]]);
+		}
+	      else
+		{
+		  mvaddch(i/lcd_linelen, i % lcd_linelen, '.');
+		}
 	    }
-	  else
-	    {
-	      mvaddch(0, i, '.');
-	    }
+	  break;
 	}
-	  //      printf("'\n'");
-
-      for(i=0x40; i<=0x5F; i++)
-	{
-	  if( isprint(lcd_display_buffer[i]) )
-	    {
-	      mvaddch(1, i-0x40, lcd_display_buffer[i]);
-	    }
-	  else
-	    {
-	      mvaddch(1, i-0x40, '.');
-	    }
-	}
-	  //printf("'\n");
+      
+      //printf("'\n");
       refresh();
       
 #if DISPLAY_LCD_HEX      
@@ -4394,7 +4542,6 @@ void dump_lcd(void)
     }
 #endif
 }
-
 void handle_lcd_write(u_int16_t addr, u_int8_t value)
 {
   switch(addr)
@@ -4404,7 +4551,6 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 #if !EMBEDDED
       fprintf(lf, "\nWrite of LCD ctrl register Value %02X", value);
 #endif
-
       if( (value >= 0x70) && (value <= 0xFF) )
 	{
 	  lcd_ddram = value & 0x7f;
@@ -4415,7 +4561,7 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 	    {
 	    case 0x01:
 	      // Clear display
-	      for(int i=0; i<=MAX_DDRAM; i++)
+	      for(int i=0; i<=lcd_dispsize; i++)
 		{
 		  lcd_display_buffer[i] = ' ';
 		}
@@ -4454,7 +4600,7 @@ void handle_lcd_write(u_int16_t addr, u_int8_t value)
 
     case LCD_DATA_REG:
 #if !EMBEDDED
-      fprintf(lf, "\nWrite of LCD data register Value %02X ('%c') at %02X\n", value,  value, lcd_ddram);
+      fprintf(lf, "\nWrite of LCD data register Value %02X ('%c') at %02X\n", value,  isprint(value)?value:'.', lcd_ddram);
 #endif
       lcd_display_buffer[lcd_ddram] = value;
 
@@ -4633,9 +4779,9 @@ if( !write_occurred )
 u_int8_t *REF_ADDR(u_int16_t addr)
 {
 
-  if( addr > 0x7fff)
+  if( addr >= ROM_START)
     {
-      return(&romdata[addr-0x8000]);
+      return(&ROMDATA(addr-ROM_START));
     }
   else
     {
@@ -4646,9 +4792,9 @@ u_int8_t *REF_ADDR(u_int16_t addr)
       pstate.memory = 1;
       pstate.memory_addr = addr;
 #if !EMBEDDED      
-      fprintf(lf, " REF of %04X: %02X", addr, ramdata[addr]);
+      fprintf(lf, " REF of %04X: %02X", addr, RAMDATA(addr));
 #endif
-      return(&ramdata[addr]);
+      return(&RAMDATA(addr));
     }
 }
 
@@ -4696,18 +4842,25 @@ u_int8_t RD_REF(u_int16_t addr)
       handle_sca(addr);
       return(0);
       break;
+
+    case BANK_RESET:
+    case BANK_NEXT_RAM:
+    case BANK_NEXT_ROM:
+      handle_bank(addr);
+      return(0);
+      break;
     }
 
-  if( addr > 0x7fff)
+  if( addr >= ROM_START)
     {
-      return(romdata[addr-0x8000]);
+      return(ROMDATA(addr-ROM_START));
     }
   else
     {
 #if !EMBEDDED      
-      fprintf(lf, "  RAM RD:%04X = %02X  ", addr, ramdata[addr]);
+      fprintf(lf, "  RAM RD REF:%04X = %02X  ", addr, RAMDATA(addr));
 #endif
-      return(ramdata[addr]);
+      return(RAMDATA(addr));
     }
 
 }
@@ -4767,8 +4920,15 @@ void WR_REF(u_int16_t addr, u_int8_t value)
       return;
       break;
 
+    case BANK_RESET:
+    case BANK_NEXT_RAM:
+    case BANK_NEXT_ROM:
+      handle_bank(addr);
+      return;
+      break;
+
     default:
-      ramdata[addr] = value;
+      RAMDATA(addr) = value;
       break;
     }
 }
@@ -4798,36 +4958,47 @@ u_int8_t RD_ADDR(u_int16_t addr)
       handle_sca(addr);
       return(0);
       break;
+
+    case BANK_RESET:
+    case BANK_NEXT_RAM:
+    case BANK_NEXT_ROM:
+      handle_bank(addr);
+      return(0);
+      break;
+
     }
   
-  if( addr > 0x7fff)
+  if( addr >= ROM_START)
     {
-      return(romdata[addr-0x8000]);
+#if !EMBEDDED      
+      fprintf(lf, "  ROM RD:%04X = %02X  ", addr, ROMDATA(addr-ROM_START));
+#endif
+      return(ROMDATA(addr-ROM_START));
     }
   else
     {
 #if !EMBEDDED      
-      fprintf(lf, "  RAM RD:%04X = %02X  ", addr, ramdata[addr]);
+      fprintf(lf, "  RAM RD:%04X = %02X  ", addr, RAMDATA(addr));
 #endif
-      return(ramdata[addr]);
+      return(RAMDATA(addr));
     }
 }
 
 u_int16_t RDW_ADDR(u_int16_t addr)
 {
   u_int16_t value;
-  if( addr > 0x7fff)
+  if( addr >= ROM_START)
     {
-      value = romdata[addr-0x8000];
+      value = ROMDATA(addr-ROM_START);
       value <<= 8;
-      value += romdata[(addr-0x8000)+1];
+      value += ROMDATA((addr-ROM_START)+1);
       return(value);
     }
   else
     {
-      value = ramdata[addr];
+      value = RAMDATA(addr);
       value <<= 8;
-      value += ramdata[addr+1];
+      value += RAMDATA(addr+1);
 #if !EMBEDDED
       fprintf(lf, " RAM RDW:%04X = %04X", addr, value);
 #endif
@@ -4871,17 +5042,25 @@ void  WR_ADDR(u_int16_t addr, u_int8_t value)
       handle_sca(addr);
       return;
       break;
+
+    case BANK_RESET:
+    case BANK_NEXT_RAM:
+    case BANK_NEXT_ROM:
+      handle_bank(addr);
+      return;
+      break;
+
     }
   
-  if( addr > 0x7fff)
+  if( addr >= ROM_START)
     {
 #if ROM_WRITEABLE
-      romdata[addr-0x8000] = value;
+      ROMDATA(addr-ROM_START) = value;
 #endif
     }
   else
     {
-      ramdata[addr] = value;
+      RAMDATA(addr) = value;
 #if !EMBEDDED
       fprintf(lf, " RAM WR:%04X = %02X", addr, value);
 #endif
@@ -4922,15 +5101,15 @@ void dump_ram(void)
 
   ascii[16] = '\0';
   
-  for(i=0; i< 0x8000; i++)
+  for(i=0; i< ROM_START; i++)
     {
-      ascii[i%16] = isprint(ramdata[i])?ramdata[i]:'.';
+      ascii[i%16] = isprint(RAMDATA(i))?RAMDATA(i):'.';
       
       if( (i % 16) == 0 )
 	{
 	  fprintf(fp, "\n%04X:", i);
 	}
-      fprintf(fp, "%02X ", ramdata[i]);
+      fprintf(fp, "%02X ", RAMDATA(i));
 
       if( (i % 16) == 0xf )
 	{
@@ -7303,9 +7482,13 @@ OPCODE_FN(op_tst)
 
   if(pstate.memory)
     {
+#if !EMBEDDED
+      fprintf(lf, "\nTST before RD_REF\n");
+#endif
+
       int byte = RD_REF(pstate.memory_addr);
 #if !EMBEDDED
-      fprintf(lf, "\nRD_REF %04X byte = %02X", pstate.memory_addr, byte);
+      fprintf(lf, "\nTST after RD_REF %04X byte = %02X\n", pstate.memory_addr, byte);
 #endif
       pstate.memory = 0;
       FL_ZT(byte);
@@ -8026,18 +8209,17 @@ void dump_state(int opcode, int inst_length)
       fprintf(lf, "%02X ", RD_ADDR(pc_before+i));
     }
   
+  fprintf(lf, "\nPC:%04X", pstate.PC);
   fprintf(lf, "\nSP:%04X", pstate.SP);
   fprintf(lf, "\nA :%02X", pstate.A);
   fprintf(lf, "\nB :%02X", pstate.B);
   fprintf(lf, "\nD :%02X%02X", pstate.A, pstate.B);
   fprintf(lf, "\nX :%04X", pstate.X);
 
-  
-
   decode_flags();
   
   fprintf(lf, "\nCC:%02X (%s)", pstate.FLAGS, str_flags);
-  fprintf(lf, "\nSCACNT:%02X keyk:%d keyp5:%02X", sca_counter, keyk, keyp5);
+  fprintf(lf, "\nSCACNT:%02X keyk:%d keyp5:%02X   BANK_RAM:%06X BANK_ROM=%06X", sca_counter, keyk, keyp5, ram_bank_off, rom_bank_off);
   fprintf(lf, "\n========================================\n");
 #endif
 }
@@ -8314,12 +8496,25 @@ void main(void)
       exit(-2);
     }
   fprintf(lf, "\n");
-  fprintf(lf, "\nROM Size:%ld", sizeof(romdata));
+  fprintf(lf, "\nROM Size:%ld", ROM_SIZE);
 #endif
 
 #if DISPLAY_LCD  
   init_curses();
 #endif
+
+  switch(model)
+    {
+    case MODEL_XP:
+      lcd_linelen = 16;
+      lcd_dispsize = 32;
+      break;
+      
+    case MODEL_LZ:
+      lcd_linelen = 20;
+      lcd_dispsize = 80;
+      break;
+    }
   
   // Reset the processor
   // Latch MP0,MP1
@@ -8333,10 +8528,10 @@ void main(void)
   
   // Set up various hardware values
 
-  ramdata[0x14] = 0x00;
+  RAMDATA_FIX(0x14) = 0x00;
 
   // No key pressed
-  ramdata[P5_DATA] = COLD_START_STATE | NO_KEY_STATE | on_key;
+  RAMDATA_FIX(P5_DATA) = COLD_START_STATE | NO_KEY_STATE | on_key;
 
   // Execute
   // Human readable output to stdout
@@ -8350,7 +8545,7 @@ void main(void)
   {
     char *name;
   }
-  dislist[sizeof(romdata)];
+  dislist[ROM_SIZE];
 
 #endif
 
@@ -8489,14 +8684,14 @@ void main(void)
 	   fprintf(af, "%06X\n", REG_PC & 0x7fff);
 	   fprintf(af, "\nPC:%x A:%x B:%x X:%x FLAGS:%02X\n", REG_PC, REG_A, REG_B, REG_X, REG_FLAGS);
 	   fprintf(af, "\nPC:%x A:%c B:%c X:%x FLAGS:%02X\n", REG_PC, isprint(REG_A)?REG_A:'.', isprint(REG_B)?REG_B:'.', REG_X, REG_FLAGS);
-
+#if 0
 	   fprintf(af, "\nX:");
 	   dump_memory(16,REG_X);
 	   fprintf(af, "\n0x2188");
 	   dump_memory(16, 0x2188);
 	   fprintf(af, "\n0x0053");
 	   dump_memory(16, 0x0053);
-	   
+#endif	   
 	   trace_addr_count--;
 	   if( trace_addr_count == 0 )
 	     {
@@ -8511,7 +8706,7 @@ void main(void)
       opcode = RD_ADDR(REG_PC);
 
       // Run monitor
-      hd6303(opcode);
+      //hd6303(opcode);
       
       p1 = RD_ADDR(REG_PC+1);
       p2 = RD_ADDR(REG_PC+2);
@@ -8527,11 +8722,11 @@ void main(void)
 #if !EMBEDDED
       fprintf(lf, "0x38C:");
 #endif
-
+      fflush(lf);
       (*opcode_table[opcode].fn)(opcode, &pstate, p1, p2);
 
 #if !EMBEDDED
-      if( (ramdata[0x7ffb] == 0x01) && (ramdata[0x7ffc] == 0x07) )
+      if( (RAMDATA(0x7ffb) == 0x01) && (RAMDATA(0x7ffc) == 0x07) )
 	{
 	  fprintf(lf, "\nmatch at %04x", REG_PC);
 	  exit(-1);
@@ -8543,9 +8738,10 @@ void main(void)
       INC_PC;
 
       dump_state(opcode, inst_length);
-
+      fflush(lf);
+      
       // Check against monitor
-      hd6303_check();
+      //hd6303_check();
 
       // Update timers
       update_timers();
