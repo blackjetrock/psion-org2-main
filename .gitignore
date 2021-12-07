@@ -2,5 +2,10 @@
 *.txt
 *~
 !errata*
+.\#*
+old_mon_emulator.c
+memulator
+emulator.c.working
+mon_emulator.c.changes
 
 
