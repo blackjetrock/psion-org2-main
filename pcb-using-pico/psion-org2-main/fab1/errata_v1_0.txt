@@ -1,11 +1,21 @@
 V1.0 Psion recreate Main PCB Errata
 ===================================
 
-1. S_PGM pin needs to be attached for paged datapacks.
+1. S_PGM pin needs to be attached for paged datapacks. Not on edge connector.
+   Used pin 10 on edge connector.
 2. Pin headers don't line up
-3. holes missing for top slot
+3. Holes missing for top slot
 4. OLED pin 10 should be GND not open.
 5. Top row of keys wired up wrong.
 6. Mislabelled P52 as p52 on keyboard.
-7. Put battery voltage circuit on the 'off' side of ON switch to reduce supply current draw when off.
+7. Put battery voltage circuit on the 'off' side of ON switch to reduce
+   supply current draw when off.
+8. Need a diode on each keyboard drive line to allow shiftkey to work.
+9. Put jumper in so OLED supply can be hard wired to GND. There's about
+   3V loss with switch and display doesn't turn off fully anyway. Switched
+   3V3 power allows it to be turned off.
+10. Put jumper for MFP output so it can be disabled. It holds
+    power on when low.
+11. QH_O not attached to shift register
+
 
