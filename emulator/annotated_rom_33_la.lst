@@ -712,8 +712,11 @@ Z8046   TST     M0180                    ;8046: 7D 01 80       '}..'
         JSR     Z8105                    ;8068: BD 81 05       '...'
 Z806B   TST     M03C0                    ;806B: 7D 03 C0       '}..'
         AIM     #$BF,M0014               ;806E: 71 BF 14       'q..'
+
+; Switch off
 Z8071   TST     M01C0                    ;8071: 7D 01 C0       '}..'
         BRA     hdlr_RST                 ;8074: 20 8A          ' .'
+
 Z8076   LDS     M2067                    ;8076: BE 20 67       '. g'
         LDX     M2056                    ;8079: FE 20 56       '. V'
         JMP     ,X                       ;807C: 6E 00          'n.'
