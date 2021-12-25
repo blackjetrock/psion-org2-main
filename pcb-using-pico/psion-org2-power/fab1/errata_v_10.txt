@@ -3,4 +3,18 @@ V1.0 Psion recreate Power PCB Errata
 
 1. S_PGM pin needs to be attached for paged datapacks.
 2. SPGM not on edge connector
+3. Put pads on PCB for beeper springs
+4. Put buck boost for running off USB supply on this PCB? Maybe better on
+   processor PCB? If just for datapacks then power PCB.
+   Why is 5V regulator on processor PCB? It powers the slots and they are a power PCB funtion.
+5. Pull downs on pack slot connector side of SDx databus lines needed.
+6. Switch supply of WROOM with 2 transistor switch from VBAT_SWITCHED2
+into 3V3 regulator.
+7. Screw post hits U7
+8. External power filter/protection?
+9. Add connections for programming the WROOM
+10. Limit Vgs on mosfets.
+11. IO0 to GND for programming mode
+    TXD0 and RXD0 to RXD and TXD
+    
 

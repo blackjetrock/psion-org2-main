@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "Psion Organiser 2 Re-Creation"
 Date "2021-11-08"
-Rev "REV1"
+Rev "REV1.1"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -627,28 +627,9 @@ F 3 "" H 14000 5150 50  0001 C CNN
 	1    14000 5150
 	1    0    0    -1  
 $EndComp
-$Comp
-L New_Library:Si2302CDS-n-channel TR2
-U 1 1 61990652
-P 13900 4675
-F 0 "TR2" H 14178 4721 50  0000 L CNN
-F 1 "Si2302CDS-n-channel" H 14178 4630 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 13930 4825 20  0001 C CNN
-F 3 "" H 13900 4675 50  0001 C CNN
-	1    13900 4675
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	14000 4100 14000 4250
 Connection ~ 14000 4250
-Wire Wire Line
-	14000 4250 14000 4375
-Wire Wire Line
-	14000 4975 14000 5150
-Text GLabel 13175 4775 0    50   Input ~ 0
-ESP_ON
-Wire Wire Line
-	13175 4775 13700 4775
 $Comp
 L pak_breakout:AMS1117-3.3 U2
 U 1 1 619A2CBA
@@ -715,7 +696,7 @@ F 3 "" H 3700 7525 50  0001 C CNN
 	1    3700 7525
 	1    0    0    -1  
 $EndComp
-Text GLabel 1500 6825 0    50   Input ~ 0
+Text GLabel 1500 6025 0    50   Input ~ 0
 VBAT_SWITCHED2
 Text GLabel 4025 6825 2    50   Input ~ 0
 VCC_ESP
@@ -1096,4 +1077,223 @@ Text GLabel 8800 10150 2    50   Input ~ 0
 SS2
 Text GLabel 8800 10250 2    50   Input ~ 0
 SS3
+$Comp
+L GeekAmmo:P-CHANNEL-MOSFET M?
+U 1 1 61B597B3
+P 14800 6775
+F 0 "M?" H 15078 6821 50  0000 L CNN
+F 1 "P-CHANNEL-MOSFET" H 15078 6730 50  0000 L CNN
+F 2 "SOT23-3" H 14830 6925 20  0001 C CNN
+F 3 "" H 14800 6775 50  0001 C CNN
+	1    14800 6775
+	1    0    0    -1  
+$EndComp
+$Comp
+L New_Library:Si2302CDS-n-channel TR?
+U 1 1 61B5C6C5
+P 13500 7175
+F 0 "TR?" H 13778 7221 50  0000 L CNN
+F 1 "Si2302CDS-n-channel" H 13778 7130 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 13530 7325 20  0001 C CNN
+F 3 "" H 13500 7175 50  0001 C CNN
+	1    13500 7175
+	1    0    0    -1  
+$EndComp
+Text GLabel 12775 7275 0    50   Input ~ 0
+ESP_ON
+Wire Wire Line
+	12775 7275 13300 7275
+$Comp
+L power:GND #PWR?
+U 1 1 61B61074
+P 13600 7650
+F 0 "#PWR?" H 13600 7400 50  0001 C CNN
+F 1 "GND" H 13605 7477 50  0000 C CNN
+F 2 "" H 13600 7650 50  0001 C CNN
+F 3 "" H 13600 7650 50  0001 C CNN
+	1    13600 7650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13600 7475 13600 7650
+Text GLabel 13225 5975 0    50   Input ~ 0
+VBAT_SWITCHED2
+Wire Wire Line
+	14900 5975 14900 6475
+$Comp
+L Device:R_Small 10k
+U 1 1 61B7C8DF
+P 13600 6150
+F 0 "10k" H 13659 6196 50  0000 L CNN
+F 1 "R_Small" H 13659 6105 50  0000 L CNN
+F 2 "" H 13600 6150 50  0001 C CNN
+F 3 "~" H 13600 6150 50  0001 C CNN
+	1    13600 6150
+	1    0    0    -1  
+$EndComp
+Text GLabel 1500 6825 0    50   Input ~ 0
+ESP_IN_POWER
+Text GLabel 15125 7200 2    50   Input ~ 0
+ESP_IN_POWER
+Wire Wire Line
+	14900 7075 14900 7200
+Wire Wire Line
+	14900 7200 15125 7200
+Wire Wire Line
+	14075 5525 14600 5525
+Text GLabel 14075 5525 0    50   Input ~ 0
+ESP_ON
+$Comp
+L New_Library:Si2302CDS-n-channel TR2
+U 1 1 61990652
+P 14800 5425
+F 0 "TR2" H 15078 5471 50  0000 L CNN
+F 1 "Si2302CDS-n-channel" H 15078 5380 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 14830 5575 20  0001 C CNN
+F 3 "" H 14800 5425 50  0001 C CNN
+	1    14800 5425
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	14000 4250 14000 5150
+Wire Wire Line
+	13225 5975 13600 5975
+$Comp
+L Device:R_Small 10k?
+U 1 1 61BC3DC7
+P 13600 6475
+F 0 "10k?" H 13659 6521 50  0000 L CNN
+F 1 "R_Small" H 13659 6430 50  0000 L CNN
+F 2 "" H 13600 6475 50  0001 C CNN
+F 3 "~" H 13600 6475 50  0001 C CNN
+	1    13600 6475
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13600 6575 13600 6875
+Wire Wire Line
+	13600 6375 13600 6300
+Wire Wire Line
+	13600 6050 13600 5975
+Connection ~ 13600 5975
+Wire Wire Line
+	13600 5975 14900 5975
+Wire Wire Line
+	13600 6300 14325 6300
+Wire Wire Line
+	14325 6300 14325 6675
+Wire Wire Line
+	14325 6675 14600 6675
+Connection ~ 13600 6300
+Wire Wire Line
+	13600 6300 13600 6250
+Text Notes 15350 6700 0    50   ~ 0
+A030?\n
+Text GLabel 1350 9150 2    50   Input ~ 0
+SPGM
+Text GLabel 11700 4225 2    50   Input ~ 0
+SPGM
+Text GLabel 11675 6125 2    50   Input ~ 0
+SPGM
+$Comp
+L power:+3V3 #PWR?
+U 1 1 61BE794A
+P 6575 7950
+F 0 "#PWR?" H 6575 7800 50  0001 C CNN
+F 1 "+3V3" H 6590 8123 50  0000 C CNN
+F 2 "" H 6575 7950 50  0001 C CNN
+F 3 "" H 6575 7950 50  0001 C CNN
+	1    6575 7950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 61BE7950
+P 7100 8500
+F 0 "C?" H 7215 8546 50  0000 L CNN
+F 1 "100n" H 7215 8455 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 7138 8350 50  0001 C CNN
+F 3 "~" H 7100 8500 50  0001 C CNN
+	1    7100 8500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 61BE7956
+P 7550 8500
+F 0 "C?" H 7665 8546 50  0000 L CNN
+F 1 "100n" H 7665 8455 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 7588 8350 50  0001 C CNN
+F 3 "~" H 7550 8500 50  0001 C CNN
+	1    7550 8500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 61BE795C
+P 8000 8500
+F 0 "C?" H 8115 8546 50  0000 L CNN
+F 1 "100n" H 8115 8455 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 8038 8350 50  0001 C CNN
+F 3 "~" H 8000 8500 50  0001 C CNN
+	1    8000 8500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8000 8350 8000 8300
+Wire Wire Line
+	7550 8350 7550 8300
+Connection ~ 7550 8300
+Wire Wire Line
+	7550 8300 8000 8300
+Wire Wire Line
+	7100 8350 7100 8300
+Wire Wire Line
+	7100 8300 7550 8300
+$Comp
+L power:GND #PWR?
+U 1 1 61BE7968
+P 8000 8800
+F 0 "#PWR?" H 8000 8550 50  0001 C CNN
+F 1 "GND" H 8005 8627 50  0000 C CNN
+F 2 "" H 8000 8800 50  0001 C CNN
+F 3 "" H 8000 8800 50  0001 C CNN
+	1    8000 8800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7100 8650 7100 8750
+Wire Wire Line
+	7550 8650 7550 8750
+Wire Wire Line
+	7550 8750 7100 8750
+Wire Wire Line
+	8000 8650 8000 8750
+$Comp
+L power:GND #PWR?
+U 1 1 61BE7972
+P 6575 8825
+F 0 "#PWR?" H 6575 8575 50  0001 C CNN
+F 1 "GND" H 6580 8652 50  0000 C CNN
+F 2 "" H 6575 8825 50  0001 C CNN
+F 3 "" H 6575 8825 50  0001 C CNN
+	1    6575 8825
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7550 8750 8000 8750
+Connection ~ 7550 8750
+Connection ~ 8000 8750
+Wire Wire Line
+	8000 8750 8000 8800
+Wire Wire Line
+	6575 7950 6575 8300
+Wire Wire Line
+	7100 8300 6575 8300
+Connection ~ 7100 8300
+Wire Wire Line
+	7100 8750 6575 8750
+Connection ~ 7100 8750
+Wire Wire Line
+	6575 8750 6575 8825
 $EndSCHEMATC

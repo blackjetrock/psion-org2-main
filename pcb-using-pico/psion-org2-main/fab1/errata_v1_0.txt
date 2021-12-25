@@ -17,5 +17,28 @@ V1.0 Psion recreate Main PCB Errata
 10. Put jumper for MFP output so it can be disabled. It holds
     power on when low.
 11. QH_O not attached to shift register
+12. Possibly put LEDs on the KB side of the PCB for backlighting
+13. Tie unused 245 inputs?
+14. Put buck boost regulator on for 5V so can run from USB supply?
+15. VBAT should come from after the diodes that connect to the battery
+    and the external power connector. Maybe some signals should come
+    off the battery and not the diode cathodes?
+16. Put space around mounting holes
+17. Top slot moulding doesn't fit, move components so it does.
+18. AC_B input is wroing polarity. pulling low should turn organiser on.
+    Maybe invert logi of keyboard scanning?
+19. 22uH inductor needs to move, maybe.
+20. C14 and C15 are badly placed
+21. Decoupling needed for U2,U4,U5
+22. M1,M3 etc need voltage limiting circuits if external power voltage
+    isn't limited. Alternatively limit external power to 8V or whatever
+    M1 etc can operate with. Or swap those transistors for higher volatge
+    rating of Vgs
+23. RTC_MFP has battery voltage on it.
+24. Battery switching needs to limit Vgs. Power needs to be supported up to
+    14V/17V.
+25. Buzzer output is OK. maybe a faster drive?
+26. Run buzzer drive to power PCB
 
 
+    

@@ -845,9 +845,12 @@ Z8196   TST     M0380                    ;8196: 7D 03 80       '}..'
 Z819A   CLR     M2062                    ;819A: 7F 20 62       '. b'
         BSR     Z8196                    ;819D: 8D F7          '..'
 Z819F   OIM     #$01,M005B               ;819F: 72 01 5B       'r.['
+
+; This is where the code goes after an 'OFF'
 Z81A2   TST     >M005B                   ;81A2: 7D 00 5B       '}.['
         BNE     Z81A2                    ;81A5: 26 FB          '&.'
 Z81A7   RTS                              ;81A7: 39             '9'
+
         BSR     Z819A                    ;81A8: 8D F0          '..'
 Z81AA   LDX     #M07FF                   ;81AA: CE 07 FF       '...'
 Z81AD   TST     M0340                    ;81AD: 7D 03 40       '}.@'
