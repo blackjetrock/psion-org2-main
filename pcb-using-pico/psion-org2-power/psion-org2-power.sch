@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "Psion Organiser 2 Re-Creation"
 Date "2021-12-27"
-Rev "REV1.2"
+Rev "REV1.1"
 Comp ""
 Comment1 ""
 Comment2 ""
