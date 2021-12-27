@@ -84,7 +84,7 @@ M0057   EQU     $0057
 M0058   EQU     $0058
 M0059   EQU     $0059
 M005A   EQU     $005A
-M005B   EQU     $005B
+BTB_NMFL   EQU     $005B
 M005C   EQU     $005C
 M005E   EQU     $005E
 M0060   EQU     $0060
@@ -222,8 +222,8 @@ M0122   EQU     $0122
 M0123   EQU     $0123
 M012C   EQU     $012C
 M014C   EQU     $014C
-M0180   EQU     $0180
-M0181   EQU     $0181
+LCD_CTRL   EQU     $0180
+LCD_DATA   EQU     $0181
 M0182   EQU     $0182
 M01C0   EQU     $01C0
 M01E1   EQU     $01E1
@@ -259,10 +259,10 @@ M031D   EQU     $031D
 M031E   EQU     $031E
 M0320   EQU     $0320
 M0340   EQU     $0340
-M0380   EQU     $0380
+SCA_NMIMPU   EQU     $0380
 M038E   EQU     $038E
 M03A4   EQU     $03A4
-M03C0   EQU     $03C0
+NMI_TO_COUNTER   EQU     $03C0
 M03DA   EQU     $03DA
 M0400   EQU     $0400
 M040A   EQU     $040A
@@ -392,7 +392,7 @@ M205C   EQU     $205C
 M205E   EQU     $205E
 M2060   EQU     $2060
 M2061   EQU     $2061
-M2062   EQU     $2062
+BTB_IGNM   EQU     $2062
 M2063   EQU     $2063
 M2065   EQU     $2065
 M2067   EQU     $2067
@@ -668,8 +668,13 @@ hdlr_RST OIM     #$40,M0014               ;8000: 72 40 14       'r@.'
         CLRA                             ;800C: 4F             'O'
         STAA    M0001                    ;800D: 97 01          '..'
         JSR     ZD84B                    ;800F: BD D8 4B       '..K'
+
+;; Read Port 5 control
         LDAA    M0014                    ;8012: 96 14          '..'
-        BMI     Z8076                    ;8014: 2B 60          '+`'
+
+;Top bit set, i.e. if set then warm start
+        BMI     WARM_START               ;8014: 2B 60          '+`'
+	
         LDX     #M0400                   ;8016: CE 04 00       '...'
 Z8019   LDD     #M55AA                   ;8019: CC 55 AA       '.U.'
         STD     ,X                       ;801C: ED 00          '..'
@@ -685,16 +690,17 @@ Z802A   INX                              ;802A: 08             '.'
         CPX     #M6000                   ;8030: 8C 60 00       '.`.'
         BEQ     Z807E                    ;8033: 27 49          ''I'
         JSR     ZA57F                    ;8035: BD A5 7F       '...'
-        BRA     Z8071                    ;8038: 20 37          ' 7'
+        \BRA     Z8071                    ;8038: 20 37          ' 7'
+	
         TPA                              ;803A: 07             '.'
         LDAB    M0008                    ;803B: D6 08          '..'
         STD     M2063                    ;803D: FD 20 63       '. c'
 M8040   SEI                              ;8040: 0F             '.'
         JSR     ZAB38                    ;8041: BD AB 38       '..8'
 M8044   BSR     Z80A5                    ;8044: 8D 5F          '._'
-Z8046   TST     M0180                    ;8046: 7D 01 80       '}..'
+Z8046   TST     LCD_CTRL                    ;8046: 7D 01 80       '}..'
         BMI     Z8046                    ;8049: 2B FB          '+.'
-        LDAA    M0181                    ;804B: B6 01 81       '...'
+        LDAA    LCD_DATA                    ;804B: B6 01 81       '...'
         STAA    ,X                       ;804E: A7 00          '..'
         INX                              ;8050: 08             '.'
         DECB                             ;8051: 5A             'Z'
@@ -703,69 +709,102 @@ Z8046   TST     M0180                    ;8046: 7D 01 80       '}..'
         FCB     $5B                      ;8055: 5B             '['
         TST     M0300                    ;8056: 7D 03 00       '}..'
         JSR     ZA4DE                    ;8059: BD A4 DE       '...'
+
+;34 minutes 8 seconds of countdown
         LDX     #M0800                   ;805C: CE 08 00       '...'
         STX     M005C                    ;805F: DF 5C          '.\'
+
         BCC     Z806B                    ;8061: 24 08          '$.'
+
         STD     M005C                    ;8063: DD 5C          '.\'
         XGDX                             ;8065: 18             '.'
         SUBD    M005C                    ;8066: 93 5C          '.\'
         JSR     Z8105                    ;8068: BD 81 05       '...'
-Z806B   TST     M03C0                    ;806B: 7D 03 C0       '}..'
+
+Z806B   TST     NMI_TO_COUNTER           ;806B: 7D 03 C0       '}..'
         AIM     #$BF,M0014               ;806E: 71 BF 14       'q..'
 
 ; Switch off
 Z8071   TST     M01C0                    ;8071: 7D 01 C0       '}..'
         BRA     hdlr_RST                 ;8074: 20 8A          ' .'
 
-Z8076   LDS     M2067                    ;8076: BE 20 67       '. g'
+; Warm start through vector 80af on this rom
+
+WARM_START   LDS     M2067                ;8076: BE 20 67       '. g'
         LDX     M2056                    ;8079: FE 20 56       '. V'
         JMP     ,X                       ;807C: 6E 00          'n.'
+
 Z807E   OIM     #$80,M0014               ;807E: 72 80 14       'r..'
         STX     M005E                    ;8081: DF 5E          '.^'
         TXS                              ;8083: 35             '5'
         JSR     Z8116                    ;8084: BD 81 16       '...'
         JSR     ZE8B1                    ;8087: BD E8 B1       '...'
-        TST     M0380                    ;808A: 7D 03 80       '}..'
+        TST     SCA_NMIMPU               ;808A: 7D 03 80       '}..'
         JSR     Z83E3                    ;808D: BD 83 E3       '...'
         LDAA    Z0015                    ;8090: 96 15          '..'
         RORA                             ;8092: 46             'F'
         BCC     Z8097                    ;8093: 24 02          '$.'
         BSR     Z80F9                    ;8095: 8D 62          '.b'
 Z8097   JMP     ZE4A6                    ;8097: 7E E4 A6       '~..'
+
+;2063 		Save interrupt mask while off.
+;2064 		Save TCSR1 while off.
 Z809A   LDD     M2063                    ;809A: FC 20 63       '. c'
         STAB    M0008                    ;809D: D7 08          '..'
         TAP                              ;809F: 06             '.'
         BSR     Z80A5                    ;80A0: 8D 03          '..'
         JMP     ZABDD                    ;80A2: 7E AB DD       '~..'
+
 Z80A5   LDD     #M4040                   ;80A5: CC 40 40       '.@@'
-        JSR     ZAB1E                    ;80A8: BD AB 1E       '...'
+        JSR     WRITE_LCD_CTRL                    ;80A8: BD AB 1E       '...'
         LDX     #M2288                   ;80AB: CE 22 88       '.".'
         RTS                              ;80AE: 39             '9'
-        JSR     Z819A                    ;80AF: BD 81 9A       '...'
+;===============================================================================
+
+; Warm start vector comes here
+        JSR     WAITNMI                    ;80AF: BD 81 9A       '...'
+
+;get time to turn off
         LDX     M005C                    ;80B2: DE 5C          '.\'
         PSHX                             ;80B4: 3C             '<'
+
+;Test ACOUT
+; Timer expired or ON/CLEAR pressed?
         TIM     #$02,Z0015               ;80B5: 7B 02 15       '{..'
-        BEQ     Z80D1                    ;80B8: 27 17          ''.'
+        BEQ     ON_PRESSED                    ;80B8: 27 17          ''.'
+
+;;Counter expired
+;Set kbd scan counter
         LDD     #M0800                   ;80BA: CC 08 00       '...'
         BSR     Z8105                    ;80BD: 8D 46          '.F'
+
         JSR     Z81AA                    ;80BF: BD 81 AA       '...'
         PULX                             ;80C2: 38             '8'
+
         JSR     Z81B9                    ;80C3: BD 81 B9       '...'
         BSR     Z809A                    ;80C6: 8D D2          '..'
+
+; Check time to switch off
         LDX     M005C                    ;80C8: DE 5C          '.\'
         CPX     #M0800                   ;80CA: 8C 08 00       '...'
-        BEQ     Z80FC                    ;80CD: 27 2D          ''-'
+        BEQ     SWITCH_OFF                    ;80CD: 27 2D          ''-'
+
         BRA     Z80D8                    ;80CF: 20 07          ' .'
-Z80D1   PULX                             ;80D1: 38             '8'
+
+ON_PRESSED   PULX                             ;80D1: 38             '8'
         DEX                              ;80D2: 09             '.'
+
         JSR     Z81AD                    ;80D3: BD 81 AD       '...'
         BSR     Z809A                    ;80D6: 8D C2          '..'
+
 Z80D8   JSR     ZABD7                    ;80D8: BD AB D7       '...'
         INC     M234A                    ;80DB: 7C 23 4A       '|#J'
         LDX     M20CD                    ;80DE: FE 20 CD       '. .'
         CPX     #M000F                   ;80E1: 8C 00 0F       '...'
         BCC     Z80E9                    ;80E4: 24 03          '$.'
+
         LDX     #M000F                   ;80E6: CE 00 0F       '...'
+
 Z80E9   STX     M20CD                    ;80E9: FF 20 CD       '. .'
         STX     M007D                    ;80EC: DF 7D          '.}'
         LDAA    Z0015                    ;80EE: 96 15          '..'
@@ -775,21 +814,32 @@ Z80E9   STX     M20CD                    ;80E9: FF 20 CD       '. .'
         SWI                              ;80F6: 3F             '?'
         ASRA                             ;80F7: 47             'G'
         RTS                              ;80F8: 39             '9'
+
 Z80F9   JSR     Z8A5F                    ;80F9: BD 8A 5F       '.._'
-Z80FC   STS     M2067                    ;80FC: BF 20 67       '. g'
+2067/68 		Save stack pointer while off.
+
+SWITCH_OFF   STS     M2067                    ;80FC: BF 20 67       '. g'
+2058/59 		SWOF re-vector address
         LDX     M2058                    ;80FF: FE 20 58       '. X'
         JMP     ,X                       ;8102: 6E 00          'n.'
+
+
 Z8104   CLRA                             ;8104: 4F             'O'
+
 Z8105   LSRD                             ;8105: 04             '.'
         XGDX                             ;8106: 18             '.'
         BCC     Z8113                    ;8107: 24 0A          '$.'
         INX                              ;8109: 08             '.'
         BRA     Z810F                    ;810A: 20 03          ' .'
+
+;Counter increment
 Z810C   TST     M0340                    ;810C: 7D 03 40       '}.@'
 Z810F   TST     M0340                    ;810F: 7D 03 40       '}.@'
         DEX                              ;8112: 09             '.'
 Z8113   BNE     Z810C                    ;8113: 26 F7          '&.'
         RTS                              ;8115: 39             '9'
+
+
 Z8116   LDD     M005E                    ;8116: DC 5E          '.^'
         DECA                             ;8118: 4A             'J'
         STD     M2065                    ;8119: FD 20 65       '. e'
@@ -841,38 +891,52 @@ Z8116   LDD     M005E                    ;8116: DC 5E          '.^'
         LDAB    #$AF                     ;818A: C6 AF          '..'
 Z818C   JMP     Z87B8                    ;818C: 7E 87 B8       '~..'
         TST     M0300                    ;818F: 7D 03 00       '}..'
-        TST     M03C0                    ;8192: 7D 03 C0       '}..'
+        TST     NMI_TO_COUNTER                    ;8192: 7D 03 C0       '}..'
         RTS                              ;8195: 39             '9'
-Z8196   TST     M0380                    ;8196: 7D 03 80       '}..'
-        RTS                              ;8199: 39             '9'
-Z819A   CLR     M2062                    ;819A: 7F 20 62       '. b'
-        BSR     Z8196                    ;819D: 8D F7          '..'
-Z819F   OIM     #$01,M005B               ;819F: 72 01 5B       'r.['
 
-; This is where the code goes after an 'OFF'
-Z81A2   TST     >M005B                   ;81A2: 7D 00 5B       '}.['
-        BNE     Z81A2                    ;81A5: 26 FB          '&.'
+; Enable NMIs
+NMI_TO_CPU   TST     SCA_NMIMPU                    ;8196: 7D 03 80       '}..'
+        RTS                              ;8199: 39             '9'
+
+; Ignore next NMI
+WAITNMI   CLR     BTB_IGNM                    ;819A: 7F 20 62       '. b'
+        BSR     NMI_TO_CPU                    ;819D: 8D F7          '..'
+
+; set the NMI flag
+WAIT_FOR_NMI   OIM     #$01,BTB_NMFL               ;819F: 72 01 5B       'r.['
+
+; Wait for NMI to occur by testing flag
+WAIT_FOR_NMI_LP   TST     >BTB_NMFL                   ;81A2: 7D 00 5B       '}.['
+        BNE     WAIT_FOR_NMI_LP                    ;81A5: 26 FB          '&.'
 Z81A7   RTS                              ;81A7: 39             '9'
 
-        BSR     Z819A                    ;81A8: 8D F0          '..'
+        BSR     WAITNMI                    ;81A8: 8D F0          '..'
+
 Z81AA   LDX     #M07FF                   ;81AA: CE 07 FF       '...'
 Z81AD   TST     M0340                    ;81AD: 7D 03 40       '}.@'
         DEX                              ;81B0: 09             '.'
+
         TIM     #$02,Z0015               ;81B1: 7B 02 15       '{..'
         BEQ     Z81AD                    ;81B4: 27 F7          ''.'
+
         INX                              ;81B6: 08             '.'
         BEQ     Z81A7                    ;81B7: 27 EE          ''.'
+
 Z81B9   LDD     #M003C                   ;81B9: CC 00 3C       '..<'
         JSR     Z86B1                    ;81BC: BD 86 B1       '...'
+
 Z81BF   LDX     #M20C5                   ;81BF: CE 20 C5       '. .'
         JMP     ZE8CB                    ;81C2: 7E E8 CB       '~..'
+
+;NMI routine
         CLRA                             ;81C5: 4F             'O'
-        STAA    M005B                    ;81C6: 97 5B          '.['
-        TST     M2062                    ;81C8: 7D 20 62       '} b'
+        STAA    BTB_NMFL                    ;81C6: 97 5B          '.['
+        TST     BTB_IGNM                    ;81C8: 7D 20 62       '} b'
         BNE     Z81D2                    ;81CB: 26 05          '&.'
         INCA                             ;81CD: 4C             'L'
-        STAA    M2062                    ;81CE: B7 20 62       '. b'
+        STAA    BTB_IGNM                    ;81CE: B7 20 62       '. b'
         RTI                              ;81D1: 3B             ';'
+
 Z81D2   LDAB    M20C9                    ;81D2: F6 20 C9       '. .'
         PSHB                             ;81D5: 37             '7'
         LDAB    #$01                     ;81D6: C6 01          '..'
@@ -883,20 +947,26 @@ Z81D2   LDAB    M20C9                    ;81D2: F6 20 C9       '. .'
         TST     M2335                    ;81E0: 7D 23 35       '}#5'
         BEQ     Z81E8                    ;81E3: 27 03          ''.'
         INC     M234A                    ;81E5: 7C 23 4A       '|#J'
+
 Z81E8   LDAA    M007C                    ;81E8: 96 7C          '.|'
         BEQ     Z81F3                    ;81EA: 27 07          ''.'
+
         LDX     M007D                    ;81EC: DE 7D          '.}'
         BEQ     Z81F3                    ;81EE: 27 03          ''.'
         DEX                              ;81F0: 09             '.'
         STX     M007D                    ;81F1: DF 7D          '.}'
 Z81F3   RTI                              ;81F3: 3B             ';'
+
         JSR     ZD84B                    ;81F4: BD D8 4B       '..K'
         JSR     Z88B4                    ;81F7: BD 88 B4       '...'
+
         LSRB                             ;81FA: 54             'T'
         FCB     $52                      ;81FB: 52             'R'
         FCB     $41                      ;81FC: 41             'A'
         NEGB                             ;81FD: 50             'P'
         FCB     $00                      ;81FE: 00             '.'
+
+;; TRAP loop
 Z81FF   SLP                              ;81FF: 1A             '.'
         BRA     Z81FF                    ;8200: 20 FD          ' .'
 
@@ -933,7 +1003,7 @@ Z8230   LSRA                             ;8230: 44             'D'
         STAB    $01,X                    ;8237: E7 01          '..'
 Z8239   INX                              ;8239: 08             '.'
         INX                              ;823A: 08             '.'
-        CPX     #M005B                   ;823B: 8C 00 5B       '..['
+        CPX     #BTB_NMFL                   ;823B: 8C 00 5B       '..['
         BNE     Z8230                    ;823E: 26 F0          '&.'
         BRA     Z825C                    ;8240: 20 1A          ' .'
 
@@ -964,20 +1034,28 @@ M8266   TAP                              ;8266: 06             '.'
         RTS                              ;8268: 39             '9'
 
 
+
         LDX     M2042                    ;8269: FE 20 42       '. B'
         JMP     ,X                       ;826C: 6E 00          'n.'
+
         LDX     M2044                    ;826E: FE 20 44       '. D'
         JMP     ,X                       ;8271: 6E 00          'n.'
+
         LDX     M2046                    ;8273: FE 20 46       '. F'
         JMP     ,X                       ;8276: 6E 00          'n.'
+
 hdlr_DIV0 LDX     M2048                    ;8278: FE 20 48       '. H'
         JMP     ,X                       ;827B: 6E 00          'n.'
+
 hdlr_SWI3 LDX     M204A                    ;827D: FE 20 4A       '. J'
         JMP     ,X                       ;8280: 6E 00          'n.'
+
 hdlr_SWI2 LDX     M204C                    ;8282: FE 20 4C       '. L'
         JMP     ,X                       ;8285: 6E 00          'n.'
+
 hdlr_FIRQ LDX     M204E                    ;8287: FE 20 4E       '. N'
         JMP     ,X                       ;828A: 6E 00          'n.'
+
 hdlr_IRQ LDX     M2050                    ;828C: FE 20 50       '. P'
         JMP     ,X                       ;828F: 6E 00          'n.'
 
@@ -987,6 +1065,7 @@ hdlr_SWI LDX     M2052                    ;8291: FE 20 52       '. R'
 
 hdlr_NMI LDX     M2054                    ;8296: FE 20 54       '. T'
         JMP     ,X                       ;8299: 6E 00          'n.'
+
 M829B   CMPA    #$F3                     ;829B: 81 F3          '..'
         CMPA    #$F3                     ;829D: 81 F3          '..'
         CMPA    #$F4                     ;829F: 81 F4          '..'
@@ -6219,12 +6298,17 @@ ZA4D5   PULB                             ;A4D5: 33             '3'
 ZA4D9   SWI                              ;A4D9: 3F             '?'
         FCB     $12                      ;A4DA: 12             '.'
 ZA4DB   JMP     Z8A76                    ;A4DB: 7E 8A 76       '~.v'
+
+;Check alarms?
 ZA4DE   BSR     ZA526                    ;A4DE: 8D 46          '.F'
         JSR     ZA9FE                    ;A4E0: BD A9 FE       '...'
         JSR     ZA43B                    ;A4E3: BD A4 3B       '..;'
+
+; Alarm checking
         LDX     #M2336                   ;A4E6: CE 23 36       '.#6'
         SWI                              ;A4E9: 3F             '?'
         DEC     $5F,X                    ;A4EA: 6A 5F          'j_'
+
 ZA4EC   PSHB                             ;A4EC: 37             '7'
         BSR     ZA519                    ;A4ED: 8D 2A          '.*'
         CLRA                             ;A4EF: 4F             'O'
@@ -6274,6 +6358,7 @@ ZA526   PULX                             ;A526: 38             '8'
         PSHX                             ;A53D: 3C             '<'
         XGDX                             ;A53E: 18             '.'
         JMP     ,X                       ;A53F: 6E 00          'n.'
+	
 ZA541   BSR     ZA526                    ;A541: 8D E3          '..'
         JSR     ZA9FE                    ;A543: BD A9 FE       '...'
         JSR     ZA43D                    ;A546: BD A4 3D       '..='
@@ -7060,23 +7145,31 @@ MAAF8   BSR     ZAADB                    ;AAF8: 8D E1          '..'
         SBCA    #$D7                     ;AB01: 82 D7          '..'
         FCB     $42                      ;AB03: 42             'B'
         SWI                              ;AB04: 3F             '?'
-        TIM     #$39,M00CC               ;AB05: 7B 39 CC       '{9.'
-        PULX                             ;AB08: 38             '8'
-        FCB     $03                      ;AB09: 03             '.'
-ZAB0A   STAA    M0180                    ;AB0A: B7 01 80       '...'
+        TIM     #$39,M00CC               ;AB05: 7B 39
+
+ZAB07:  LDD     #$3803
+;					 CC       '{9.'
+;        PULX                             ;AB08: 38             '8'
+;        FCB     $03                      ;AB09: 03             '.'
+
+;Jumped to after reset
+ZAB0A   STAA    LCD_CTRL                    ;AB0A: B7 01 80       '...'
         LDX     #M0416                   ;AB0D: CE 04 16       '...'
 ZAB10   DEX                              ;AB10: 09             '.'
         BNE     ZAB10                    ;AB11: 26 FD          '&.'
         DECB                             ;AB13: 5A             'Z'
 ZAB14   BNE     ZAB0A                    ;AB14: 26 F4          '&.'
+
         BSR     ZAB38                    ;AB16: 8D 20          '. '
         LDD     #M060C                   ;AB18: CC 06 0C       '...'
-ZAB1B   BSR     ZAB1E                    ;AB1B: 8D 01          '..'
+ZAB1B   BSR     WRITE_LCD_CTRL                    ;AB1B: 8D 01          '..'
         TBA                              ;AB1D: 17             '.'
-ZAB1E   TST     M0180                    ;AB1E: 7D 01 80       '}..'
-        BMI     ZAB1E                    ;AB21: 2B FB          '+.'
-        STAA    M0180                    ;AB23: B7 01 80       '...'
+
+WRITE_LCD_CTRL   TST     LCD_CTRL                 ;AB1E: 7D 01 80       '}..'
+        BMI     WRITE_LCD_CTRL                    ;AB21: 2B FB          '+.'
+        STAA    LCD_CTRL                 ;AB23: B7 01 80       '...'
         RTS                              ;AB26: 39             '9'
+
 ZAB27   LDAA    #$0C                     ;AB27: 86 0C          '..'
         BRA     ZAB54                    ;AB29: 20 29          ' )'
         CLRB                             ;AB2B: 5F             '_'
@@ -7112,7 +7205,7 @@ ZAB54   SWI                              ;AB54: 3F             '?'
 ZAB5C   LDAA    #$12                     ;AB5C: 86 12          '..'
         BRA     ZAB54                    ;AB5E: 20 F4          ' .'
 ZAB60   LDAA    #$80                     ;AB60: 86 80          '..'
-        BSR     ZAB1E                    ;AB62: 8D BA          '..'
+        BSR     WRITE_LCD_CTRL                    ;AB62: 8D BA          '..'
         BSR     ZABB3                    ;AB64: 8D 4D          '.M'
         BSR     ZABDB                    ;AB66: 8D 73          '.s'
 ZAB68   LDAA    M0062                    ;AB68: 96 62          '.b'
@@ -7120,7 +7213,7 @@ ZAB68   LDAA    M0062                    ;AB68: 96 62          '.b'
         BCS     ZAB70                    ;AB6C: 25 02          '%.'
         ADDA    #$30                     ;AB6E: 8B 30          '.0'
 ZAB70   ORAA    #$80                     ;AB70: 8A 80          '..'
-        BSR     ZAB1E                    ;AB72: 8D AA          '..'
+        BSR     WRITE_LCD_CTRL                    ;AB72: 8D AA          '..'
 ZAB74   LDAA    #$0C                     ;AB74: 86 0C          '..'
         TIM     #$80,M0063               ;AB76: 7B 80 63       '{.c'
         BEQ     ZAB84                    ;AB79: 27 09          ''.'
@@ -7128,7 +7221,7 @@ ZAB74   LDAA    #$0C                     ;AB74: 86 0C          '..'
         TIM     #$01,M0063               ;AB7D: 7B 01 63       '{.c'
         BNE     ZAB84                    ;AB80: 26 02          '&.'
         ORAA    #$01                     ;AB82: 8A 01          '..'
-ZAB84   BRA     ZAB1E                    ;AB84: 20 98          ' .'
+ZAB84   BRA     WRITE_LCD_CTRL                    ;AB84: 20 98          ' .'
         STD     M0062                    ;AB86: DD 62          '.b'
         BRA     ZAB68                    ;AB88: 20 DE          ' .'
 ZAB8A   JSR     ZAC97                    ;AB8A: BD AC 97       '...'
@@ -7173,6 +7266,7 @@ ZABB7   PSHB                             ;ABB7: 37             '7'
 ZABD5   BRA     ZAB68                    ;ABD5: 20 91          ' .'
 ZABD7   LDAA    #$11                     ;ABD7: 86 11          '..'
         BRA     ZAB97                    ;ABD9: 20 BC          ' .'
+
 ZABDB   LDAB    #$10                     ;ABDB: C6 10          '..'
 ZABDD   LDAA    ,X                       ;ABDD: A6 00          '..'
         BSR     ZABE6                    ;ABDF: 8D 05          '..'
@@ -7180,9 +7274,10 @@ ZABDD   LDAA    ,X                       ;ABDD: A6 00          '..'
         DECB                             ;ABE2: 5A             'Z'
         BNE     ZABDD                    ;ABE3: 26 F8          '&.'
         RTS                              ;ABE5: 39             '9'
-ZABE6   TST     M0180                    ;ABE6: 7D 01 80       '}..'
+
+ZABE6   TST     LCD_CTRL                    ;ABE6: 7D 01 80       '}..'
         BMI     ZABE6                    ;ABE9: 2B FB          '+.'
-        STAA    M0181                    ;ABEB: B7 01 81       '...'
+        STAA    LCD_DATA                    ;ABEB: B7 01 81       '...'
         RTS                              ;ABEE: 39             '9'
         TSTB                             ;ABEF: 5D             ']'
         BEQ     ZAC03                    ;ABF0: 27 11          ''.'
@@ -16371,11 +16466,11 @@ ZE88F   LDX     #M2188                   ;E88F: CE 21 88       '.!.'
         SWI                              ;E892: 3F             '?'
         DEC     $BD,X                    ;E893: 6A BD          'j.'
         ADCB    $FD,X                    ;E895: E9 FD          '..'
-        OIM     #$01,M005B               ;E897: 72 01 5B       'r.['
+        OIM     #$01,BTB_NMFL               ;E897: 72 01 5B       'r.['
 ZE89A   SLP                              ;E89A: 1A             '.'
         JSR     Z8521                    ;E89B: BD 85 21       '..!'
         BNE     ZE8A6                    ;E89E: 26 06          '&.'
-ZE8A0   LDAA    M005B                    ;E8A0: 96 5B          '.['
+ZE8A0   LDAA    BTB_NMFL                    ;E8A0: 96 5B          '.['
         BNE     ZE89A                    ;E8A2: 26 F6          '&.'
 ZE8A4   BRA     ZE88F                    ;E8A4: 20 E9          ' .'
 ZE8A6   DECB                             ;E8A6: 5A             'Z'
@@ -16439,12 +16534,12 @@ ZE90F   RTS                              ;E90F: 39             '9'
 ZE910   PSHX                             ;E910: 3C             '<'
         LDAB    #$06                     ;E911: C6 06          '..'
         STAB    M0042                    ;E913: D7 42          '.B'
-        STAB    M005B                    ;E915: D7 5B          '.['
+        STAB    BTB_NMFL                    ;E915: D7 5B          '.['
         XGDX                             ;E917: 18             '.'
         LDX     #M20C5                   ;E918: CE 20 C5       '. .'
         JSR     Z8706                    ;E91B: BD 87 06       '...'
         PULX                             ;E91E: 38             '8'
-        LDAB    M005B                    ;E91F: D6 5B          '.['
+        LDAB    BTB_NMFL                    ;E91F: D6 5B          '.['
         BEQ     ZE910                    ;E921: 27 ED          ''.'
         RTS                              ;E923: 39             '9'
 ZE924   JSR     ZAB4B                    ;E924: BD AB 4B       '..K'
@@ -16498,7 +16593,7 @@ ZE978   JSR     ZAB44                    ;E978: BD AB 44       '..D'
         STAB    M0042                    ;E986: D7 42          '.B'
         LDX     #M2188                   ;E988: CE 21 88       '.!.'
         LDD     #M20C5                   ;E98B: CC 20 C5       '. .'
-        JSR     Z819F                    ;E98E: BD 81 9F       '...'
+        JSR     WAIT_FOR_NMI                    ;E98E: BD 81 9F       '...'
         JSR     Z8706                    ;E991: BD 87 06       '...'
 ZE994   JSR     ZAB3D                    ;E994: BD AB 3D       '..='
         PULX                             ;E997: 38             '8'
