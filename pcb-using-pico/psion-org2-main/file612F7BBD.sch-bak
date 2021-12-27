@@ -4,10 +4,10 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 2 2
-Title ""
-Date ""
-Rev ""
-Comp ""
+Title "Psion Organiser II Re-Creation"
+Date "2021-12-27"
+Rev "V1.1"
+Comp "A Menadue"
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -541,16 +541,11 @@ Wire Wire Line
 	5825 5650 6050 5650
 Connection ~ 5825 4900
 Wire Wire Line
-	6500 1950 6725 1950
-Wire Wire Line
-	6500 1950 6500 2725
-Wire Wire Line
 	6500 2725 6725 2725
 Wire Wire Line
 	6500 2725 6500 3525
 Wire Wire Line
 	6500 3525 6725 3525
-Connection ~ 6500 2725
 Wire Wire Line
 	6500 3525 6500 4175
 Wire Wire Line
@@ -567,16 +562,11 @@ Wire Wire Line
 	6500 5650 6725 5650
 Connection ~ 6500 4900
 Wire Wire Line
-	7175 1950 7400 1950
-Wire Wire Line
-	7175 1950 7175 2725
-Wire Wire Line
 	7175 2725 7400 2725
 Wire Wire Line
 	7175 2725 7175 3525
 Wire Wire Line
 	7175 3525 7400 3525
-Connection ~ 7175 2725
 Wire Wire Line
 	7175 3525 7175 4175
 Wire Wire Line
@@ -593,16 +583,11 @@ Wire Wire Line
 	7175 5650 7400 5650
 Connection ~ 7175 4900
 Wire Wire Line
-	7825 1950 8050 1950
-Wire Wire Line
-	7825 1950 7825 2725
-Wire Wire Line
 	7825 2725 8050 2725
 Wire Wire Line
 	7825 2725 7825 3525
 Wire Wire Line
 	7825 3525 8050 3525
-Connection ~ 7825 2725
 Wire Wire Line
 	7825 3525 7825 4175
 Wire Wire Line
@@ -619,16 +604,11 @@ Wire Wire Line
 	7825 5650 8050 5650
 Connection ~ 7825 4900
 Wire Wire Line
-	8450 1975 8675 1975
-Wire Wire Line
-	8450 1975 8450 2750
-Wire Wire Line
 	8450 2750 8675 2750
 Wire Wire Line
 	8450 2750 8450 3550
 Wire Wire Line
 	8450 3550 8675 3550
-Connection ~ 8450 2750
 Wire Wire Line
 	8450 3550 8450 4200
 Wire Wire Line
@@ -645,16 +625,11 @@ Wire Wire Line
 	8450 5675 8675 5675
 Connection ~ 8450 4925
 Wire Wire Line
-	9050 1975 9275 1975
-Wire Wire Line
-	9050 1975 9050 2750
-Wire Wire Line
 	9050 2750 9275 2750
 Wire Wire Line
 	9050 2750 9050 3550
 Wire Wire Line
 	9050 3550 9275 3550
-Connection ~ 9050 2750
 Wire Wire Line
 	9050 3550 9050 4200
 Wire Wire Line
@@ -683,7 +658,7 @@ Wire Wire Line
 Wire Wire Line
 	9275 2350 9275 2250
 Wire Wire Line
-	9275 2250 8675 2250
+	9275 2250 8975 2250
 Wire Wire Line
 	8675 2250 8675 2350
 Wire Wire Line
@@ -713,7 +688,7 @@ Wire Wire Line
 Wire Wire Line
 	8675 3050 8675 3150
 Wire Wire Line
-	8675 3050 8050 3050
+	8675 3050 8350 3050
 Wire Wire Line
 	8050 3050 8050 3125
 Connection ~ 8675 3050
@@ -744,7 +719,7 @@ Wire Wire Line
 	8050 3700 8050 3775
 Connection ~ 8675 3700
 Wire Wire Line
-	8050 3700 7400 3700
+	8050 3700 7750 3700
 Wire Wire Line
 	7400 3700 7400 3775
 Connection ~ 8050 3700
@@ -775,7 +750,7 @@ Wire Wire Line
 	7400 4425 7400 4500
 Connection ~ 8050 4425
 Wire Wire Line
-	7400 4425 6725 4425
+	7400 4425 7075 4425
 Wire Wire Line
 	6725 4425 6725 4500
 Connection ~ 7400 4425
@@ -806,7 +781,7 @@ Wire Wire Line
 	6725 5175 6725 5250
 Connection ~ 7400 5175
 Wire Wire Line
-	6725 5175 6050 5175
+	6725 5175 6375 5175
 Wire Wire Line
 	6050 5175 6050 5250
 Connection ~ 6725 5175
@@ -855,19 +830,8 @@ Connection ~ 6725 5650
 Wire Wire Line
 	6050 5800 6050 5650
 Connection ~ 6050 5650
-Text GLabel 4200 1950 0    50   Input ~ 0
+Text GLabel 2075 2625 0    50   Input ~ 0
 P57
-$Comp
-L power:+3V3 #PWR036
-U 1 1 61827F51
-P 3125 725
-F 0 "#PWR036" H 3125 575 50  0001 C CNN
-F 1 "+3V3" H 3140 898 50  0000 C CNN
-F 2 "" H 3125 725 50  0001 C CNN
-F 3 "" H 3125 725 50  0001 C CNN
-	1    3125 725 
-	1    0    0    -1  
-$EndComp
 Text GLabel 9875 950  1    50   Input ~ 0
 K1
 Wire Wire Line
@@ -887,8 +851,6 @@ Wire Wire Line
 	7400 1475 6725 1475
 Connection ~ 7400 1475
 Wire Wire Line
-	4200 1950 6050 1950
-Wire Wire Line
 	5175 2250 6050 2250
 Wire Wire Line
 	5175 3050 6050 3050
@@ -901,116 +863,117 @@ Wire Wire Line
 $Comp
 L Device:R_Small R17
 U 1 1 618E7FEC
-P 2375 1575
-F 0 "R17" H 2434 1621 50  0000 L CNN
-F 1 "nopop" H 2434 1530 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" H 2375 1575 50  0001 C CNN
-F 3 "~" H 2375 1575 50  0001 C CNN
-	1    2375 1575
+P 2625 2825
+F 0 "R17" H 2684 2871 50  0000 L CNN
+F 1 "nopop" H 2684 2780 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" H 2625 2825 50  0001 C CNN
+F 3 "~" H 2625 2825 50  0001 C CNN
+	1    2625 2825
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:R_Small R16
 U 1 1 618E840C
-P 2375 1150
-F 0 "R16" H 2434 1196 50  0000 L CNN
-F 1 "2k2" H 2434 1105 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" H 2375 1150 50  0001 C CNN
-F 3 "~" H 2375 1150 50  0001 C CNN
-	1    2375 1150
+P 2625 2400
+F 0 "R16" H 2684 2446 50  0000 L CNN
+F 1 "2k2" H 2684 2355 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" H 2625 2400 50  0001 C CNN
+F 3 "~" H 2625 2400 50  0001 C CNN
+	1    2625 2400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:D D6
 U 1 1 618E8BE1
-P 2000 1625
-F 0 "D6" V 1954 1704 50  0000 L CNN
-F 1 "2v7" V 2045 1704 50  0000 L CNN
-F 2 "Diode_SMD:D_SOD-123" H 2000 1625 50  0001 C CNN
-F 3 "~" H 2000 1625 50  0001 C CNN
-	1    2000 1625
+P 2250 2875
+F 0 "D6" V 2204 2954 50  0000 L CNN
+F 1 "2v7" V 2295 2954 50  0000 L CNN
+F 2 "Diode_SMD:D_SOD-123" H 2250 2875 50  0001 C CNN
+F 3 "~" H 2250 2875 50  0001 C CNN
+	1    2250 2875
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	3125 725  3125 750 
+	2625 2500 2625 2625
 Wire Wire Line
-	6050 1000 6050 1550
+	2625 2625 2250 2625
 Wire Wire Line
-	2375 1050 2375 950 
+	2250 2625 2250 2725
+Connection ~ 2625 2625
 Wire Wire Line
-	2375 1250 2375 1375
-Wire Wire Line
-	2375 1375 2000 1375
-Wire Wire Line
-	2000 1375 2000 1475
-Connection ~ 2375 1375
-Wire Wire Line
-	2375 1375 2375 1475
+	2625 2625 2625 2725
 $Comp
 L power:GND #PWR0110
 U 1 1 61919262
-P 2000 1975
-F 0 "#PWR0110" H 2000 1725 50  0001 C CNN
-F 1 "GND" H 2005 1802 50  0000 C CNN
-F 2 "" H 2000 1975 50  0001 C CNN
-F 3 "" H 2000 1975 50  0001 C CNN
-	1    2000 1975
+P 2250 3225
+F 0 "#PWR0110" H 2250 2975 50  0001 C CNN
+F 1 "GND" H 2255 3052 50  0000 C CNN
+F 2 "" H 2250 3225 50  0001 C CNN
+F 3 "" H 2250 3225 50  0001 C CNN
+	1    2250 3225
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0111
 U 1 1 619195FD
-P 2375 1975
-F 0 "#PWR0111" H 2375 1725 50  0001 C CNN
-F 1 "GND" H 2380 1802 50  0000 C CNN
-F 2 "" H 2375 1975 50  0001 C CNN
-F 3 "" H 2375 1975 50  0001 C CNN
-	1    2375 1975
+P 2625 3225
+F 0 "#PWR0111" H 2625 2975 50  0001 C CNN
+F 1 "GND" H 2630 3052 50  0000 C CNN
+F 2 "" H 2625 3225 50  0001 C CNN
+F 3 "" H 2625 3225 50  0001 C CNN
+	1    2625 3225
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2375 1975 2375 1675
+	2625 3225 2625 2925
 Wire Wire Line
-	2000 1975 2000 1775
-Text GLabel 2275 950  0    50   Input ~ 0
+	2250 3225 2250 3025
+Text GLabel 5200 1200 0    50   Input ~ 0
 VBAT
 Wire Wire Line
-	2275 950  2375 950 
-$Comp
-L Device:Jumper_NO_Small JP8
-U 1 1 61F117AF
-P 3600 750
-F 0 "JP8" H 3600 935 50  0000 C CNN
-F 1 "Jumper_NO_Small" H 3600 844 50  0000 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 3600 750 50  0001 C CNN
-F 3 "~" H 3600 750 50  0001 C CNN
-	1    3600 750 
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:Jumper_NO_Small JP9
-U 1 1 61F123C6
-P 3625 1375
-F 0 "JP9" H 3625 1560 50  0000 C CNN
-F 1 "Jumper_NO_Small" H 3625 1469 50  0000 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 3625 1375 50  0001 C CNN
-F 3 "~" H 3625 1375 50  0001 C CNN
-	1    3625 1375
-	1    0    0    -1  
-$EndComp
+	5200 1200 6050 1200
 Wire Wire Line
-	2375 1375 3525 1375
+	6050 1200 6050 1550
 Wire Wire Line
-	3125 750  3500 750 
+	2075 2625 2250 2625
+Connection ~ 2250 2625
 Wire Wire Line
-	3725 1375 4100 1375
+	2625 2300 2625 1950
 Wire Wire Line
-	4100 1375 4100 1000
+	2625 1950 6050 1950
 Wire Wire Line
-	4100 750  3700 750 
+	6375 1950 6375 5175
 Wire Wire Line
-	6050 1000 4100 1000
-Connection ~ 4100 1000
+	6375 1950 6725 1950
+Connection ~ 6375 5175
 Wire Wire Line
-	4100 1000 4100 750 
+	6375 5175 6050 5175
+Wire Wire Line
+	7075 1950 7075 4425
+Wire Wire Line
+	7075 1950 7400 1950
+Connection ~ 7075 4425
+Wire Wire Line
+	7075 4425 6725 4425
+Wire Wire Line
+	7750 1950 7750 3700
+Wire Wire Line
+	7750 1950 8050 1950
+Connection ~ 7750 3700
+Wire Wire Line
+	7750 3700 7400 3700
+Wire Wire Line
+	8350 1975 8350 3050
+Wire Wire Line
+	8350 1975 8675 1975
+Connection ~ 8350 3050
+Wire Wire Line
+	8350 3050 8050 3050
+Wire Wire Line
+	8975 1975 8975 2250
+Wire Wire Line
+	8975 1975 9275 1975
+Connection ~ 8975 2250
+Wire Wire Line
+	8975 2250 8675 2250
 $EndSCHEMATC

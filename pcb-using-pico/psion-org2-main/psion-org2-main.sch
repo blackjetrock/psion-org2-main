@@ -4,10 +4,10 @@ EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 2
-Title "RP2040 Minimal Design Example"
-Date "2020-12-18"
-Rev "REV1"
-Comp "Raspberry Pi (Trading) Ltd"
+Title "Psion Organiser II Re-Creation"
+Date "2021-12-27"
+Rev "V1.1"
+Comp "A Menadue"
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -137,50 +137,8 @@ F 3 "" H 7775 8300 50  0001 C CNN
 	1    7775 8300
 	-1   0    0    -1  
 $EndComp
-$Comp
-L Device:R_Small R?
-U 1 1 615452F8
-P 10150 9975
-AR Path="/6001B7D3/60296A19/615452F8" Ref="R?"  Part="1" 
-AR Path="/6001B7D3/615452F8" Ref="R?"  Part="1" 
-AR Path="/61535A67/615452F8" Ref="R?"  Part="1" 
-AR Path="/615452F8" Ref="R10"  Part="1" 
-F 0 "R10" H 10209 10021 50  0000 L CNN
-F 1 "49R" H 10209 9930 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" H 10150 9975 50  0001 C CNN
-F 3 "~" H 10150 9975 50  0001 C CNN
-	1    10150 9975
-	0    1    -1   0   
-$EndComp
-$Comp
-L New_Library:Si2302CDS-n-channel TR?
-U 1 1 615452FE
-P 10550 10325
-AR Path="/6001B7D3/60296A19/615452FE" Ref="TR?"  Part="1" 
-AR Path="/6001B7D3/615452FE" Ref="TR?"  Part="1" 
-AR Path="/61535A67/615452FE" Ref="TR?"  Part="1" 
-AR Path="/615452FE" Ref="TR1"  Part="1" 
-F 0 "TR1" H 10827 10371 50  0000 L CNN
-F 1 "Si2302CDS-n-channel" H 10827 10280 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 10580 10475 20  0001 C CNN
-F 3 "" H 10550 10325 50  0001 C CNN
-	1    10550 10325
-	-1   0    0    -1  
-$EndComp
-Wire Wire Line
-	10450 10625 10450 10825
-Text GLabel 11000 10425 2    50   Input ~ 0
-DRV_HV
-Wire Wire Line
-	11000 10425 10850 10425
 Wire Wire Line
 	9400 9725 9400 9775
-Wire Wire Line
-	9400 9975 10050 9975
-Wire Wire Line
-	10250 9975 10450 9975
-Wire Wire Line
-	10450 9975 10450 10025
 Wire Wire Line
 	8700 9325 9100 9325
 Wire Wire Line
@@ -295,7 +253,6 @@ Wire Wire Line
 	8700 9875 8700 9975
 Wire Wire Line
 	8700 9975 9400 9975
-Connection ~ 9400 9975
 $Comp
 L Device:R_Small R?
 U 1 1 6154534B
@@ -361,17 +318,6 @@ F 3 "~" H 9950 8925 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	10100 8925 10700 8925
-$Comp
-L power:GND #PWR017
-U 1 1 61560024
-P 10450 10825
-F 0 "#PWR017" H 10450 10575 50  0001 C CNN
-F 1 "GND" H 10455 10652 50  0000 C CNN
-F 2 "" H 10450 10825 50  0001 C CNN
-F 3 "" H 10450 10825 50  0001 C CNN
-	1    10450 10825
-	1    0    0    -1  
-$EndComp
 Text GLabel 6325 1150 2    50   Input ~ 0
 DRV_HV
 $Comp
@@ -451,7 +397,7 @@ F 3 "" H 10350 2825 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10350 2825 10350 2925
+	10350 2825 10350 2900
 Text GLabel 1150 4275 0    50   Input ~ 0
 P57
 Wire Wire Line
@@ -569,7 +515,7 @@ Wire Wire Line
 	1150 9150 1725 9150
 Connection ~ 1725 9150
 Wire Wire Line
-	1725 9150 1725 8850
+	1725 9150 1725 9050
 Wire Wire Line
 	1150 9250 1725 9250
 Connection ~ 1725 9250
@@ -858,19 +804,19 @@ F 3 "~" H 8600 4800 50  0001 C CNN
 	1    8600 4800
 	1    0    0    -1  
 $EndComp
-Text GLabel 6325 3200 2    50   Input ~ 0
+Text GLabel 6625 3200 2    50   Input ~ 0
 K1
-Text GLabel 6325 3300 2    50   Input ~ 0
+Text GLabel 6625 3300 2    50   Input ~ 0
 K2
-Text GLabel 6325 3400 2    50   Input ~ 0
+Text GLabel 6625 3400 2    50   Input ~ 0
 K3
-Text GLabel 6325 3500 2    50   Input ~ 0
+Text GLabel 6625 3500 2    50   Input ~ 0
 K4
-Text GLabel 6325 3600 2    50   Input ~ 0
+Text GLabel 6625 3600 2    50   Input ~ 0
 K5
-Text GLabel 6325 3700 2    50   Input ~ 0
+Text GLabel 6625 3700 2    50   Input ~ 0
 K6
-Text GLabel 6325 3800 2    50   Input ~ 0
+Text GLabel 6625 3800 2    50   Input ~ 0
 K7
 Text GLabel 8250 2800 1    50   Input ~ 0
 P52
@@ -1282,8 +1228,6 @@ F 3 "~" H 14300 9200 50  0001 C CNN
 	1    14300 9200
 	1    0    0    -1  
 $EndComp
-Text GLabel 14100 9200 0    50   Input ~ 0
-VBAT
 $Comp
 L power:GND #PWR0105
 U 1 1 61C24FAC
@@ -1329,79 +1273,8 @@ Wire Wire Line
 	2100 1250 1625 1250
 Wire Wire Line
 	1625 1250 1625 1425
-$Comp
-L pak_breakout:AMS1117-5.0 U6
-U 1 1 61CA2B65
-P 13750 5250
-F 0 "U6" H 13750 5492 50  0000 C CNN
-F 1 "AMS1117-5.0" H 13750 5401 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 13750 5450 50  0001 C CNN
-F 3 "" H 13850 5000 50  0001 C CNN
-	1    13750 5250
-	1    0    0    -1  
-$EndComp
 Text GLabel 11075 7525 0    50   Input ~ 0
 VBAT
-$Comp
-L power:GND #PWR0107
-U 1 1 61CB9EE3
-P 13750 5800
-F 0 "#PWR0107" H 13750 5550 50  0001 C CNN
-F 1 "GND" H 13755 5627 50  0000 C CNN
-F 2 "" H 13750 5800 50  0001 C CNN
-F 3 "" H 13750 5800 50  0001 C CNN
-	1    13750 5800
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:C_Small C14
-U 1 1 61CB9EE9
-P 12550 5475
-F 0 "C14" H 12642 5521 50  0000 L CNN
-F 1 "100n" H 12642 5430 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 12550 5475 50  0001 C CNN
-F 3 "~" H 12550 5475 50  0001 C CNN
-	1    12550 5475
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:C_Small C15
-U 1 1 61CB9EEF
-P 14400 5475
-F 0 "C15" H 14492 5521 50  0000 L CNN
-F 1 "100n" H 14492 5430 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 14400 5475 50  0001 C CNN
-F 3 "~" H 14400 5475 50  0001 C CNN
-	1    14400 5475
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	12175 5250 12550 5250
-Wire Wire Line
-	12550 5375 12550 5250
-Connection ~ 12550 5250
-Wire Wire Line
-	12550 5250 13450 5250
-Wire Wire Line
-	13750 5800 12550 5800
-Wire Wire Line
-	12550 5800 12550 5575
-Wire Wire Line
-	13750 5550 13750 5800
-Connection ~ 13750 5800
-Wire Wire Line
-	14400 5375 14400 5250
-Wire Wire Line
-	14400 5250 14050 5250
-Wire Wire Line
-	14400 5800 13750 5800
-Wire Wire Line
-	14400 5575 14400 5800
-Text GLabel 15050 5250 2    50   Input ~ 0
-5V
-Wire Wire Line
-	15050 5250 14400 5250
-Connection ~ 14400 5250
 Text GLabel 6325 1450 2    50   Input ~ 0
 5V_ON
 Text GLabel 3225 1950 0    50   Input ~ 0
@@ -1480,40 +1353,11 @@ VBAT
 Wire Wire Line
 	7775 8625 8175 8625
 $Comp
-L Device:R_Small R15
-U 1 1 6199F84B
-P 10850 10675
-F 0 "R15" H 10909 10721 50  0000 L CNN
-F 1 "R_Small" H 10909 10630 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" H 10850 10675 50  0001 C CNN
-F 3 "~" H 10850 10675 50  0001 C CNN
-	1    10850 10675
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	10850 10575 10850 10425
-Connection ~ 10850 10425
-Wire Wire Line
-	10850 10425 10750 10425
-$Comp
-L power:GND #PWR0103
-U 1 1 619B51BB
-P 10850 10850
-F 0 "#PWR0103" H 10850 10600 50  0001 C CNN
-F 1 "GND" H 10855 10677 50  0000 C CNN
-F 2 "" H 10850 10850 50  0001 C CNN
-F 3 "" H 10850 10850 50  0001 C CNN
-	1    10850 10850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	10850 10850 10850 10775
-$Comp
 L GeekAmmo:P-CHANNEL-MOSFET M1
 U 1 1 619FD1A1
 P 5625 6775
 F 0 "M1" H 5903 6821 50  0000 L CNN
-F 1 "P-CHANNEL-MOSFET" H 5903 6730 50  0000 L CNN
+F 1 "P-CH-MOSFET" H 5903 6730 50  0000 L CNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 5655 6925 20  0001 C CNN
 F 3 "" H 5625 6775 50  0001 C CNN
 	1    5625 6775
@@ -1545,8 +1389,6 @@ F 3 "~" H 11425 7525 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	11075 7525 11325 7525
-Text GLabel 12175 5250 0    50   Input ~ 0
-VBAT_SWITCHED2
 Text GLabel 12125 7525 2    50   Input ~ 0
 VBAT_SWITCHED1
 Wire Wire Line
@@ -1742,7 +1584,7 @@ Wire Wire Line
 	15425 3050 15425 2925
 Wire Wire Line
 	14900 3050 14900 2925
-Text GLabel 13425 2450 0    50   Input ~ 0
+Text GLabel 11600 2450 0    50   Input ~ 0
 RTC_MFP
 Wire Wire Line
 	12630 2150 12630 2145
@@ -1951,25 +1793,12 @@ Text GLabel 3050 6600 0    50   Input ~ 0
 VBAT_SW_ON
 Text GLabel 3100 6275 0    50   Input ~ 0
 P57
-Text GLabel 4750 5475 0    50   Input ~ 0
+Text GLabel 4800 6075 0    50   Input ~ 0
 VBAT
 Text GLabel 12625 2250 0    50   Input ~ 0
 OLED_SDA
 Text GLabel 12630 2145 0    50   Input ~ 0
 OLED_SCL
-$Comp
-L power:+3V3 #PWR?
-U 1 1 61F59F52
-P 13825 1350
-AR Path="/61F3F57A/61F59F52" Ref="#PWR?"  Part="1" 
-AR Path="/61F59F52" Ref="#PWR0117"  Part="1" 
-F 0 "#PWR0117" H 13825 1200 50  0001 C CNN
-F 1 "+3V3" H 13840 1523 50  0000 C CNN
-F 2 "" H 13825 1350 50  0001 C CNN
-F 3 "" H 13825 1350 50  0001 C CNN
-	1    13825 1350
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	13925 1075 14650 1075
 Wire Wire Line
@@ -1987,8 +1816,8 @@ $Comp
 L Device:R_Small R18
 U 1 1 621967D7
 P 5300 6250
-F 0 "R18" H 5359 6296 50  0000 L CNN
-F 1 "110k" H 5359 6205 50  0000 L CNN
+F 0 "R18" H 5100 6325 50  0000 L CNN
+F 1 "110k" H 5075 6250 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric" H 5300 6250 50  0001 C CNN
 F 3 "~" H 5300 6250 50  0001 C CNN
 	1    5300 6250
@@ -2011,7 +1840,7 @@ Wire Wire Line
 	5725 6075 5725 6150
 Connection ~ 5725 6075
 Wire Wire Line
-	5725 6075 6825 6075
+	5725 6075 6450 6075
 Wire Wire Line
 	5725 6350 5725 6475
 Wire Wire Line
@@ -2206,38 +2035,9 @@ F 3 "~" H 5575 5475 50  0001 C CNN
 	1    5575 5475
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	5425 5475 5350 5475
 Connection ~ 5125 5475
 Text GLabel 6150 5475 2    50   Input ~ 0
 EXT_PWR_IN
-Wire Wire Line
-	5725 5475 5850 5475
-$Comp
-L Device:Jumper_NO_Small JP10
-U 1 1 6274C629
-P 5600 5200
-F 0 "JP10" H 5600 5385 50  0000 C CNN
-F 1 "Jumper_NO_Small" H 5600 5294 50  0000 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 5600 5200 50  0001 C CNN
-F 3 "~" H 5600 5200 50  0001 C CNN
-	1    5600 5200
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5700 5200 5850 5200
-Wire Wire Line
-	5850 5200 5850 5475
-Connection ~ 5850 5475
-Wire Wire Line
-	5850 5475 6150 5475
-Wire Wire Line
-	5500 5200 5350 5200
-Wire Wire Line
-	5350 5200 5350 5475
-Connection ~ 5350 5475
-Wire Wire Line
-	5350 5475 5125 5475
 Text GLabel 4650 10375 2    50   Input ~ 0
 EXT_PWR_IN
 $Comp
@@ -2260,7 +2060,7 @@ Wire Wire Line
 Wire Wire Line
 	12625 2250 13425 2250
 Wire Wire Line
-	13825 1350 13825 1950
+	13825 950  13825 1950
 Text GLabel 8075 2800 1    50   Input ~ 0
 P51
 Text GLabel 7900 2800 1    50   Input ~ 0
@@ -2313,13 +2113,11 @@ F 3 "~" H 7900 4800 50  0001 C CNN
 $EndComp
 Text GLabel 4650 9375 2    50   Input ~ 0
 SPGM
-Text GLabel 1150 9050 2    50   Input ~ 0
-SPGM
 $Comp
-L Device:R_Small R?
+L Device:R_Small R15
 U 1 1 61BC3FD1
 P 6825 6700
-F 0 "R?" H 6884 6746 50  0000 L CNN
+F 0 "R15" H 6884 6746 50  0000 L CNN
 F 1 "100k" H 6884 6655 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric" H 6825 6700 50  0001 C CNN
 F 3 "~" H 6825 6700 50  0001 C CNN
@@ -2339,11 +2137,11 @@ Connection ~ 7325 6525
 Wire Wire Line
 	7325 6525 6825 6525
 $Comp
-L New_Library:Si2302CDS-n-channel TR?
+L New_Library:Si2302CDS-n-channel TR1
 U 1 1 61CBF467
 P 4500 6775
-F 0 "TR?" H 4778 6821 50  0000 L CNN
-F 1 "Si2302CDS-n-channel" H 4778 6730 50  0000 L CNN
+F 0 "TR1" H 4778 6821 50  0000 L CNN
+F 1 "Si2302CDS-n-ch" H 4778 6730 50  0000 L CNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 4530 6925 20  0001 C CNN
 F 3 "" H 4500 6775 50  0001 C CNN
 	1    4500 6775
@@ -2352,10 +2150,10 @@ $EndComp
 Wire Wire Line
 	4300 6875 4225 6875
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0103
 U 1 1 61D1BF67
 P 3425 7275
-F 0 "#PWR?" H 3425 7025 50  0001 C CNN
+F 0 "#PWR0103" H 3425 7025 50  0001 C CNN
 F 1 "GND" H 3430 7102 50  0000 C CNN
 F 2 "" H 3425 7275 50  0001 C CNN
 F 3 "" H 3425 7275 50  0001 C CNN
@@ -2363,10 +2161,10 @@ F 3 "" H 3425 7275 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R_Small R?
+L Device:R_Small R10
 U 1 1 61DBF060
 P 4950 6475
-F 0 "R?" H 5009 6521 50  0000 L CNN
+F 0 "R10" H 5009 6521 50  0000 L CNN
 F 1 "110k" H 5009 6430 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric" H 4950 6475 50  0001 C CNN
 F 3 "~" H 4950 6475 50  0001 C CNN
@@ -2381,7 +2179,7 @@ Wire Wire Line
 	5300 6150 5300 6075
 Connection ~ 5300 6075
 Wire Wire Line
-	5300 6075 5725 6075
+	5300 6075 5475 6075
 Wire Wire Line
 	5050 6475 5300 6475
 Connection ~ 5300 6475
@@ -2389,4 +2187,263 @@ Wire Wire Line
 	5300 6475 5300 6675
 Wire Wire Line
 	4850 6475 4600 6475
+Wire Wire Line
+	1150 9050 1725 9050
+Connection ~ 1725 9050
+Wire Wire Line
+	1725 9050 1725 8850
+$Comp
+L Device:D D12
+U 1 1 61D48D1D
+P 6475 3200
+F 0 "D12" H 6025 3200 50  0000 C CNN
+F 1 "1N4148" H 5800 3200 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3200 50  0001 C CNN
+F 3 "~" H 6475 3200 50  0001 C CNN
+	1    6475 3200
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:D D13
+U 1 1 61E7D5EB
+P 6475 3300
+F 0 "D13" H 6025 3300 50  0000 C CNN
+F 1 "1N4148" H 5800 3300 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3300 50  0001 C CNN
+F 3 "~" H 6475 3300 50  0001 C CNN
+	1    6475 3300
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:D D14
+U 1 1 61E9BD6B
+P 6475 3400
+F 0 "D14" H 6025 3400 50  0000 C CNN
+F 1 "1N4148" H 5800 3400 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3400 50  0001 C CNN
+F 3 "~" H 6475 3400 50  0001 C CNN
+	1    6475 3400
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:D D15
+U 1 1 61EBA419
+P 6475 3500
+F 0 "D15" H 6025 3500 50  0000 C CNN
+F 1 "1N4148" H 5800 3500 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3500 50  0001 C CNN
+F 3 "~" H 6475 3500 50  0001 C CNN
+	1    6475 3500
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:D D16
+U 1 1 61ED8B35
+P 6475 3600
+F 0 "D16" H 6025 3600 50  0000 C CNN
+F 1 "1N4148" H 5800 3600 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3600 50  0001 C CNN
+F 3 "~" H 6475 3600 50  0001 C CNN
+	1    6475 3600
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:D D17
+U 1 1 61EF7300
+P 6475 3700
+F 0 "D17" H 6025 3700 50  0000 C CNN
+F 1 "1N4148" H 5800 3700 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3700 50  0001 C CNN
+F 3 "~" H 6475 3700 50  0001 C CNN
+	1    6475 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:D D18
+U 1 1 61F15A85
+P 6475 3800
+F 0 "D18" H 6025 3800 50  0000 C CNN
+F 1 "1N4148" H 5800 3800 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 6475 3800 50  0001 C CNN
+F 3 "~" H 6475 3800 50  0001 C CNN
+	1    6475 3800
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0107
+U 1 1 61F5563F
+P 9400 9975
+F 0 "#PWR0107" H 9400 9725 50  0001 C CNN
+F 1 "GND" H 9405 9802 50  0000 C CNN
+F 2 "" H 9400 9975 50  0001 C CNN
+F 3 "" H 9400 9975 50  0001 C CNN
+	1    9400 9975
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R25
+U 1 1 61F97A48
+P 11850 1900
+F 0 "R25" H 11909 1946 50  0000 L CNN
+F 1 "10k" H 11909 1855 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" H 11850 1900 50  0001 C CNN
+F 3 "~" H 11850 1900 50  0001 C CNN
+	1    11850 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13425 2450 11850 2450
+Wire Wire Line
+	11850 2450 11850 2000
+Wire Wire Line
+	11850 2450 11600 2450
+Connection ~ 11850 2450
+$Comp
+L power:+3V3 #PWR?
+U 1 1 61FD52FE
+P 11850 1800
+AR Path="/61F3F57A/61FD52FE" Ref="#PWR?"  Part="1" 
+AR Path="/61FD52FE" Ref="#PWR0123"  Part="1" 
+F 0 "#PWR0123" H 11850 1650 50  0001 C CNN
+F 1 "+3V3" H 11865 1973 50  0000 C CNN
+F 2 "" H 11850 1800 50  0001 C CNN
+F 3 "" H 11850 1800 50  0001 C CNN
+	1    11850 1800
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR?
+U 1 1 61F59F52
+P 13825 950
+AR Path="/61F3F57A/61F59F52" Ref="#PWR?"  Part="1" 
+AR Path="/61F59F52" Ref="#PWR0117"  Part="1" 
+F 0 "#PWR0117" H 13825 800 50  0001 C CNN
+F 1 "+3V3" H 13840 1123 50  0000 C CNN
+F 2 "" H 13825 950 50  0001 C CNN
+F 3 "" H 13825 950 50  0001 C CNN
+	1    13825 950 
+	1    0    0    -1  
+$EndComp
+Text Notes 12225 1350 0    50   ~ 0
+*NOTE*: Part is MCP7940N, \nthe 'M' suffix part has no VBAT pin.
+Text GLabel 6325 2050 2    50   Input ~ 0
+QH_O
+Text GLabel 4750 5475 0    50   Input ~ 0
+BATCON
+Text GLabel 14100 9200 0    50   Input ~ 0
+BATCON
+Wire Wire Line
+	5725 5475 6150 5475
+Wire Wire Line
+	5125 5475 5425 5475
+Wire Wire Line
+	5125 6075 4800 6075
+Connection ~ 5125 6075
+$Comp
+L Device:D_Zener D11
+U 1 1 620AE85A
+P 6450 6300
+F 0 "D11" V 6404 6379 50  0000 L CNN
+F 1 "4v7" V 6495 6379 50  0000 L CNN
+F 2 "Diode_SMD:D_SOD-123" H 6450 6300 50  0001 C CNN
+F 3 "~" H 6450 6300 50  0001 C CNN
+	1    6450 6300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6450 6150 6450 6075
+Connection ~ 6450 6075
+Wire Wire Line
+	6450 6075 6825 6075
+Wire Wire Line
+	6825 6525 6450 6525
+Wire Wire Line
+	6450 6525 6450 6450
+$Comp
+L Device:D_Zener D10
+U 1 1 62108E79
+P 5475 6275
+F 0 "D10" V 5429 6354 50  0000 L CNN
+F 1 "4v7" V 5520 6354 50  0000 L CNN
+F 2 "Diode_SMD:D_SOD-123" H 5475 6275 50  0001 C CNN
+F 3 "~" H 5475 6275 50  0001 C CNN
+	1    5475 6275
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5475 6125 5475 6075
+Connection ~ 5475 6075
+Wire Wire Line
+	5475 6075 5725 6075
+Wire Wire Line
+	5475 6425 5475 6475
+Wire Wire Line
+	5475 6475 5300 6475
+$Comp
+L Device:C_Small C7
+U 1 1 62164727
+P 11375 3675
+F 0 "C7" H 11467 3721 50  0000 L CNN
+F 1 "C_Small" H 11467 3630 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 11375 3675 50  0001 C CNN
+F 3 "~" H 11375 3675 50  0001 C CNN
+	1    11375 3675
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C6
+U 1 1 6216505C
+P 7475 1425
+F 0 "C6" H 7567 1471 50  0000 L CNN
+F 1 "C_Small" H 7567 1380 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 7475 1425 50  0001 C CNN
+F 3 "~" H 7475 1425 50  0001 C CNN
+	1    7475 1425
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C5
+U 1 1 62165A37
+P 4700 3500
+F 0 "C5" H 4792 3546 50  0000 L CNN
+F 1 "C_Small" H 4792 3455 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 4700 3500 50  0001 C CNN
+F 3 "~" H 4700 3500 50  0001 C CNN
+	1    4700 3500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4975 2925 4700 2925
+Wire Wire Line
+	4700 2925 4700 3400
+Connection ~ 4975 2925
+Wire Wire Line
+	5450 4375 4700 4375
+Wire Wire Line
+	4700 4375 4700 3600
+Connection ~ 5450 4375
+Wire Wire Line
+	5925 875  7475 875 
+Wire Wire Line
+	7475 875  7475 1325
+Wire Wire Line
+	7475 1525 7475 2325
+Wire Wire Line
+	7475 2325 5925 2325
+Wire Wire Line
+	10350 2900 11375 2900
+Wire Wire Line
+	11375 2900 11375 3575
+Connection ~ 10350 2900
+Wire Wire Line
+	10350 2900 10350 2925
+Wire Wire Line
+	11375 3775 11375 5025
+Wire Wire Line
+	11375 5025 10350 5025
+Connection ~ 10350 5025
+Text GLabel 4650 9775 2    50   Input ~ 0
+BUZZER
+Text GLabel 4650 9875 2    50   Input ~ 0
+VBAT_SWITCHED1
 $EndSCHEMATC
