@@ -3,8 +3,8 @@ V1.0 Psion recreate Main PCB Errata
 
 DONE SCH     1. S_PGM pin needs to be attached for paged datapacks. Not on edge connector.
                 Used pin 10 on edge connector. *added*
-             2. Pin headers don't line up
-             3. Holes missing for top slot
+DONE     PCB 2. Pin headers don't line up
+????         3. Holes missing for top slot Not on main board Done on power PCB
 DONE SCH     4. OLED pin 10 should be GND not open.
 DONE SCH     5. Top row of keys wired up wrong.
 DONE SCH     6. Mislabelled P52 as p52 on keyboard.
@@ -20,20 +20,21 @@ DONE SCH     10. Put jumper for MFP output so it can be disabled. It holds
 DONE SCH     11. QH_O not attached to shift register
              12. Possibly put LEDs on the KB side of the PCB for backlighting
 ???          13. Tie unused 245 inputs? *There isn't one on this PCB*
-             14. Put buck boost regulator on for 5V so can run from USB supply?
+             14. Put buck boost regulator on for 5V so can run from USB supply? No, create
+	         a USB supply that has that circuitry due to space and more fexible that way.
 DONE SCH     15. VBAT should come from after the diodes that connect to the battery
                  and the external power connector so we have reverse voltage protection.
 		 Maybe some signals should come off the battery and not the diode cathodes?
-             16. Put space around mounting holes
-             17. Top slot moulding doesn't fit, move components so it does.
+DONE     PCB 16. Put space around mounting holes
+DONE     PCB 17. Top slot moulding doesn't fit, move components so it does.
 ***          18. AC_B input is wrong polarity. pulling low should turn organiser on.
                  Maybe invert logic of keyboard scanning? Put inverter on the power PCB
 		 as it's related to the power circuit and top slot. Not really for main
 		 PCB. Saves space on main PCB.
-             19. 22uH inductor needs to move, maybe.
-             20. C14 and C15 are badly placed
- DONE SCH    21. Decoupling needed for U2,U4,U5
- DONE SCH    22. M1,M3 etc need voltage limiting circuits if external power voltage
+DONE     PCB 19. 22uH inductor needs to move, maybe.
+DONE     PCB 20. C14 and C15 are badly placed. Renumbered, added decoiupling caps
+DONE SCH     21. Decoupling needed for U2,U4,U5
+DONE SCH     22. M1,M3 etc need voltage limiting circuits if external power voltage
                  isn't limited. Alternatively limit external power to 8V or whatever
                  M1 etc can operate with. Or swap those transistors for higher voltage
                  rating of Vgs
@@ -45,12 +46,13 @@ DONE LEAVE   25. Buzzer output is OK. Maybe a faster drive? Works ok. Emulation 
 DONE SCH     26. Run buzzer drive to power PCB
 DONE SCH     27. JP8 and JP9 not needed. ON can be powered from battery voltage.
 DONE SCH     28. Remove JP10 as can just jumper the diode.
-	     29. Running off 5V would be nice.
-	     30. Take 5V regulator for slots off main PCB.
+***	     29. Running off 5V would be nice. Put dc-dc etc in power adapter as more
+                 customizable and flexible, plus not much room on PCBs now.
+DONE SCH PCB 30. Take 5V regulator for slots off main PCB.
 	     
 Tasks
 =====
-1. Check all key connections.
+1. Check all key connections. Done.
 
 
     

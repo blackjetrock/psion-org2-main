@@ -318,8 +318,6 @@ F 3 "~" H 9950 8925 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	10100 8925 10700 8925
-Text GLabel 6325 1150 2    50   Input ~ 0
-DRV_HV
 $Comp
 L Device:R_Small R1
 U 1 1 61562BA4
@@ -1273,8 +1271,6 @@ Wire Wire Line
 	2100 1250 1625 1250
 Wire Wire Line
 	1625 1250 1625 1425
-Text GLabel 11075 7525 0    50   Input ~ 0
-VBAT
 Text GLabel 6325 1450 2    50   Input ~ 0
 5V_ON
 Text GLabel 3225 1950 0    50   Input ~ 0
@@ -1324,34 +1320,12 @@ F 3 "~" H 8275 8350 50  0001 C CNN
 	1    8275 8350
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:Jumper_NO_Small JP3
-U 1 1 6194B084
-P 8275 8625
-F 0 "JP3" H 8275 8810 50  0000 C CNN
-F 1 "Jumper_NO_Small" H 8275 8719 50  0000 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 8275 8625 50  0001 C CNN
-F 3 "~" H 8275 8625 50  0001 C CNN
-	1    8275 8625
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	7775 8300 7775 8350
 Wire Wire Line
 	7775 8350 8175 8350
 Wire Wire Line
 	8375 8350 8700 8350
-Wire Wire Line
-	8700 8350 8700 8625
-Wire Wire Line
-	8375 8625 8700 8625
-Connection ~ 8700 8625
-Wire Wire Line
-	8700 8625 8700 8925
-Text GLabel 7775 8625 0    50   Input ~ 0
-VBAT
-Wire Wire Line
-	7775 8625 8175 8625
 $Comp
 L GeekAmmo:P-CHANNEL-MOSFET M1
 U 1 1 619FD1A1
@@ -1376,28 +1350,12 @@ F 3 "~" H 11425 7225 50  0001 C CNN
 	1    11425 7225
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:Jumper_NO_Small JP5
-U 1 1 61A42C08
-P 11425 7525
-F 0 "JP5" H 11425 7710 50  0000 C CNN
-F 1 "Jumper_NO_Small" H 11425 7619 50  0000 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 11425 7525 50  0001 C CNN
-F 3 "~" H 11425 7525 50  0001 C CNN
-	1    11425 7525
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	11075 7525 11325 7525
 Text GLabel 12125 7525 2    50   Input ~ 0
 VBAT_SWITCHED1
-Wire Wire Line
-	11525 7525 11950 7525
 Wire Wire Line
 	11525 7225 11950 7225
 Wire Wire Line
 	11950 7225 11950 7525
-Connection ~ 11950 7525
 Wire Wire Line
 	11950 7525 12125 7525
 Wire Wire Line
@@ -1455,8 +1413,6 @@ Wire Wire Line
 Connection ~ 7750 6075
 Wire Wire Line
 	9000 6575 9000 7075
-Text GLabel 11100 8175 0    50   Input ~ 0
-VBAT
 $Comp
 L Device:Jumper_NO_Small JP6
 U 1 1 61BE2013
@@ -1468,28 +1424,12 @@ F 3 "~" H 11450 7875 50  0001 C CNN
 	1    11450 7875
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:Jumper_NO_Small JP7
-U 1 1 61BE2019
-P 11450 8175
-F 0 "JP7" H 11450 8360 50  0000 C CNN
-F 1 "Jumper_NO_Small" H 11450 8269 50  0000 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm" H 11450 8175 50  0001 C CNN
-F 3 "~" H 11450 8175 50  0001 C CNN
-	1    11450 8175
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	11100 8175 11350 8175
 Text GLabel 12150 8175 2    50   Input ~ 0
 VBAT_SWITCHED2
-Wire Wire Line
-	11550 8175 11975 8175
 Wire Wire Line
 	11550 7875 11975 7875
 Wire Wire Line
 	11975 7875 11975 8175
-Connection ~ 11975 8175
 Wire Wire Line
 	11975 8175 12150 8175
 Wire Wire Line
@@ -2406,7 +2346,7 @@ L Device:C_Small C5
 U 1 1 62165A37
 P 4700 3500
 F 0 "C5" H 4792 3546 50  0000 L CNN
-F 1 "C_Small" H 4792 3455 50  0000 L CNN
+F 1 "100nF" H 4792 3455 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 4700 3500 50  0001 C CNN
 F 3 "~" H 4700 3500 50  0001 C CNN
 	1    4700 3500
@@ -2446,4 +2386,6 @@ Text GLabel 4650 9775 2    50   Input ~ 0
 BUZZER
 Text GLabel 4650 9875 2    50   Input ~ 0
 VBAT_SWITCHED1
+Wire Wire Line
+	8700 8350 8700 8925
 $EndSCHEMATC

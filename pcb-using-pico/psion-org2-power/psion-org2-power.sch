@@ -1816,4 +1816,43 @@ Wire Wire Line
 	7450 2650 7450 2825
 Wire Wire Line
 	14600 1800 14850 1800
+$Comp
+L Connector:Conn_01x01_Female J8
+U 1 1 622FDD65
+P 5600 6975
+F 0 "J8" H 5628 7001 50  0000 L CNN
+F 1 "Conn_01x01_Female" H 5628 6910 50  0000 L CNN
+F 2 "ajm_kicad:psion_beeper_pad" H 5600 6975 50  0001 C CNN
+F 3 "~" H 5600 6975 50  0001 C CNN
+	1    5600 6975
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x01_Female J9
+U 1 1 622FE035
+P 5600 7275
+F 0 "J9" H 5628 7301 50  0000 L CNN
+F 1 "Conn_01x01_Female" H 5628 7210 50  0000 L CNN
+F 2 "ajm_kicad:psion_beeper_pad" H 5600 7275 50  0001 C CNN
+F 3 "~" H 5600 7275 50  0001 C CNN
+	1    5600 7275
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0132
+U 1 1 622FEC3B
+P 5250 7325
+F 0 "#PWR0132" H 5250 7075 50  0001 C CNN
+F 1 "GND" H 5255 7152 50  0000 C CNN
+F 2 "" H 5250 7325 50  0001 C CNN
+F 3 "" H 5250 7325 50  0001 C CNN
+	1    5250 7325
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5250 7325 5250 7275
+Wire Wire Line
+	5250 7275 5400 7275
+Text GLabel 5400 6975 0    50   Input ~ 0
+BUZZER
 $EndSCHEMATC
