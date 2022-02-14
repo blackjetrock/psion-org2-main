@@ -1,0 +1,17 @@
+Errata for V1.1 of main PCB
+===========================
+
+1. 5V regulator being on power PCB means processor PCB isn't stand alone
+   any more as Pico is powered from it. Pico can't use battery voltage.
+   I think it could be USB powered in stand alone mode. You'd also
+   need a battery though for th eother circuitry.
+   Or put 5V regulator on processor PCB again?
+   Or not have sytand alone any more?
+2. R13 should be 10k, due maybe to some leakage across PCB
+3. Tracks from R15 to TR2 seems to have leakage on to the gate of TR2,
+   causing it to not turn off properly. Changing R13 to 10k and removing
+   the track allows TR2 to turn off. re-route track. Chek clearances.
+4. R25 has to go to VBAT or there is no voltage to allow the RTC to turn
+   on the power
+5. 100nF across R13 and R14, and R18. All mosfets.
+

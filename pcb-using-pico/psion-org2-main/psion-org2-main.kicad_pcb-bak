@@ -7786,7 +7786,7 @@
   (segment (start 157.725001 110.251999) (end 157.725001 111.774999) (width 0.25) (layer F.Cu) (net 14))
   (segment (start 157.6 110.126998) (end 157.725001 110.251999) (width 0.25) (layer F.Cu) (net 14))
   (segment (start 162.6 136.4) (end 162.6 136.4) (width 0.25) (layer B.Cu) (net 14) (tstamp 61CCEBDE))
-  (via (at 162.6 136.4) (size 0.5) (drill 0.3) (layers F.Cu B.Cu) (net 14))
+  (via (at 162.6 136.4) (size 0.5) (drill 0.3) (layers F.Cu B.Cu) (net 14) (status 1000000))
   (via (at 162.459662 130.149999) (size 0.5) (drill 0.3) (layers F.Cu B.Cu) (net 14))
   (segment (start 162.6 130.290337) (end 162.459662 130.149999) (width 0.25) (layer F.Cu) (net 14))
   (segment (start 162.6 136.4) (end 162.6 130.290337) (width 0.25) (layer F.Cu) (net 14))
