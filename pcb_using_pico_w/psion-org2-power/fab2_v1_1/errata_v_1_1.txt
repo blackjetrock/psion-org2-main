@@ -1,0 +1,10 @@
+Errata for Power PCB V1.1
+=========================
+
+1. VPP signal on datapack slots should maybe be +5V
+2. Diode fouls top slot plastic. Cut away of plastic needed to get it to
+   fit.
+3. Mounting hole is about 0.5mm out. Screw can be made to fit but it's not
+   perfect.
+4. Power PCB may be too short at top as top slot slider doesn't stay in place.
+

@@ -3,11 +3,11 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 4
-Title "Psion Organiser II Re-Creation"
-Date "2021-12-27"
-Rev "V1.1"
-Comp "A Menadue"
+Sheet 2 2
+Title ""
+Date ""
+Rev ""
+Comp ""
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -20,7 +20,7 @@ P 6050 1750
 AR Path="/6104FF77/61301E32" Ref="SW?"  Part="1" 
 AR Path="/61301E32" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61301E32" Ref="SW1"  Part="1" 
-F 0 "SW?" V 6004 1848 50  0000 L CNN
+F 0 "SW1" V 6004 1848 50  0000 L CNN
 F 1 "AC_ON" V 6095 1848 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6050 1750 50  0001 C CNN
 F 3 "" H 6050 1750 50  0001 C CNN
@@ -34,7 +34,7 @@ P 6725 1750
 AR Path="/6104FF77/61301E38" Ref="SW?"  Part="1" 
 AR Path="/61301E38" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61301E38" Ref="SW7"  Part="1" 
-F 0 "SW?" V 6679 1848 50  0000 L CNN
+F 0 "SW7" V 6679 1848 50  0000 L CNN
 F 1 "mode" V 6770 1848 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6725 1750 50  0001 C CNN
 F 3 "" H 6725 1750 50  0001 C CNN
@@ -48,7 +48,7 @@ P 7400 1750
 AR Path="/6104FF77/61301E3E" Ref="SW?"  Part="1" 
 AR Path="/61301E3E" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61301E3E" Ref="SW13"  Part="1" 
-F 0 "SW?" V 7354 1848 50  0000 L CNN
+F 0 "SW13" V 7354 1848 50  0000 L CNN
 F 1 "up" V 7445 1848 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 7400 1750 50  0001 C CNN
 F 3 "" H 7400 1750 50  0001 C CNN
@@ -62,7 +62,7 @@ P 8050 1750
 AR Path="/6104FF77/61301E47" Ref="SW?"  Part="1" 
 AR Path="/61301E47" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61301E47" Ref="SW19"  Part="1" 
-F 0 "SW?" V 8004 1848 50  0000 L CNN
+F 0 "SW19" V 8004 1848 50  0000 L CNN
 F 1 "down" V 8095 1848 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8050 1750 50  0001 C CNN
 F 3 "" H 8050 1750 50  0001 C CNN
@@ -78,7 +78,7 @@ P 8675 1775
 AR Path="/6104FF77/6130B4ED" Ref="SW?"  Part="1" 
 AR Path="/6130B4ED" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130B4ED" Ref="SW25"  Part="1" 
-F 0 "SW?" V 8629 1873 50  0000 L CNN
+F 0 "SW25" V 8629 1873 50  0000 L CNN
 F 1 "left" V 8720 1873 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8675 1775 50  0001 C CNN
 F 3 "" H 8675 1775 50  0001 C CNN
@@ -92,7 +92,7 @@ P 9275 1775
 AR Path="/6104FF77/6130B4F3" Ref="SW?"  Part="1" 
 AR Path="/6130B4F3" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130B4F3" Ref="SW31"  Part="1" 
-F 0 "SW?" V 9229 1873 50  0000 L CNN
+F 0 "SW31" V 9229 1873 50  0000 L CNN
 F 1 "right" V 9320 1873 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 9275 1775 50  0001 C CNN
 F 3 "" H 9275 1775 50  0001 C CNN
@@ -106,7 +106,7 @@ P 6050 2525
 AR Path="/6104FF77/6130D323" Ref="SW?"  Part="1" 
 AR Path="/6130D323" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130D323" Ref="SW2"  Part="1" 
-F 0 "SW?" V 6004 2623 50  0000 L CNN
+F 0 "SW2" V 6004 2623 50  0000 L CNN
 F 1 "A" V 6095 2623 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6050 2525 50  0001 C CNN
 F 3 "" H 6050 2525 50  0001 C CNN
@@ -120,7 +120,7 @@ P 6725 2525
 AR Path="/6104FF77/6130D329" Ref="SW?"  Part="1" 
 AR Path="/6130D329" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130D329" Ref="SW8"  Part="1" 
-F 0 "SW?" V 6679 2623 50  0000 L CNN
+F 0 "SW8" V 6679 2623 50  0000 L CNN
 F 1 "b" V 6770 2623 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6725 2525 50  0001 C CNN
 F 3 "" H 6725 2525 50  0001 C CNN
@@ -134,7 +134,7 @@ P 7400 2525
 AR Path="/6104FF77/6130D32F" Ref="SW?"  Part="1" 
 AR Path="/6130D32F" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130D32F" Ref="SW14"  Part="1" 
-F 0 "SW?" V 7354 2623 50  0000 L CNN
+F 0 "SW14" V 7354 2623 50  0000 L CNN
 F 1 "c" V 7445 2623 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 7400 2525 50  0001 C CNN
 F 3 "" H 7400 2525 50  0001 C CNN
@@ -148,7 +148,7 @@ P 8050 2525
 AR Path="/6104FF77/6130D335" Ref="SW?"  Part="1" 
 AR Path="/6130D335" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130D335" Ref="SW20"  Part="1" 
-F 0 "SW?" V 8004 2623 50  0000 L CNN
+F 0 "SW20" V 8004 2623 50  0000 L CNN
 F 1 "d" V 8095 2623 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8050 2525 50  0001 C CNN
 F 3 "" H 8050 2525 50  0001 C CNN
@@ -162,7 +162,7 @@ P 8675 2550
 AR Path="/6104FF77/6130D33B" Ref="SW?"  Part="1" 
 AR Path="/6130D33B" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130D33B" Ref="SW26"  Part="1" 
-F 0 "SW?" V 8629 2648 50  0000 L CNN
+F 0 "SW26" V 8629 2648 50  0000 L CNN
 F 1 "e" V 8720 2648 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8675 2550 50  0001 C CNN
 F 3 "" H 8675 2550 50  0001 C CNN
@@ -176,7 +176,7 @@ P 9275 2550
 AR Path="/6104FF77/6130D341" Ref="SW?"  Part="1" 
 AR Path="/6130D341" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130D341" Ref="SW32"  Part="1" 
-F 0 "SW?" V 9229 2648 50  0000 L CNN
+F 0 "SW32" V 9229 2648 50  0000 L CNN
 F 1 "f" V 9320 2648 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 9275 2550 50  0001 C CNN
 F 3 "" H 9275 2550 50  0001 C CNN
@@ -190,7 +190,7 @@ P 6050 3325
 AR Path="/6104FF77/6130EAE5" Ref="SW?"  Part="1" 
 AR Path="/6130EAE5" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130EAE5" Ref="SW3"  Part="1" 
-F 0 "SW?" V 6004 3423 50  0000 L CNN
+F 0 "SW3" V 6004 3423 50  0000 L CNN
 F 1 "g" V 6095 3423 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6050 3325 50  0001 C CNN
 F 3 "" H 6050 3325 50  0001 C CNN
@@ -204,7 +204,7 @@ P 6725 3325
 AR Path="/6104FF77/6130EAEB" Ref="SW?"  Part="1" 
 AR Path="/6130EAEB" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130EAEB" Ref="SW9"  Part="1" 
-F 0 "SW?" V 6679 3423 50  0000 L CNN
+F 0 "SW9" V 6679 3423 50  0000 L CNN
 F 1 "h" V 6770 3423 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6725 3325 50  0001 C CNN
 F 3 "" H 6725 3325 50  0001 C CNN
@@ -218,7 +218,7 @@ P 7400 3325
 AR Path="/6104FF77/6130EAF1" Ref="SW?"  Part="1" 
 AR Path="/6130EAF1" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130EAF1" Ref="SW15"  Part="1" 
-F 0 "SW?" V 7354 3423 50  0000 L CNN
+F 0 "SW15" V 7354 3423 50  0000 L CNN
 F 1 "i" V 7445 3423 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 7400 3325 50  0001 C CNN
 F 3 "" H 7400 3325 50  0001 C CNN
@@ -232,7 +232,7 @@ P 8050 3325
 AR Path="/6104FF77/6130EAF7" Ref="SW?"  Part="1" 
 AR Path="/6130EAF7" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130EAF7" Ref="SW21"  Part="1" 
-F 0 "SW?" V 8004 3423 50  0000 L CNN
+F 0 "SW21" V 8004 3423 50  0000 L CNN
 F 1 "j" V 8095 3423 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8050 3325 50  0001 C CNN
 F 3 "" H 8050 3325 50  0001 C CNN
@@ -246,7 +246,7 @@ P 8675 3350
 AR Path="/6104FF77/6130EAFD" Ref="SW?"  Part="1" 
 AR Path="/6130EAFD" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130EAFD" Ref="SW27"  Part="1" 
-F 0 "SW?" V 8629 3448 50  0000 L CNN
+F 0 "SW27" V 8629 3448 50  0000 L CNN
 F 1 "k" V 8720 3448 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8675 3350 50  0001 C CNN
 F 3 "" H 8675 3350 50  0001 C CNN
@@ -260,7 +260,7 @@ P 9275 3350
 AR Path="/6104FF77/6130EB03" Ref="SW?"  Part="1" 
 AR Path="/6130EB03" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6130EB03" Ref="SW33"  Part="1" 
-F 0 "SW?" V 9229 3448 50  0000 L CNN
+F 0 "SW33" V 9229 3448 50  0000 L CNN
 F 1 "L" V 9320 3448 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 9275 3350 50  0001 C CNN
 F 3 "" H 9275 3350 50  0001 C CNN
@@ -274,7 +274,7 @@ P 6050 3975
 AR Path="/6104FF77/613113FF" Ref="SW?"  Part="1" 
 AR Path="/613113FF" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/613113FF" Ref="SW4"  Part="1" 
-F 0 "SW?" V 6004 4073 50  0000 L CNN
+F 0 "SW4" V 6004 4073 50  0000 L CNN
 F 1 "m" V 6095 4073 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6050 3975 50  0001 C CNN
 F 3 "" H 6050 3975 50  0001 C CNN
@@ -288,7 +288,7 @@ P 6725 3975
 AR Path="/6104FF77/61311405" Ref="SW?"  Part="1" 
 AR Path="/61311405" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61311405" Ref="SW10"  Part="1" 
-F 0 "SW?" V 6679 4073 50  0000 L CNN
+F 0 "SW10" V 6679 4073 50  0000 L CNN
 F 1 "n" V 6770 4073 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6725 3975 50  0001 C CNN
 F 3 "" H 6725 3975 50  0001 C CNN
@@ -302,7 +302,7 @@ P 7400 3975
 AR Path="/6104FF77/6131140B" Ref="SW?"  Part="1" 
 AR Path="/6131140B" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6131140B" Ref="SW16"  Part="1" 
-F 0 "SW?" V 7354 4073 50  0000 L CNN
+F 0 "SW16" V 7354 4073 50  0000 L CNN
 F 1 "o" V 7445 4073 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 7400 3975 50  0001 C CNN
 F 3 "" H 7400 3975 50  0001 C CNN
@@ -316,7 +316,7 @@ P 8050 3975
 AR Path="/6104FF77/61311411" Ref="SW?"  Part="1" 
 AR Path="/61311411" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61311411" Ref="SW22"  Part="1" 
-F 0 "SW?" V 8004 4073 50  0000 L CNN
+F 0 "SW22" V 8004 4073 50  0000 L CNN
 F 1 "p" V 8095 4073 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8050 3975 50  0001 C CNN
 F 3 "" H 8050 3975 50  0001 C CNN
@@ -330,7 +330,7 @@ P 8675 4000
 AR Path="/6104FF77/61311417" Ref="SW?"  Part="1" 
 AR Path="/61311417" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61311417" Ref="SW28"  Part="1" 
-F 0 "SW?" V 8629 4098 50  0000 L CNN
+F 0 "SW28" V 8629 4098 50  0000 L CNN
 F 1 "q" V 8720 4098 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8675 4000 50  0001 C CNN
 F 3 "" H 8675 4000 50  0001 C CNN
@@ -344,7 +344,7 @@ P 9275 4000
 AR Path="/6104FF77/6131141D" Ref="SW?"  Part="1" 
 AR Path="/6131141D" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6131141D" Ref="SW34"  Part="1" 
-F 0 "SW?" V 9229 4098 50  0000 L CNN
+F 0 "SW34" V 9229 4098 50  0000 L CNN
 F 1 "r" V 9320 4098 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 9275 4000 50  0001 C CNN
 F 3 "" H 9275 4000 50  0001 C CNN
@@ -358,7 +358,7 @@ P 6050 4700
 AR Path="/6104FF77/61312EB9" Ref="SW?"  Part="1" 
 AR Path="/61312EB9" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61312EB9" Ref="SW5"  Part="1" 
-F 0 "SW?" V 6004 4798 50  0000 L CNN
+F 0 "SW5" V 6004 4798 50  0000 L CNN
 F 1 "s" V 6095 4798 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6050 4700 50  0001 C CNN
 F 3 "" H 6050 4700 50  0001 C CNN
@@ -372,7 +372,7 @@ P 6725 4700
 AR Path="/6104FF77/61312EBF" Ref="SW?"  Part="1" 
 AR Path="/61312EBF" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61312EBF" Ref="SW11"  Part="1" 
-F 0 "SW?" V 6679 4798 50  0000 L CNN
+F 0 "SW11" V 6679 4798 50  0000 L CNN
 F 1 "t" V 6770 4798 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6725 4700 50  0001 C CNN
 F 3 "" H 6725 4700 50  0001 C CNN
@@ -386,7 +386,7 @@ P 7400 4700
 AR Path="/6104FF77/61312EC5" Ref="SW?"  Part="1" 
 AR Path="/61312EC5" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61312EC5" Ref="SW17"  Part="1" 
-F 0 "SW?" V 7354 4798 50  0000 L CNN
+F 0 "SW17" V 7354 4798 50  0000 L CNN
 F 1 "u" V 7445 4798 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 7400 4700 50  0001 C CNN
 F 3 "" H 7400 4700 50  0001 C CNN
@@ -400,7 +400,7 @@ P 8050 4700
 AR Path="/6104FF77/61312ECB" Ref="SW?"  Part="1" 
 AR Path="/61312ECB" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61312ECB" Ref="SW23"  Part="1" 
-F 0 "SW?" V 8004 4798 50  0000 L CNN
+F 0 "SW23" V 8004 4798 50  0000 L CNN
 F 1 "v" V 8095 4798 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8050 4700 50  0001 C CNN
 F 3 "" H 8050 4700 50  0001 C CNN
@@ -414,7 +414,7 @@ P 8675 4725
 AR Path="/6104FF77/61312ED1" Ref="SW?"  Part="1" 
 AR Path="/61312ED1" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61312ED1" Ref="SW29"  Part="1" 
-F 0 "SW?" V 8629 4823 50  0000 L CNN
+F 0 "SW29" V 8629 4823 50  0000 L CNN
 F 1 "w" V 8720 4823 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8675 4725 50  0001 C CNN
 F 3 "" H 8675 4725 50  0001 C CNN
@@ -428,7 +428,7 @@ P 9275 4725
 AR Path="/6104FF77/61312ED7" Ref="SW?"  Part="1" 
 AR Path="/61312ED7" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61312ED7" Ref="SW35"  Part="1" 
-F 0 "SW?" V 9229 4823 50  0000 L CNN
+F 0 "SW35" V 9229 4823 50  0000 L CNN
 F 1 "x" V 9320 4823 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 9275 4725 50  0001 C CNN
 F 3 "" H 9275 4725 50  0001 C CNN
@@ -442,7 +442,7 @@ P 6050 5450
 AR Path="/6104FF77/61314487" Ref="SW?"  Part="1" 
 AR Path="/61314487" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61314487" Ref="SW6"  Part="1" 
-F 0 "SW?" V 6004 5548 50  0000 L CNN
+F 0 "SW6" V 6004 5548 50  0000 L CNN
 F 1 "shft" V 6095 5548 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6050 5450 50  0001 C CNN
 F 3 "" H 6050 5450 50  0001 C CNN
@@ -456,7 +456,7 @@ P 6725 5450
 AR Path="/6104FF77/6131448D" Ref="SW?"  Part="1" 
 AR Path="/6131448D" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6131448D" Ref="SW12"  Part="1" 
-F 0 "SW?" V 6679 5548 50  0000 L CNN
+F 0 "SW12" V 6679 5548 50  0000 L CNN
 F 1 "del" V 6770 5548 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 6725 5450 50  0001 C CNN
 F 3 "" H 6725 5450 50  0001 C CNN
@@ -470,7 +470,7 @@ P 7400 5450
 AR Path="/6104FF77/61314493" Ref="SW?"  Part="1" 
 AR Path="/61314493" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61314493" Ref="SW18"  Part="1" 
-F 0 "SW?" V 7354 5548 50  0000 L CNN
+F 0 "SW18" V 7354 5548 50  0000 L CNN
 F 1 "y" V 7445 5548 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 7400 5450 50  0001 C CNN
 F 3 "" H 7400 5450 50  0001 C CNN
@@ -484,7 +484,7 @@ P 8050 5450
 AR Path="/6104FF77/61314499" Ref="SW?"  Part="1" 
 AR Path="/61314499" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/61314499" Ref="SW24"  Part="1" 
-F 0 "SW?" V 8004 5548 50  0000 L CNN
+F 0 "SW24" V 8004 5548 50  0000 L CNN
 F 1 "z" V 8095 5548 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8050 5450 50  0001 C CNN
 F 3 "" H 8050 5450 50  0001 C CNN
@@ -498,7 +498,7 @@ P 8675 5475
 AR Path="/6104FF77/6131449F" Ref="SW?"  Part="1" 
 AR Path="/6131449F" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/6131449F" Ref="SW30"  Part="1" 
-F 0 "SW?" V 8629 5573 50  0000 L CNN
+F 0 "SW30" V 8629 5573 50  0000 L CNN
 F 1 "spc" V 8720 5573 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 8675 5475 50  0001 C CNN
 F 3 "" H 8675 5475 50  0001 C CNN
@@ -512,7 +512,7 @@ P 9275 5475
 AR Path="/6104FF77/613144A5" Ref="SW?"  Part="1" 
 AR Path="/613144A5" Ref="SW?"  Part="1" 
 AR Path="/612F7BBE/613144A5" Ref="SW36"  Part="1" 
-F 0 "SW?" V 9229 5573 50  0000 L CNN
+F 0 "SW36" V 9229 5573 50  0000 L CNN
 F 1 "exe" V 9320 5573 50  0000 L CNN
 F 2 "ajm_kicad:fx502p_keypad" H 9275 5475 50  0001 C CNN
 F 3 "" H 9275 5475 50  0001 C CNN
@@ -541,11 +541,16 @@ Wire Wire Line
 	5825 5650 6050 5650
 Connection ~ 5825 4900
 Wire Wire Line
+	6500 1950 6725 1950
+Wire Wire Line
+	6500 1950 6500 2725
+Wire Wire Line
 	6500 2725 6725 2725
 Wire Wire Line
 	6500 2725 6500 3525
 Wire Wire Line
 	6500 3525 6725 3525
+Connection ~ 6500 2725
 Wire Wire Line
 	6500 3525 6500 4175
 Wire Wire Line
@@ -562,11 +567,16 @@ Wire Wire Line
 	6500 5650 6725 5650
 Connection ~ 6500 4900
 Wire Wire Line
+	7175 1950 7400 1950
+Wire Wire Line
+	7175 1950 7175 2725
+Wire Wire Line
 	7175 2725 7400 2725
 Wire Wire Line
 	7175 2725 7175 3525
 Wire Wire Line
 	7175 3525 7400 3525
+Connection ~ 7175 2725
 Wire Wire Line
 	7175 3525 7175 4175
 Wire Wire Line
@@ -583,11 +593,16 @@ Wire Wire Line
 	7175 5650 7400 5650
 Connection ~ 7175 4900
 Wire Wire Line
+	7825 1950 8050 1950
+Wire Wire Line
+	7825 1950 7825 2725
+Wire Wire Line
 	7825 2725 8050 2725
 Wire Wire Line
 	7825 2725 7825 3525
 Wire Wire Line
 	7825 3525 8050 3525
+Connection ~ 7825 2725
 Wire Wire Line
 	7825 3525 7825 4175
 Wire Wire Line
@@ -604,11 +619,16 @@ Wire Wire Line
 	7825 5650 8050 5650
 Connection ~ 7825 4900
 Wire Wire Line
+	8450 1975 8675 1975
+Wire Wire Line
+	8450 1975 8450 2750
+Wire Wire Line
 	8450 2750 8675 2750
 Wire Wire Line
 	8450 2750 8450 3550
 Wire Wire Line
 	8450 3550 8675 3550
+Connection ~ 8450 2750
 Wire Wire Line
 	8450 3550 8450 4200
 Wire Wire Line
@@ -625,11 +645,16 @@ Wire Wire Line
 	8450 5675 8675 5675
 Connection ~ 8450 4925
 Wire Wire Line
+	9050 1975 9275 1975
+Wire Wire Line
+	9050 1975 9050 2750
+Wire Wire Line
 	9050 2750 9275 2750
 Wire Wire Line
 	9050 2750 9050 3550
 Wire Wire Line
 	9050 3550 9275 3550
+Connection ~ 9050 2750
 Wire Wire Line
 	9050 3550 9050 4200
 Wire Wire Line
@@ -658,7 +683,7 @@ Wire Wire Line
 Wire Wire Line
 	9275 2350 9275 2250
 Wire Wire Line
-	9275 2250 8975 2250
+	9275 2250 8675 2250
 Wire Wire Line
 	8675 2250 8675 2350
 Wire Wire Line
@@ -688,7 +713,7 @@ Wire Wire Line
 Wire Wire Line
 	8675 3050 8675 3150
 Wire Wire Line
-	8675 3050 8350 3050
+	8675 3050 8050 3050
 Wire Wire Line
 	8050 3050 8050 3125
 Connection ~ 8675 3050
@@ -719,7 +744,7 @@ Wire Wire Line
 	8050 3700 8050 3775
 Connection ~ 8675 3700
 Wire Wire Line
-	8050 3700 7750 3700
+	8050 3700 7400 3700
 Wire Wire Line
 	7400 3700 7400 3775
 Connection ~ 8050 3700
@@ -750,7 +775,7 @@ Wire Wire Line
 	7400 4425 7400 4500
 Connection ~ 8050 4425
 Wire Wire Line
-	7400 4425 7075 4425
+	7400 4425 6725 4425
 Wire Wire Line
 	6725 4425 6725 4500
 Connection ~ 7400 4425
@@ -781,7 +806,7 @@ Wire Wire Line
 	6725 5175 6725 5250
 Connection ~ 7400 5175
 Wire Wire Line
-	6725 5175 6375 5175
+	6725 5175 6050 5175
 Wire Wire Line
 	6050 5175 6050 5250
 Connection ~ 6725 5175
@@ -792,7 +817,7 @@ P55
 Text GLabel 5200 3700 0    50   Input ~ 0
 P54
 Text GLabel 5200 4425 0    50   Input ~ 0
-P53
+p53
 Text GLabel 5200 5175 0    50   Input ~ 0
 P52
 Connection ~ 6050 5175
@@ -830,8 +855,21 @@ Connection ~ 6725 5650
 Wire Wire Line
 	6050 5800 6050 5650
 Connection ~ 6050 5650
-Text GLabel 2075 2625 0    50   Input ~ 0
+Text GLabel 4200 1950 0    50   Input ~ 0
 P57
+$Comp
+L power:+3V3 #PWR036
+U 1 1 61827F51
+P 6050 1150
+F 0 "#PWR036" H 6050 1000 50  0001 C CNN
+F 1 "+3V3" H 6065 1323 50  0000 C CNN
+F 2 "" H 6050 1150 50  0001 C CNN
+F 3 "" H 6050 1150 50  0001 C CNN
+	1    6050 1150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 1150 6050 1550
 Text GLabel 9875 950  1    50   Input ~ 0
 K1
 Wire Wire Line
@@ -851,6 +889,8 @@ Wire Wire Line
 	7400 1475 6725 1475
 Connection ~ 7400 1475
 Wire Wire Line
+	4200 1950 6050 1950
+Wire Wire Line
 	5175 2250 6050 2250
 Wire Wire Line
 	5175 3050 6050 3050
@@ -860,120 +900,4 @@ Wire Wire Line
 	5200 4425 6050 4425
 Wire Wire Line
 	5200 5175 6050 5175
-$Comp
-L Device:R_Small R?
-U 1 1 618E7FEC
-P 2625 2825
-F 0 "R?" H 2684 2871 50  0000 L CNN
-F 1 "nopop" H 2684 2780 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" H 2625 2825 50  0001 C CNN
-F 3 "~" H 2625 2825 50  0001 C CNN
-	1    2625 2825
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_Small R?
-U 1 1 618E840C
-P 2625 2400
-F 0 "R?" H 2684 2446 50  0000 L CNN
-F 1 "2k2" H 2684 2355 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" H 2625 2400 50  0001 C CNN
-F 3 "~" H 2625 2400 50  0001 C CNN
-	1    2625 2400
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:D D?
-U 1 1 618E8BE1
-P 2250 2875
-F 0 "D?" V 2204 2954 50  0000 L CNN
-F 1 "2v7" V 2295 2954 50  0000 L CNN
-F 2 "Diode_SMD:D_SOD-123" H 2250 2875 50  0001 C CNN
-F 3 "~" H 2250 2875 50  0001 C CNN
-	1    2250 2875
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	2625 2500 2625 2625
-Wire Wire Line
-	2625 2625 2250 2625
-Wire Wire Line
-	2250 2625 2250 2725
-Connection ~ 2625 2625
-Wire Wire Line
-	2625 2625 2625 2725
-$Comp
-L power:GND #PWR?
-U 1 1 61919262
-P 2250 3225
-F 0 "#PWR?" H 2250 2975 50  0001 C CNN
-F 1 "GND" H 2255 3052 50  0000 C CNN
-F 2 "" H 2250 3225 50  0001 C CNN
-F 3 "" H 2250 3225 50  0001 C CNN
-	1    2250 3225
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR?
-U 1 1 619195FD
-P 2625 3225
-F 0 "#PWR?" H 2625 2975 50  0001 C CNN
-F 1 "GND" H 2630 3052 50  0000 C CNN
-F 2 "" H 2625 3225 50  0001 C CNN
-F 3 "" H 2625 3225 50  0001 C CNN
-	1    2625 3225
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	2625 3225 2625 2925
-Wire Wire Line
-	2250 3225 2250 3025
-Text GLabel 5200 1200 0    50   Input ~ 0
-VBAT
-Wire Wire Line
-	5200 1200 6050 1200
-Wire Wire Line
-	6050 1200 6050 1550
-Wire Wire Line
-	2075 2625 2250 2625
-Connection ~ 2250 2625
-Wire Wire Line
-	2625 2300 2625 1950
-Wire Wire Line
-	2625 1950 6050 1950
-Wire Wire Line
-	6375 1950 6375 5175
-Wire Wire Line
-	6375 1950 6725 1950
-Connection ~ 6375 5175
-Wire Wire Line
-	6375 5175 6050 5175
-Wire Wire Line
-	7075 1950 7075 4425
-Wire Wire Line
-	7075 1950 7400 1950
-Connection ~ 7075 4425
-Wire Wire Line
-	7075 4425 6725 4425
-Wire Wire Line
-	7750 1950 7750 3700
-Wire Wire Line
-	7750 1950 8050 1950
-Connection ~ 7750 3700
-Wire Wire Line
-	7750 3700 7400 3700
-Wire Wire Line
-	8350 1975 8350 3050
-Wire Wire Line
-	8350 1975 8675 1975
-Connection ~ 8350 3050
-Wire Wire Line
-	8350 3050 8050 3050
-Wire Wire Line
-	8975 1975 8975 2250
-Wire Wire Line
-	8975 1975 9275 1975
-Connection ~ 8975 2250
-Wire Wire Line
-	8975 2250 8675 2250
 $EndSCHEMATC
