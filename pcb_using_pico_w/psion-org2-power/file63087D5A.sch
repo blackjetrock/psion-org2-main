@@ -32,8 +32,6 @@ F 3 "" H 3600 1675 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	5225 3100 5225 5075
-Wire Wire Line
 	4525 2700 4925 2700
 Connection ~ 4525 2700
 $Comp
@@ -126,8 +124,6 @@ Connection ~ 6525 2300
 Wire Wire Line
 	6525 2700 6525 2750
 Connection ~ 5225 5075
-Wire Wire Line
-	5225 3000 5225 3100
 Wire Wire Line
 	5525 2900 6025 2900
 Wire Wire Line
@@ -430,7 +426,6 @@ Wire Wire Line
 	5025 5950 5500 5950
 Text GLabel 5025 5950 0    50   Input ~ 0
 VPP_VOLT_SELECT
-Connection ~ 5225 3100
 Wire Wire Line
 	5225 5075 5225 5525
 $Comp
@@ -504,4 +499,9 @@ Wire Wire Line
 Connection ~ 6525 3525
 Wire Wire Line
 	6525 3525 6525 3650
+Wire Wire Line
+	5225 3000 5225 3100
+Connection ~ 5225 3100
+Wire Wire Line
+	5225 3100 5225 5075
 $EndSCHEMATC

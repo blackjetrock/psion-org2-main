@@ -4,7 +4,7 @@ Errata for V1.1 of main PCB
 1. 5V regulator being on power PCB means processor PCB isn't stand alone
    any more as Pico is powered from it. Pico can't use battery voltage.
    I think it could be USB powered in stand alone mode. You'd also
-   need a battery though for th eother circuitry.
+   need a battery though for the other circuitry.
    Or put 5V regulator on processor PCB again?
    Or not have sytand alone any more?
 2. R13 should be 10k, due maybe to some leakage across PCB
